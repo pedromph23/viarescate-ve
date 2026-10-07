@@ -39,9 +39,15 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.gis",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # Aplicaciones VíaRescate VE.
+    "core",
+    "usuarios",
+    "mapa",
 ]
 
 
@@ -149,6 +155,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Usuario personalizado del sistema.
+AUTH_USER_MODEL = "usuarios.Usuario"
 
 
 # Redis / Celery
