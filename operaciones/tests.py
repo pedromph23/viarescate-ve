@@ -1,8 +1,13 @@
-from django.contrib.gis.geos import LineString, Point
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
+from django.contrib.gis.geos import LineString, Point
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
 
 from core.models import Estado, Municipio, Parroquia
 from operaciones.models import (
@@ -10,14 +15,728 @@ from operaciones.models import (
     CentroAyuda,
     Inventario,
     Mision,
+    MovimientoInventario,
     Recurso,
-    ReporteVial,
     Refugio,
+    ReporteVial,
+    Vehiculo,
     Via,
 )
+from usuarios.models import Usuario
 from operaciones.services import AuditService
 
 
+class OperacionesAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.estado = Estado.objects.create(nombre="Estado API")
+        cls.municipio = Municipio.objects.create(
+            nombre="Municipio API",
+            estado=cls.estado,
+        )
+        cls.parroquia = Parroquia.objects.create(
+            nombre="Parroquia API",
+            municipio=cls.municipio,
+        )
+
+        cls.admin = Usuario.objects.create_user(
+            username="admin.api",
+            email="admin.api@example.com",
+            password="ClaveSegura123!",
+            rol=Usuario.Roles.ADMINISTRADOR,
+        )
+
+        cls.coordinador = Usuario.objects.create_user(
+            username="coordinador.api",
+            email="coordinador.api@example.com",
+            password="ClaveSegura123!",
+            rol=Usuario.Roles.COORDINADOR,
+        )
+
+        cls.operador = Usuario.objects.create_user(
+            username="operador.api",
+            email="operador.api@example.com",
+            password="ClaveSegura123!",
+            rol=Usuario.Roles.OPERADOR,
+        )
+
+        cls.voluntario = Usuario.objects.create_user(
+            username="voluntario.api",
+            email="voluntario.api@example.com",
+            password="ClaveSegura123!",
+            rol=Usuario.Roles.VOLUNTARIO,
+        )
+
+        cls.usuario = Usuario.objects.create_user(
+            username="usuario.api",
+            email="usuario.api@example.com",
+            password="ClaveSegura123!",
+            rol=Usuario.Roles.USUARIO,
+        )
+
+        cls.centro = CentroAyuda.objects.create(
+            nombre="Centro API",
+            tipo=CentroAyuda.Tipos.LOGISTICO,
+            estado=cls.estado,
+            municipio=cls.municipio,
+            parroquia=cls.parroquia,
+            ubicacion=Point(-66.90, 10.48, srid=4326),
+            capacidad=100,
+        )
+
+        cls.refugio = Refugio.objects.create(
+            nombre="Refugio API",
+            estado=cls.estado,
+            municipio=cls.municipio,
+            parroquia=cls.parroquia,
+            ubicacion=Point(-66.91, 10.49, srid=4326),
+            capacidad=100,
+            ocupacion=20,
+        )
+
+        cls.via = Via.objects.create(
+            nombre="Vía API",
+            codigo="API-001",
+            estado=cls.estado,
+            geometria=LineString(
+                (-66.90, 10.48),
+                (-66.91, 10.49),
+                srid=4326,
+            ),
+            estado_vial=Via.Estados.NORMAL,
+        )
+
+        cls.recurso = Recurso.objects.create(
+            nombre="Agua API",
+            unidad="litros",
+        )
+
+        cls.inventario = Inventario.objects.create(
+            centro=cls.centro,
+            recurso=cls.recurso,
+            cantidad=Decimal("100.00"),
+            minimo=Decimal("20.00"),
+        )
+
+        cls.vehiculo = Vehiculo.objects.create(
+            placa="API-001",
+            tipo=Vehiculo.Tipos.CAMION,
+            estado_operativo=Vehiculo.Estados.DISPONIBLE,
+            capacidad_kg=Decimal("5000.00"),
+            centro=cls.centro,
+        )
+
+    def setUp(self):
+        self.client = APIClient()
+
+    def autenticar(self, usuario):
+        self.client.force_authenticate(user=usuario)
+
+    # ------------------------------------------------------------------
+    # Acceso público
+    # ------------------------------------------------------------------
+
+    def test_api_root_es_publico(self):
+        response = self.client.get("/api/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_listado_centros_es_publico(self):
+        response = self.client.get("/api/centros-ayuda/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_listado_refugios_es_publico(self):
+        response = self.client.get("/api/refugios/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_listado_vias_es_publico(self):
+        response = self.client.get("/api/vias/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_listado_reportes_viales_es_publico(self):
+        response = self.client.get("/api/reportes-viales/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    # ------------------------------------------------------------------
+    # Permisos por rol
+    # ------------------------------------------------------------------
+
+    def test_usuario_no_puede_crear_centro(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.post(
+            "/api/centros-ayuda/",
+            {
+                "nombre": "Centro no autorizado",
+                "tipo": CentroAyuda.Tipos.LOGISTICO,
+                "estado": str(self.estado.pk),
+                "municipio": str(self.municipio.pk),
+                "parroquia": str(self.parroquia.pk),
+                "ubicacion": "POINT(-66.90 10.48)",
+                "capacidad": 50,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_voluntario_no_puede_crear_centro(self):
+        self.autenticar(self.voluntario)
+
+        response = self.client.post(
+            "/api/centros-ayuda/",
+            {
+                "nombre": "Centro no autorizado",
+                "tipo": CentroAyuda.Tipos.LOGISTICO,
+                "estado": str(self.estado.pk),
+                "municipio": str(self.municipio.pk),
+                "parroquia": str(self.parroquia.pk),
+                "ubicacion": "POINT(-66.90 10.48)",
+                "capacidad": 50,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_coordinador_puede_crear_centro(self):
+        self.autenticar(self.coordinador)
+
+        response = self.client.post(
+            "/api/centros-ayuda/",
+            {
+                "nombre": "Centro creado por coordinador",
+                "tipo": CentroAyuda.Tipos.LOGISTICO,
+                "estado": str(self.estado.pk),
+                "municipio": str(self.municipio.pk),
+                "parroquia": str(self.parroquia.pk),
+                "ubicacion": "POINT(-66.92 10.50)",
+                "capacidad": 50,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(
+            CentroAyuda.objects.filter(
+                nombre="Centro creado por coordinador"
+            ).exists()
+        )
+
+    def test_admin_puede_eliminar_centro(self):
+        centro = CentroAyuda.objects.create(
+            nombre="Centro para eliminar",
+            tipo=CentroAyuda.Tipos.LOGISTICO,
+            estado=self.estado,
+            municipio=self.municipio,
+            parroquia=self.parroquia,
+            ubicacion=Point(-66.93, 10.51, srid=4326),
+            capacidad=20,
+        )
+
+        self.autenticar(self.admin)
+
+        response = self.client.delete(
+            f"/api/centros-ayuda/{centro.pk}/"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(
+            CentroAyuda.objects.filter(pk=centro.pk).exists()
+        )
+
+    def test_coordinador_no_puede_eliminar_centro(self):
+        self.autenticar(self.coordinador)
+
+        response = self.client.delete(
+            f"/api/centros-ayuda/{self.centro.pk}/"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # ------------------------------------------------------------------
+    # Reportes viales
+    # ------------------------------------------------------------------
+
+    def test_voluntario_puede_crear_reporte_vial(self):
+        self.autenticar(self.voluntario)
+
+        response = self.client.post(
+            "/api/reportes-viales/",
+            {
+                "tipo": ReporteVial.Tipos.ACCIDENTE,
+                "ubicacion": "POINT(-66.94 10.52)",
+                "titulo": "Accidente API",
+                "descripcion": "Reporte generado desde prueba API",
+                "severidad": 3,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        reporte = ReporteVial.objects.get(
+            titulo="Accidente API"
+        )
+
+        self.assertEqual(reporte.reportado_por, self.voluntario)
+
+    def test_usuario_no_puede_crear_reporte_vial(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.post(
+            "/api/reportes-viales/",
+            {
+                "tipo": ReporteVial.Tipos.ACCIDENTE,
+                "ubicacion": "POINT(-66.94 10.52)",
+                "titulo": "Reporte no autorizado",
+                "descripcion": "No debería crearse",
+                "severidad": 3,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_reporte_vial_se_marca_resuelto(self):
+        reporte = ReporteVial.objects.create(
+            tipo=ReporteVial.Tipos.OBSTACULO,
+            ubicacion=Point(-66.95, 10.53, srid=4326),
+            titulo="Obstáculo API",
+            descripcion="Obstáculo pendiente",
+            severidad=2,
+            reportado_por=self.voluntario,
+        )
+
+        self.autenticar(self.operador)
+
+        response = self.client.patch(
+            f"/api/reportes-viales/{reporte.pk}/",
+            {
+                "estado_reporte": ReporteVial.Estados.RESUELTO,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        reporte.refresh_from_db()
+
+        self.assertEqual(
+            reporte.estado_reporte,
+            ReporteVial.Estados.RESUELTO,
+        )
+        self.assertIsNotNone(reporte.resuelto_en)
+
+    # ------------------------------------------------------------------
+    # Misiones
+    # ------------------------------------------------------------------
+
+    def test_mision_no_permite_modificar_estado_directamente(self):
+        self.autenticar(self.coordinador)
+
+        mision = Mision.objects.create(
+            nombre="Misión protegida",
+            origen=Point(-66.90, 10.48, srid=4326),
+            destino=Point(-66.91, 10.49, srid=4326),
+            coordinador=self.coordinador,
+            prioridad=3,
+        )
+
+        response = self.client.patch(
+            f"/api/misiones/{mision.pk}/",
+            {"estado_mision": Mision.Estados.ASIGNADA},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        mision.refresh_from_db()
+        self.assertEqual(
+            mision.estado_mision,
+            Mision.Estados.PLANIFICADA,
+        )
+
+    def test_mision_no_permite_modificar_fechas_de_transicion_directamente(self):
+        self.autenticar(self.coordinador)
+
+        mision = Mision.objects.create(
+            codigo="MIS-TEST-FECHAS",
+            nombre="Misión fechas protegidas",
+            origen=Point(-66.90, 10.48, srid=4326),
+            destino=Point(-66.91, 10.49, srid=4326),
+            coordinador=self.coordinador,
+            prioridad=3,
+        )
+
+        fecha_original = mision.iniciada_en
+
+        response = self.client.patch(
+            f"/api/misiones/{mision.pk}/",
+            {
+                "iniciada_en": "2026-10-07T12:00:00Z",
+                "entregada_en": "2026-10-07T13:00:00Z",
+                "cancelada_en": "2026-10-07T14:00:00Z",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        mision.refresh_from_db()
+
+        self.assertEqual(mision.iniciada_en, fecha_original)
+        self.assertIsNone(mision.entregada_en)
+        self.assertIsNone(mision.cancelada_en)
+
+    def test_inventario_no_permite_modificar_cantidad_directamente(self):
+        self.autenticar(self.operador)
+
+        response = self.client.patch(
+            f"/api/inventario/{self.inventario.pk}/",
+            {"cantidad": "50.00"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.inventario.refresh_from_db()
+        self.assertEqual(
+            self.inventario.cantidad,
+            Decimal("100.00"),
+        )
+
+    def test_inventario_permite_modificar_minimo(self):
+        self.autenticar(self.operador)
+
+        response = self.client.patch(
+            f"/api/inventario/{self.inventario.pk}/",
+            {"minimo": "30.00"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.inventario.refresh_from_db()
+        self.assertEqual(
+            self.inventario.minimo,
+            Decimal("30.00"),
+        )
+
+    def test_mision_genera_codigo_automaticamente(self):
+        self.autenticar(self.coordinador)
+
+        response = self.client.post(
+            "/api/misiones/",
+            {
+                "nombre": "Misión API",
+                "descripcion": "Prueba de generación de código",
+                "estado_mision": Mision.Estados.PLANIFICADA,
+                "modo_ruta": Mision.ModosRuta.HUMANITARIA,
+                "origen": "POINT(-66.90 10.48)",
+                "destino": "POINT(-66.95 10.53)",
+                "prioridad": 3,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.data["codigo"].startswith("MIS-"))
+
+        mision = Mision.objects.get(
+            pk=response.data["id"]
+        )
+
+        self.assertTrue(mision.codigo.startswith("MIS-"))
+
+    def test_usuario_no_puede_crear_mision(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.post(
+            "/api/misiones/",
+            {
+                "nombre": "Misión no autorizada",
+                "estado_mision": Mision.Estados.PLANIFICADA,
+                "modo_ruta": Mision.ModosRuta.HUMANITARIA,
+                "origen": "POINT(-66.90 10.48)",
+                "destino": "POINT(-66.95 10.53)",
+                "prioridad": 3,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # ------------------------------------------------------------------
+    # Inventario
+    # ------------------------------------------------------------------
+
+    def test_operador_puede_registrar_entrada(self):
+        self.autenticar(self.operador)
+
+        response = self.client.post(
+            "/api/movimientos-inventario/",
+            {
+                "inventario": str(self.inventario.pk),
+                "tipo": MovimientoInventario.Tipos.ENTRADA,
+                "cantidad": "25.00",
+                "referencia": "ENTRADA-API",
+                "observaciones": "Prueba API",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.inventario.refresh_from_db()
+
+        self.assertEqual(
+            self.inventario.cantidad,
+            Decimal("125.00"),
+        )
+
+        self.assertEqual(
+            MovimientoInventario.objects.filter(
+                inventario=self.inventario,
+                referencia="ENTRADA-API",
+            ).count(),
+            1,
+        )
+
+    def test_salida_no_puede_dejar_inventario_negativo(self):
+        self.autenticar(self.operador)
+
+        response = self.client.post(
+            "/api/movimientos-inventario/",
+            {
+                "inventario": str(self.inventario.pk),
+                "tipo": MovimientoInventario.Tipos.SALIDA,
+                "cantidad": "999.00",
+            },
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+        self.inventario.refresh_from_db()
+
+        self.assertEqual(
+            self.inventario.cantidad,
+            Decimal("100.00"),
+        )
+
+    def test_usuario_no_puede_registrar_movimiento(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.post(
+            "/api/movimientos-inventario/",
+            {
+                "inventario": str(self.inventario.pk),
+                "tipo": MovimientoInventario.Tipos.ENTRADA,
+                "cantidad": "10.00",
+            },
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_movimiento_inventario_es_inmutable(self):
+        movimiento = MovimientoInventario.objects.create(
+            inventario=self.inventario,
+            tipo=MovimientoInventario.Tipos.ENTRADA,
+            cantidad=Decimal("10.00"),
+            realizado_por=self.operador,
+        )
+
+        self.autenticar(self.operador)
+
+        response = self.client.patch(
+            f"/api/movimientos-inventario/{movimiento.pk}/",
+            {
+                "cantidad": "20.00",
+            },
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+    # ------------------------------------------------------------------
+    # Auditoría
+    # ------------------------------------------------------------------
+
+    def test_creacion_api_genera_auditoria(self):
+        self.autenticar(self.coordinador)
+
+        response = self.client.post(
+            "/api/recursos/",
+            {
+                "nombre": "Recurso auditado",
+                "unidad": "unidad",
+            },
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+        )
+
+        self.assertTrue(
+            AuditLog.objects.filter(
+                usuario=self.coordinador,
+                accion="CREAR",
+                objeto_tipo="Recurso",
+                resultado=AuditLog.Resultados.EXITO,
+            ).exists()
+        )
+
+    def test_auditoria_no_es_publica(self):
+        response = self.client.get("/api/auditoria/")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_usuario_no_puede_consultar_auditoria(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.get("/api/auditoria/")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_coordinador_puede_consultar_auditoria(self):
+        AuditLog.objects.create(
+            usuario=self.coordinador,
+            accion="PRUEBA",
+            modulo="operaciones",
+            objeto_tipo="Prueba",
+            objeto_id="1",
+            resultado=AuditLog.Resultados.EXITO,
+        )
+
+        self.autenticar(self.coordinador)
+
+        response = self.client.get("/api/auditoria/")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+
+    # ------------------------------------------------------------------
+    # Filtros
+    # ------------------------------------------------------------------
+
+    def test_filtro_refugios_por_estado_operativo(self):
+        self.refugio.estado_operativo = Refugio.Estados.COMPLETO
+        self.refugio.save(update_fields=("estado_operativo", "actualizado_en"))
+
+        response = self.client.get(
+            "/api/refugios/",
+            {"estado_operativo": Refugio.Estados.COMPLETO},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_filtro_vias_por_estado_vial(self):
+        response = self.client.get(
+            "/api/vias/",
+            {"estado_vial": Via.Estados.NORMAL},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_filtro_inventario_bajo_minimo(self):
+        self.inventario.cantidad = Decimal("10.00")
+        self.inventario.save(update_fields=("cantidad", "actualizado_en"))
+
+        response = self.client.get(
+            "/api/inventario/",
+            {"bajo_minimo": "true"},
+        )
+    # ------------------------------------------------------------------
+    # Protección de información operacional
+    # ------------------------------------------------------------------
+
+    def test_vehiculos_no_son_publicos(self):
+        response = self.client.get("/api/vehiculos/")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_misiones_no_son_publicas(self):
+        response = self.client.get("/api/misiones/")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_inventario_no_es_publico(self):
+        response = self.client.get("/api/inventario/")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_movimientos_inventario_no_son_publicos(self):
+        response = self.client.get("/api/movimientos-inventario/")
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_usuario_autenticado_puede_consultar_vehiculos(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.get("/api/vehiculos/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_usuario_autenticado_puede_consultar_misiones(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.get("/api/misiones/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_usuario_autenticado_puede_consultar_inventario(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.get("/api/inventario/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_usuario_autenticado_puede_consultar_movimientos(self):
+        self.autenticar(self.usuario)
+
+        response = self.client.get("/api/movimientos-inventario/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 class OperacionesModelTests(TestCase):
 
     @classmethod
@@ -332,7 +1051,8 @@ class AuditServiceTests(TestCase):
             "Prueba de rechazo",
         )
 
-    def test_prioriza_primera_ip_de_forwarded_for(self):
+    @override_settings(AUDIT_TRUST_PROXY_HEADERS=True)
+    def test_prioriza_primera_ip_de_forwarded_for_cuando_proxy_es_confiable(self):
         request = self.factory.get(
             "/",
             HTTP_X_FORWARDED_FOR="203.0.113.10, 10.0.0.1",
@@ -342,6 +1062,18 @@ class AuditServiceTests(TestCase):
         self.assertEqual(
             AuditService.get_client_ip(request),
             "203.0.113.10",
+        )
+
+    def test_ignora_forwarded_for_cuando_proxy_no_es_confiable(self):
+        request = self.factory.get(
+            "/",
+            HTTP_X_FORWARDED_FOR="203.0.113.10, 10.0.0.1",
+            REMOTE_ADDR="10.0.0.2",
+        )
+
+        self.assertEqual(
+            AuditService.get_client_ip(request),
+            "10.0.0.2",
         )
 
     def test_usa_remote_addr_si_no_hay_forwarded_for(self):
