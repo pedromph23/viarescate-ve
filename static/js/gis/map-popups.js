@@ -171,4 +171,195 @@
             </div>
         `;
     };
+
+    GIS.vehiclePopup = function (properties) {
+        return `
+            <div class="map-popup">
+                <strong>
+                    Vehículo ${GIS.escapeHtml(properties.placa || "")}
+                </strong>
+
+                <p>
+                    <span class="map-popup-label">Tipo:</span>
+                    ${GIS.escapeHtml(properties.tipo || "")}
+                </p>
+
+                <p>
+                    <span class="map-popup-label">Estado:</span>
+                    ${GIS.escapeHtml(
+                        properties.estado_operativo_label ||
+                        properties.estado_operativo ||
+                        ""
+                    )}
+                </p>
+
+                <p>
+                    <span class="map-popup-label">Capacidad:</span>
+                    ${GIS.escapeHtml(
+                        String(properties.capacidad_kg || "0")
+                    )} kg
+                </p>
+
+                ${
+                    properties.centro
+                        ? `<p>
+                            <span class="map-popup-label">Centro:</span>
+                            ${GIS.escapeHtml(properties.centro)}
+                        </p>`
+                        : ""
+                }
+
+                ${
+                    properties.conductor
+                        ? `<p>
+                            <span class="map-popup-label">Conductor:</span>
+                            ${GIS.escapeHtml(properties.conductor)}
+                        </p>`
+                        : ""
+                }
+
+                ${
+                    properties.observaciones
+                        ? `<p>${GIS.escapeHtml(
+                            properties.observaciones
+                        )}</p>`
+                        : ""
+                }
+            </div>
+        `;
+    };
+
+    GIS.missionPopup = function (properties) {
+        const point = properties.punto;
+
+        if (point) {
+            return `
+                <div class="map-popup">
+                    <strong>
+                        ${GIS.escapeHtml(properties.codigo || "")}
+                    </strong>
+
+                    <p>
+                        <span class="map-popup-label">Misión:</span>
+                        ${GIS.escapeHtml(properties.nombre || "")}
+                    </p>
+
+                    <p>
+                        <span class="map-popup-label">
+                            ${
+                                point === "origen"
+                                    ? "Origen"
+                                    : "Destino"
+                            }:
+                        </span>
+                        ${GIS.escapeHtml(
+                            properties.estado_mision_label ||
+                            properties.estado_mision ||
+                            ""
+                        )}
+                    </p>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="map-popup">
+                <strong>
+                    ${GIS.escapeHtml(properties.codigo || "")}
+                </strong>
+
+                <p>
+                    <span class="map-popup-label">Misión:</span>
+                    ${GIS.escapeHtml(properties.nombre || "")}
+                </p>
+
+                <p>
+                    <span class="map-popup-label">Estado:</span>
+                    ${GIS.escapeHtml(
+                        properties.estado_mision_label ||
+                        properties.estado_mision ||
+                        ""
+                    )}
+                </p>
+
+                <p>
+                    <span class="map-popup-label">Modo:</span>
+                    ${GIS.escapeHtml(
+                        properties.modo_ruta_label ||
+                        properties.modo_ruta ||
+                        ""
+                    )}
+                </p>
+
+                <p>
+                    <span class="map-popup-label">Prioridad:</span>
+                    ${GIS.escapeHtml(
+                        String(properties.prioridad || "")
+                    )}
+                </p>
+
+                ${
+                    properties.vehiculo
+                        ? `<p>
+                            <span class="map-popup-label">
+                                Vehículo:
+                            </span>
+                            ${GIS.escapeHtml(properties.vehiculo)}
+                        </p>`
+                        : ""
+                }
+
+                ${
+                    properties.coordinador
+                        ? `<p>
+                            <span class="map-popup-label">
+                                Coordinador:
+                            </span>
+                            ${GIS.escapeHtml(
+                                properties.coordinador
+                            )}
+                        </p>`
+                        : ""
+                }
+
+                ${
+                    properties.distancia_km
+                        ? `<p>
+                            <span class="map-popup-label">
+                                Distancia:
+                            </span>
+                            ${GIS.escapeHtml(
+                                properties.distancia_km
+                            )} km
+                        </p>`
+                        : ""
+                }
+
+                ${
+                    properties.tiempo_estimado_minutos
+                        ? `<p>
+                            <span class="map-popup-label">
+                                Tiempo estimado:
+                            </span>
+                            ${GIS.escapeHtml(
+                                String(
+                                    properties
+                                        .tiempo_estimado_minutos
+                                )
+                            )} min
+                        </p>`
+                        : ""
+                }
+
+                ${
+                    properties.descripcion
+                        ? `<p>${GIS.escapeHtml(
+                            properties.descripcion
+                        )}</p>`
+                        : ""
+                }
+            </div>
+        `;
+    };
+
 })(window);
