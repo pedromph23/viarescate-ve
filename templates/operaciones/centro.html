@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Centro Operativo | VíaRescate Venezuela{% endblock %}
+
+{% block content %}
+<main class="operations-page">
+    <section class="operations-header">
+        <div>
+            <span class="operations-eyebrow">Centro Operativo</span>
+            <h1>Centro de coordinación</h1>
+            <p>
+                Supervisión operativa de recursos, infraestructura,
+                incidencias y misiones humanitarias.
+            </p>
+        </div>
+
+        <div class="operations-user">
+            <span>Sesión activa</span>
+            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+            <small>{{ request.user.get_rol_display }}</small>
+        </div>
+    </section>
+
+    <section
+        class="operations-stats"
+        aria-label="Indicadores operativos"
+    >
+        <article class="operation-stat">
+            <span class="operation-stat-label">Centros activos</span>
+            <strong>{{ centros_activos }}</strong>
+            <small>Centros de ayuda operativos</small>
+        </article>
+
+        <article class="operation-stat">
+            <span class="operation-stat-label">Refugios activos</span>
+            <strong>{{ refugios_activos }}</strong>
+            <small>Refugios disponibles</small>
+        </article>
+
+        <article class="operation-stat">
+            <span class="operation-stat-label">Vehículos disponibles</span>
+            <strong>{{ vehiculos_disponibles }}</strong>
+            <small>Unidades listas para operación</small>
+        </article>
+
+        <article class="operation-stat">
+            <span class="operation-stat-label">Vehículos en ruta</span>
+            <strong>{{ vehiculos_en_ruta }}</strong>
+            <small>Unidades actualmente movilizadas</small>
+        </article>
+
+        <article class="operation-stat">
+            <span class="operation-stat-label">Misiones planificadas</span>
+            <strong>{{ misiones_planificadas }}</strong>
+            <small>Misiones pendientes de ejecución</small>
+        </article>
+
+        <article class="operation-stat">
+            <span class="operation-stat-label">Misiones en ruta</span>
+            <strong>{{ misiones_en_ruta }}</strong>
+            <small>Operaciones actualmente activas</small>
+        </article>
+
+        <article class="operation-stat operation-stat-warning">
+            <span class="operation-stat-label">Incidencias activas</span>
+            <strong>{{ incidencias_activas }}</strong>
+            <small>Reportes pendientes o confirmados</small>
+        </article>
+
+        <article class="operation-stat operation-stat-alert">
+            <span class="operation-stat-label">Inventario bajo mínimo</span>
+            <strong>{{ inventario_bajo_minimo }}</strong>
+            <small>Recursos que requieren atención</small>
+        </article>
+    </section>
+
+    <section class="operations-layout">
+        <div class="operations-map-card">
+            <div class="operations-card-header">
+                <div>
+                    <span class="operations-eyebrow">Situación territorial</span>
+                    <h2>Mapa operativo</h2>
+                </div>
+
+                <span
+                    id="operations-map-status" data-map-status
+                    class="map-status"
+                    role="status"
+                    aria-live="polite"
+                >
+                    Cargando información geográfica...
+                </span>
+            </div>
+
+            <div class="operations-map-wrapper">
+                <div
+                    id="operations-map"
+                    class="operations-map"
+                    aria-label="Mapa geográfico operativo"
+                ></div>
+
+                <aside
+                    class="operations-map-controls"
+                    aria-label="Capas del mapa operativo"
+                >
+                    <strong>Capas</strong>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            data-layer-toggle="centros"
+                            checked
+                        >
+                        Centros de ayuda
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            data-layer-toggle="refugios"
+                            checked
+                        >
+                        Refugios
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            data-layer-toggle="vias"
+                            checked
+                        >
+                        Vías
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            data-layer-toggle="reportes"
+                            checked
+                        >
+                        Incidencias
+                    </label>
+                </aside>
+            </div>
+        </div>
+
+        <aside class="operations-side">
+            <section class="operations-panel">
+                <div class="operations-card-header">
+                    <div>
+                        <span class="operations-eyebrow">Operación</span>
+                        <h2>Acciones rápidas</h2>
+                    </div>
+                </div>
+
+                <div class="operations-actions">
+                    <a
+                        class="operation-action"
+                        href="{% url 'admin:index' %}"
+                    >
+                        <strong>Administración</strong>
+                        <span>Gestionar información operativa</span>
+                    </a>
+
+                    <a
+                        class="operation-action"
+                        href="{% url 'mapa:mapa' %}"
+                    >
+                        <strong>Mapa público</strong>
+                        <span>Consultar información geográfica pública</span>
+                    </a>
+
+                    <a
+                        class="operation-action"
+                        href="/api/"
+                    >
+                        <strong>API operativa</strong>
+                        <span>Consultar servicios de datos</span>
+                    </a>
+
+                    <form
+                        method="post"
+                        action="{% url 'usuarios:logout' %}"
+                    >
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="operation-action operation-action-button"
+                        >
+                            <strong>Cerrar sesión</strong>
+                            <span>Finalizar la sesión actual</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="operations-panel operations-panel-note">
+                <span class="operations-eyebrow">Estado del sistema</span>
+                <h2>Información operacional</h2>
+                <p>
+                    Los indicadores se calculan directamente desde los datos
+                    operativos registrados en VíaRescate.
+                </p>
+            </section>
+        </aside>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/gis/map-core.js' %}"></script>
+<script src="{% static 'js/gis/map-styles.js' %}"></script>
+<script src="{% static 'js/gis/map-popups.js' %}"></script>
+<script src="{% static 'js/gis/map-layers.js' %}"></script>
+<script src="{% static 'js/gis/map-controls.js' %}"></script>
+<script src="{% static 'js/operaciones.js' %}"></script>
+{% endblock %}
