@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}VíaRescate VE · Ayuda humanitaria{% endblock %}
+
+{% block content %}
+<section class="home-hero">
+    <div class="container home-hero-grid">
+        <div class="home-hero-content">
+            <span class="eyebrow">Respuesta y logística humanitaria</span>
+
+            <h1>
+                Conectamos la ayuda con
+                <span class="hero-highlight">quienes la necesitan.</span>
+            </h1>
+
+            <p class="hero-lead">
+                VíaRescate VE es una plataforma de apoyo para coordinar,
+                visualizar y optimizar operaciones de ayuda humanitaria
+                en Venezuela.
+            </p>
+
+            <div class="hero-actions">
+                <a href="{% url 'mapa:publico' %}" class="button button-primary">
+                    Explorar mapa
+                </a>
+
+                <a href="#como-funciona" class="button button-secondary">
+                    Conocer la plataforma
+                </a>
+            </div>
+        </div>
+
+        <div class="home-hero-card" aria-label="Resumen operativo">
+            <div class="hero-card-header">
+                <span class="status-dot"></span>
+                <span>Sistema operativo</span>
+            </div>
+
+            <div class="hero-card-body">
+                <strong>Información geográfica y operacional</strong>
+                <p>
+                    Consulta centros de ayuda, refugios, vías e incidencias
+                    para apoyar la toma de decisiones humanitarias.
+                </p>
+
+                <a href="{% url 'mapa:publico' %}" class="hero-card-link">
+                    Abrir mapa →
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="home-section home-section-soft" id="indicadores">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Situación registrada</span>
+            <h2>Información operacional</h2>
+            <p>
+                Datos obtenidos directamente de la plataforma para ofrecer
+                una visión rápida de los recursos y situaciones registradas.
+            </p>
+        </div>
+
+        <div class="stats-grid">
+            <article class="stat-card">
+                <span class="stat-label">Centros de ayuda</span>
+                <strong class="stat-value">{{ centros_activos }}</strong>
+                <span class="stat-description">centros activos registrados</span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Refugios</span>
+                <strong class="stat-value">{{ refugios_activos }}</strong>
+                <span class="stat-description">refugios activos registrados</span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Vías</span>
+                <strong class="stat-value">{{ vias_activas }}</strong>
+                <span class="stat-description">vías activas en el sistema</span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Incidencias</span>
+                <strong class="stat-value">{{ incidencias_activas }}</strong>
+                <span class="stat-description">incidencias pendientes o confirmadas</span>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="home-section" id="como-funciona">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">VíaRescate VE</span>
+            <h2>Una plataforma para coordinar mejor la respuesta</h2>
+            <p>
+                La plataforma integra información geográfica y operacional
+                para facilitar la coordinación de recursos humanitarios.
+            </p>
+        </div>
+
+        <div class="feature-grid">
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">⌖</div>
+                <h3>Información geográfica</h3>
+                <p>
+                    Visualiza refugios, centros de ayuda, vías e incidencias
+                    sobre un mapa interactivo.
+                </p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">↗</div>
+                <h3>Coordinación operacional</h3>
+                <p>
+                    Centraliza información que ayuda a planificar misiones,
+                    vehículos y distribución de recursos.
+                </p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">◌</div>
+                <h3>Información actualizada</h3>
+                <p>
+                    Los indicadores y capas públicas se alimentan de los
+                    datos registrados en el sistema.
+                </p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="home-map-cta">
+    <div class="container">
+        <div class="map-cta-card">
+            <div>
+                <span class="eyebrow">Exploración geográfica</span>
+                <h2>Consulta el mapa operativo</h2>
+                <p>
+                    Revisa la información geográfica disponible y consulta
+                    las diferentes capas del sistema.
+                </p>
+            </div>
+
+            <a href="{% url 'mapa:publico' %}" class="button button-primary">
+                Ver mapa operativo
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

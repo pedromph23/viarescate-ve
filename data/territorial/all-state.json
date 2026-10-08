@@ -1,0 +1,818 @@
+[
+  {
+    "id": "VE02",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Amazonas",
+      "en": "Amazonas",
+      "slug": "amazonas-ve02"
+    },
+    "code": {
+      "id": "VE02",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 7,
+      "parish": 22
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "3.416",
+      "lon": "-65.781"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/amazonas-ve02/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE03",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Anzoátegui",
+      "en": "Anzoategui",
+      "slug": "anzoategui-ve03"
+    },
+    "code": {
+      "id": "VE03",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 21,
+      "parish": 56
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "8.958",
+      "lon": "-64.128"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/anzoategui-ve03/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE04",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Apure",
+      "en": "Apure",
+      "slug": "apure-ve04"
+    },
+    "code": {
+      "id": "VE04",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 7,
+      "parish": 26
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "7.074",
+      "lon": "-68.81"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/apure-ve04/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE05",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Aragua",
+      "en": "Aragua",
+      "slug": "aragua-ve05"
+    },
+    "code": {
+      "id": "VE05",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 18,
+      "parish": 50
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "9.894",
+      "lon": "-66.879"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/aragua-ve05/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE06",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Barinas",
+      "en": "Barinas",
+      "slug": "barinas-ve06"
+    },
+    "code": {
+      "id": "VE06",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 12,
+      "parish": 54
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "8.174",
+      "lon": "-69.975"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/barinas-ve06/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE07",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Bolívar",
+      "en": "Bolivar",
+      "slug": "bolivar-ve07"
+    },
+    "code": {
+      "id": "VE07",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 11,
+      "parish": 47
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "5.997",
+      "lon": "-63.472"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/bolivar-ve07/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE08",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Carabobo",
+      "en": "Carabobo",
+      "slug": "carabobo-ve08"
+    },
+    "code": {
+      "id": "VE08",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 14,
+      "parish": 38
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "10.197",
+      "lon": "-68.126"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/carabobo-ve08/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE09",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Cojedes",
+      "en": "Cojedes",
+      "slug": "cojedes-ve09"
+    },
+    "code": {
+      "id": "VE09",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 9,
+      "parish": 15
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "9.309",
+      "lon": "-68.351"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/cojedes-ve09/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE10",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Delta Amacuro",
+      "en": "Delta Amacuro",
+      "slug": "delta-amacuro-ve10"
+    },
+    "code": {
+      "id": "VE10",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 4,
+      "parish": 21
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "8.885",
+      "lon": "-61.363"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/delta-amacuro-ve10/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE01",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Distrito Capital",
+      "en": "Distrito Capital",
+      "slug": "distrito-capital-ve01"
+    },
+    "code": {
+      "id": "VE01",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 1,
+      "parish": 22
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "10.473",
+      "lon": "-66.969"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/distrito-capital-ve01/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE11",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Falcón",
+      "en": "Falcon",
+      "slug": "falcon-ve11"
+    },
+    "code": {
+      "id": "VE11",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 25,
+      "parish": 83
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "11.248",
+      "lon": "-69.511"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/falcon-ve11/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE12",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Guárico",
+      "en": "Guarico",
+      "slug": "guarico-ve12"
+    },
+    "code": {
+      "id": "VE12",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 15,
+      "parish": 39
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "8.831",
+      "lon": "-66.381"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/guarico-ve12/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE24",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "La Guaira",
+      "en": "La Guaira",
+      "slug": "la-guaira-ve24"
+    },
+    "code": {
+      "id": "VE24",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 1,
+      "parish": 11
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "10.509",
+      "lon": "-67.236"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/la-guaira-ve24/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE13",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Lara",
+      "en": "Lara",
+      "slug": "lara-ve13"
+    },
+    "code": {
+      "id": "VE13",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 9,
+      "parish": 57
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "10.073",
+      "lon": "-70.025"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/lara-ve13/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE14",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Mérida",
+      "en": "Merida",
+      "slug": "merida-ve14"
+    },
+    "code": {
+      "id": "VE14",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 23,
+      "parish": 85
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "8.429",
+      "lon": "-71.322"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/merida-ve14/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE15",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Miranda",
+      "en": "Miranda",
+      "slug": "miranda-ve15"
+    },
+    "code": {
+      "id": "VE15",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 21,
+      "parish": 55
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "10.292",
+      "lon": "-66.504"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/miranda-ve15/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE16",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Monagas",
+      "en": "Monagas",
+      "slug": "monagas-ve16"
+    },
+    "code": {
+      "id": "VE16",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 13,
+      "parish": 44
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "9.35",
+      "lon": "-63.148"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/monagas-ve16/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE17",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Nueva Esparta",
+      "en": "Nueva Esparta",
+      "slug": "nueva-esparta-ve17"
+    },
+    "code": {
+      "id": "VE17",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 11,
+      "parish": 22
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "11.02",
+      "lon": "-63.91"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/nueva-esparta-ve17/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE18",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Portuguesa",
+      "en": "Portuguesa",
+      "slug": "portuguesa-ve18"
+    },
+    "code": {
+      "id": "VE18",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 14,
+      "parish": 41
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "8.969",
+      "lon": "-69.391"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/portuguesa-ve18/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE19",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Sucre",
+      "en": "Sucre",
+      "slug": "sucre-ve19"
+    },
+    "code": {
+      "id": "VE19",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 15,
+      "parish": 57
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "10.399",
+      "lon": "-63.575"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/sucre-ve19/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE20",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Táchira",
+      "en": "Tachira",
+      "slug": "tachira-ve20"
+    },
+    "code": {
+      "id": "VE20",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 29,
+      "parish": 66
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "8.005",
+      "lon": "-72.01"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/tachira-ve20/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE21",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Trujillo",
+      "en": "Trujillo",
+      "slug": "trujillo-ve21"
+    },
+    "code": {
+      "id": "VE21",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 20,
+      "parish": 93
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "9.496",
+      "lon": "-70.581"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/trujillo-ve21/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE22",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Yaracuy",
+      "en": "Yaracuy",
+      "slug": "yaracuy-ve22"
+    },
+    "code": {
+      "id": "VE22",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 14,
+      "parish": 21
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "10.304",
+      "lon": "-68.7"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/yaracuy-ve22/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  },
+  {
+    "id": "VE23",
+    "level": 1,
+    "level_name": {
+      "local": "Estado",
+      "en": "State"
+    },
+    "name": {
+      "local": "Zulia",
+      "en": "Zulia",
+      "slug": "zulia-ve23"
+    },
+    "code": {
+      "id": "VE23",
+      "iso": null
+    },
+    "parent": null,
+    "ancestors": [],
+    "children_count": {
+      "municipality": 21,
+      "parish": 109
+    },
+    "zip_codes": [],
+    "geo": {
+      "lat": "10.103",
+      "lon": "-72.44"
+    },
+    "metadata": {},
+    "source": {
+      "name": "Open Admin Data",
+      "url": "https://openadmindata.org/ve/states/zulia-ve23/",
+      "api": "https://openadmindata.org/api/ve/"
+    }
+  }
+]

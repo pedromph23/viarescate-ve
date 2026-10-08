@@ -31,10 +31,12 @@ class OperacionesAPITestCase(APITestCase):
     def setUpTestData(cls):
         cls.estado = Estado.objects.create(nombre="Estado API")
         cls.municipio = Municipio.objects.create(
+            codigo="API-MUN-01",
             nombre="Municipio API",
             estado=cls.estado,
         )
         cls.parroquia = Parroquia.objects.create(
+            codigo="API-PAR-01",
             nombre="Parroquia API",
             municipio=cls.municipio,
         )
@@ -748,11 +750,13 @@ class OperacionesModelTests(TestCase):
 
         cls.municipio = Municipio.objects.create(
             estado=cls.estado,
+            codigo="TEST-MUN-01",
             nombre="Municipio de Prueba",
         )
 
         cls.parroquia = Parroquia.objects.create(
             municipio=cls.municipio,
+            codigo="TEST-PAR-01",
             nombre="Parroquia de Prueba",
         )
 
@@ -763,6 +767,7 @@ class OperacionesModelTests(TestCase):
 
         cls.municipio_2 = Municipio.objects.create(
             estado=cls.estado_2,
+            codigo="TEST-MUN-02",
             nombre="Segundo Municipio",
         )
 
@@ -824,6 +829,7 @@ class OperacionesModelTests(TestCase):
     def test_integridad_territorial_parroquia(self):
         parroquia_otro_municipio = Parroquia.objects.create(
             municipio=self.municipio_2,
+            codigo="TEST-PAR-02",
             nombre="Parroquia Incompatible",
         )
 
@@ -972,11 +978,13 @@ class AuditServiceTests(TestCase):
 
         cls.municipio = Municipio.objects.create(
             estado=cls.estado,
+            codigo="AUD-MUN-01",
             nombre="Municipio Auditoría",
         )
 
         cls.parroquia = Parroquia.objects.create(
             municipio=cls.municipio,
+            codigo="AUD-PAR-01",
             nombre="Parroquia Auditoría",
         )
 
