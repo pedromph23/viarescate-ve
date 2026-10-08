@@ -195,3 +195,8 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
 }
+
+# Autenticación web.
+LOGIN_URL = "/usuarios/login/"
+LOGIN_REDIRECT_URL = "/operaciones/"
+LOGOUT_REDIRECT_URL = "/"
