@@ -60,6 +60,41 @@ document.addEventListener("DOMContentLoaded", async () => {
             markerStyle: GIS.markerStyle,
             popup: GIS.reportPopup,
         },
+
+        vehiculos: {
+            map,
+            layer: null,
+            bounds,
+            url: "/mapa/api/geojson/vehiculos/",
+            markerStyle: GIS.vehicleStyle,
+            popup: GIS.vehiclePopup,
+        },
+
+        misiones: {
+            map,
+            layer: null,
+            bounds,
+            url: "/mapa/api/geojson/misiones/",
+            style: GIS.missionStyle,
+            popup: GIS.missionPopup,
+            pointToLayer: function (feature, latlng) {
+                if (feature.properties?.punto) {
+                    return L.circleMarker(
+                        latlng,
+                        GIS.missionPointStyle(feature)
+                    );
+                }
+
+                return L.circleMarker(
+                    latlng,
+                    GIS.missionPointStyle({
+                        properties: {
+                            punto: "origen",
+                        },
+                    })
+                );
+            },
+        },
     };
 
     const layers = GIS.createLayers(map, definitions);
@@ -71,12 +106,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     let total = 0;
     let errores = 0;
 
-    GIS.setStatus("Cargando información geográfica...", "loading");
+    GIS.setStatus(
+        "Cargando información geográfica...",
+        "loading"
+    );
 
     const results = await Promise.all(
-        Object.entries(definitions).map(async ([name, config]) => {
-            return GIS.loadLayer(name, config);
-        })
+        Object.entries(definitions).map(
+            async ([name, config]) => {
+                return GIS.loadLayer(name, config);
+            }
+        )
     );
 
     results.forEach(function (result) {

@@ -64,4 +64,58 @@
 
         return styles[estado] || styles.NORMAL;
     };
+
+    GIS.operationalColors = {
+        vehiculos: "#486581",
+        origen: "#6b8e71",
+        destino: "#a05a5a",
+        mision: "#7057a3",
+    };
+
+    GIS.vehicleStyle = function () {
+        return {
+            radius: 8,
+            color: "#ffffff",
+            weight: 2,
+            fillColor: GIS.operationalColors.vehiculos,
+            fillOpacity: 0.95,
+        };
+    };
+
+    GIS.missionStyle = function (feature) {
+        const priority = Number(
+            feature.properties && feature.properties.prioridad
+        );
+
+        const weights = {
+            1: 3,
+            2: 4,
+            3: 5,
+            4: 6,
+            5: 7,
+        };
+
+        return {
+            color: GIS.operationalColors.mision,
+            weight: weights[priority] || 4,
+            opacity: 0.9,
+            dashArray: "10 6",
+        };
+    };
+
+    GIS.missionPointStyle = function (feature) {
+        const point = feature.properties && feature.properties.punto;
+
+        return {
+            radius: point === "destino" ? 8 : 7,
+            color: "#ffffff",
+            weight: 2,
+            fillColor:
+                point === "destino"
+                    ? GIS.operationalColors.destino
+                    : GIS.operationalColors.origen,
+            fillOpacity: 0.95,
+        };
+    };
+
 })(window);

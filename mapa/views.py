@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -5,6 +6,8 @@ from .services import (
     centros_ayuda_geojson,
     reportes_viales_geojson,
     refugios_geojson,
+    vehiculos_geojson,
+    misiones_geojson,
     vias_geojson,
 )
 
@@ -27,3 +30,13 @@ def vias_geojson_view(request):
 
 def reportes_viales_geojson_view(request):
     return JsonResponse(reportes_viales_geojson())
+
+
+@login_required
+def vehiculos_geojson_view(request):
+    return JsonResponse(vehiculos_geojson())
+
+
+@login_required
+def misiones_geojson_view(request):
+    return JsonResponse(misiones_geojson())

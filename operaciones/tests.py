@@ -24,6 +24,7 @@ from operaciones.models import (
 )
 from usuarios.models import Usuario
 from operaciones.services import AuditService
+from mapa.services import misiones_geojson, vehiculos_geojson
 
 
 class OperacionesAPITestCase(APITestCase):
@@ -739,6 +740,267 @@ class OperacionesAPITestCase(APITestCase):
         response = self.client.get("/api/movimientos-inventario/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class OperacionesGISServiceTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.usuario = Usuario.objects.create_user(
+            username="gis.usuario",
+            email="gis.usuario@example.com",
+            password="ClaveSegura123!",
+            rol=Usuario.Roles.USUARIO,
+        )
+
+        cls.estado = Estado.objects.create(
+            codigo="GIS-VE01",
+            nombre="Estado GIS",
+        )
+
+        cls.municipio = Municipio.objects.create(
+            estado=cls.estado,
+            codigo="GIS-MUN-01",
+            nombre="Municipio GIS",
+        )
+
+        cls.parroquia = Parroquia.objects.create(
+            municipio=cls.municipio,
+            codigo="GIS-PAR-01",
+            nombre="Parroquia GIS",
+        )
+
+        cls.centro = CentroAyuda.objects.create(
+            nombre="Centro GIS",
+            tipo=CentroAyuda.Tipos.LOGISTICO,
+            estado=cls.estado,
+            municipio=cls.municipio,
+            parroquia=cls.parroquia,
+            ubicacion=Point(-66.90, 10.48, srid=4326),
+            capacidad=100,
+        )
+
+    def crear_vehiculo(self, placa, activo=True, ubicacion=None):
+        return Vehiculo.objects.create(
+            placa=placa,
+            tipo=Vehiculo.Tipos.CAMION,
+            estado_operativo=Vehiculo.Estados.DISPONIBLE,
+            capacidad_kg=Decimal("5000.00"),
+            centro=self.centro,
+            activo=activo,
+            ubicacion=ubicacion,
+        )
+
+    def crear_mision(
+        self,
+        codigo,
+        estado=Mision.Estados.PLANIFICADA,
+        ruta=None,
+    ):
+        return Mision.objects.create(
+            codigo=codigo,
+            nombre=f"Misión {codigo}",
+            estado_mision=estado,
+            modo_ruta=Mision.ModosRuta.HUMANITARIA,
+            origen=Point(-66.90, 10.48, srid=4326),
+            destino=Point(-66.95, 10.53, srid=4326),
+            prioridad=3,
+            ruta=ruta,
+        )
+
+    def test_vehiculos_geojson_solo_incluye_activos_con_ubicacion(self):
+        visible = self.crear_vehiculo(
+            "GIS-001",
+            ubicacion=Point(-66.90, 10.48, srid=4326),
+        )
+        self.crear_vehiculo(
+            "GIS-002",
+            activo=False,
+            ubicacion=Point(-66.91, 10.49, srid=4326),
+        )
+        self.crear_vehiculo("GIS-003")
+
+        resultado = vehiculos_geojson()
+
+        self.assertEqual(resultado["type"], "FeatureCollection")
+        self.assertEqual(len(resultado["features"]), 1)
+        self.assertEqual(
+            resultado["features"][0]["properties"]["id"],
+            str(visible.id),
+        )
+        self.assertEqual(
+            resultado["features"][0]["properties"]["placa"],
+            "GIS-001",
+        )
+
+    def test_vehiculos_geojson_devuelve_propiedades_operativas(self):
+        self.crear_vehiculo(
+            "GIS-004",
+            ubicacion=Point(-66.92, 10.50, srid=4326),
+        )
+
+        resultado = vehiculos_geojson()
+        properties = resultado["features"][0]["properties"]
+
+        self.assertEqual(properties["placa"], "GIS-004")
+        self.assertEqual(
+            properties["tipo_codigo"],
+            Vehiculo.Tipos.CAMION,
+        )
+        self.assertEqual(
+            properties["estado_operativo"],
+            Vehiculo.Estados.DISPONIBLE,
+        )
+        self.assertEqual(properties["capacidad_kg"], "5000.00")
+        self.assertEqual(properties["centro"], "Centro GIS")
+
+    def test_misiones_geojson_solo_incluye_misiones_activas(self):
+        self.crear_mision("MIS-001", Mision.Estados.PLANIFICADA)
+        self.crear_mision("MIS-002", Mision.Estados.ASIGNADA)
+        self.crear_mision("MIS-003", Mision.Estados.EN_RUTA)
+        self.crear_mision("MIS-004", Mision.Estados.ENTREGADA)
+        self.crear_mision("MIS-005", Mision.Estados.CANCELADA)
+
+        resultado = misiones_geojson()
+
+        codigos = {
+            feature["properties"]["codigo"]
+            for feature in resultado["features"]
+        }
+
+        self.assertEqual(
+            codigos,
+            {"MIS-001", "MIS-002", "MIS-003"},
+        )
+
+    def test_mision_geojson_sin_ruta_incluye_origen_y_destino(self):
+        self.crear_mision("MIS-006")
+
+        resultado = misiones_geojson()
+        features = resultado["features"]
+
+        self.assertEqual(len(features), 2)
+
+        puntos = {
+            feature["properties"]["punto"]
+            for feature in features
+        }
+
+        self.assertEqual(puntos, {"origen", "destino"})
+
+        for feature in features:
+            self.assertEqual(
+                feature["geometry"]["type"],
+                "Point",
+            )
+
+    def test_mision_geojson_con_ruta_incluye_ruta_origen_y_destino(self):
+        ruta = LineString(
+            (-66.90, 10.48),
+            (-66.92, 10.50),
+            (-66.95, 10.53),
+            srid=4326,
+        )
+
+        self.crear_mision("MIS-007", ruta=ruta)
+
+        resultado = misiones_geojson()
+        features = resultado["features"]
+
+        self.assertEqual(len(features), 3)
+
+        geometries = {
+            feature["geometry"]["type"]
+            for feature in features
+        }
+
+        self.assertEqual(
+            geometries,
+            {"LineString", "Point"},
+        )
+
+        puntos = {
+            feature["properties"]["punto"]
+            for feature in features
+            if feature["geometry"]["type"] == "Point"
+        }
+
+        self.assertEqual(puntos, {"origen", "destino"})
+
+        rutas = [
+            feature
+            for feature in features
+            if feature["geometry"]["type"] == "LineString"
+        ]
+
+        self.assertEqual(len(rutas), 1)
+        self.assertEqual(
+            rutas[0]["properties"]["geometria_tipo"],
+            "ruta",
+        )
+
+    def test_geojson_misiones_devuelve_feature_collection(self):
+        self.crear_mision("MIS-008")
+
+        resultado = misiones_geojson()
+
+        self.assertEqual(
+            resultado["type"],
+            "FeatureCollection",
+        )
+
+        for feature in resultado["features"]:
+            self.assertEqual(feature["type"], "Feature")
+            self.assertIn("geometry", feature)
+            self.assertIn("properties", feature)
+
+    def test_geojson_operacional_requiere_autenticacion(self):
+        client = APIClient()
+
+        response_vehiculos = client.get(
+            "/mapa/api/geojson/vehiculos/"
+        )
+        response_misiones = client.get(
+            "/mapa/api/geojson/misiones/"
+        )
+
+        self.assertEqual(response_vehiculos.status_code, 302)
+        self.assertEqual(response_misiones.status_code, 302)
+
+    def test_geojson_operacional_autenticado(self):
+        client = APIClient()
+
+        autenticado = client.login(
+            username="gis.usuario",
+            password="ClaveSegura123!",
+        )
+
+        self.assertTrue(autenticado)
+
+        self.crear_vehiculo(
+            "GIS-005",
+            ubicacion=Point(-66.93, 10.51, srid=4326),
+        )
+        self.crear_mision("MIS-009")
+
+        response_vehiculos = client.get(
+            "/mapa/api/geojson/vehiculos/"
+        )
+        response_misiones = client.get(
+            "/mapa/api/geojson/misiones/"
+        )
+
+        self.assertEqual(response_vehiculos.status_code, 200)
+        self.assertEqual(response_misiones.status_code, 200)
+
+        self.assertEqual(
+            response_vehiculos.json()["type"],
+            "FeatureCollection",
+        )
+        self.assertEqual(
+            response_misiones.json()["type"],
+            "FeatureCollection",
+        )
+
+
 class OperacionesModelTests(TestCase):
 
     @classmethod

@@ -27,3 +27,18 @@ urlpatterns = [
         name="geojson-reportes-viales",
     ),
 ]
+
+
+# Capas operativas protegidas: requieren autenticación.
+urlpatterns += [
+    path(
+        "api/geojson/vehiculos/",
+        views.vehiculos_geojson_view,
+        name="geojson-vehiculos",
+    ),
+    path(
+        "api/geojson/misiones/",
+        views.misiones_geojson_view,
+        name="geojson-misiones",
+    ),
+]
