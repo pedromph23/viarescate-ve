@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import LineString, Point
@@ -474,6 +475,209 @@ class OperacionesAPITestCase(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @patch("operaciones.api.views.MissionService.plan_route")
+    def test_coordinador_puede_planificar_ruta_de_mision(
+        self,
+        mock_plan_route,
+    ):
+        self.autenticar(self.coordinador)
+
+        mision = Mision.objects.create(
+            nombre="Misión para planificar ruta",
+            origen=Point(-66.90, 10.48, srid=4326),
+            destino=Point(-66.91, 10.49, srid=4326),
+            coordinador=self.coordinador,
+            prioridad=3,
+        )
+
+        ruta = LineString(
+            (-66.90, 10.48),
+            (-66.905, 10.485),
+            (-66.91, 10.49),
+            srid=4326,
+        )
+
+        resultado = type(
+            "FakeRouteResult",
+            (),
+            {
+                "geometry": ruta,
+                "distance_km": 12.34,
+                "duration_minutes": 28,
+                "provider": "test",
+                "candidates_considered": 2,
+            },
+        )()
+
+        def planificar_ruta_fake(mission, *, save=True):
+            if save:
+                mission.ruta = resultado.geometry
+                mission.distancia_km = resultado.distance_km
+                mission.tiempo_estimado_minutos = resultado.duration_minutes
+                mission.save(
+                    update_fields=(
+                        "ruta",
+                        "distancia_km",
+                        "tiempo_estimado_minutos",
+                    )
+                )
+            return resultado
+
+        mock_plan_route.side_effect = planificar_ruta_fake
+
+        response = self.client.post(
+            f"/api/misiones/{mision.pk}/planificar-ruta/",
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+
+        mock_plan_route.assert_called_once_with(
+            mision,
+            save=True,
+        )
+
+        mision.refresh_from_db()
+
+        self.assertEqual(
+            mision.estado_mision,
+            Mision.Estados.PLANIFICADA,
+        )
+
+        self.assertEqual(
+            mision.distancia_km,
+            Decimal("12.34"),
+        )
+
+        self.assertEqual(
+            mision.tiempo_estimado_minutos,
+            28,
+        )
+
+        self.assertIsNotNone(mision.ruta)
+
+        self.assertEqual(
+            response.data["estado_mision"],
+            Mision.Estados.PLANIFICADA,
+        )
+
+        auditoria = AuditLog.objects.filter(
+            accion="PLANIFICAR_RUTA_MISION",
+            objeto_id=str(mision.pk),
+        ).first()
+
+        self.assertIsNotNone(auditoria)
+
+        self.assertEqual(
+            auditoria.usuario,
+            self.coordinador,
+        )
+
+        self.assertEqual(
+            auditoria.modulo,
+            "operaciones",
+        )
+
+        self.assertEqual(
+            auditoria.resultado,
+            AuditLog.Resultados.EXITO,
+        )
+
+        self.assertEqual(
+            auditoria.detalles["provider"],
+            "test",
+        )
+
+        self.assertEqual(
+            auditoria.detalles["distance_km"],
+            12.34,
+        )
+
+        self.assertEqual(
+            auditoria.detalles["duration_minutes"],
+            28,
+        )
+
+        self.assertEqual(
+            auditoria.detalles["candidates_considered"],
+            2,
+        )
+
+    def test_usuario_no_puede_planificar_ruta_de_mision(self):
+        self.autenticar(self.usuario)
+
+        mision = Mision.objects.create(
+            nombre="Misión sin autorización",
+            origen=Point(-66.90, 10.48, srid=4326),
+            destino=Point(-66.91, 10.49, srid=4326),
+            coordinador=self.coordinador,
+            prioridad=3,
+        )
+
+        response = self.client.post(
+            f"/api/misiones/{mision.pk}/planificar-ruta/",
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    @patch("operaciones.api.views.MissionService.plan_route")
+    def test_planificar_ruta_no_cambia_estado_de_mision(
+        self,
+        mock_plan_route,
+    ):
+        self.autenticar(self.coordinador)
+
+        mision = Mision.objects.create(
+            nombre="Misión mantiene estado",
+            estado_mision=Mision.Estados.ASIGNADA,
+            origen=Point(-66.90, 10.48, srid=4326),
+            destino=Point(-66.91, 10.49, srid=4326),
+            coordinador=self.coordinador,
+            prioridad=3,
+        )
+
+        resultado = type(
+            "FakeRouteResult",
+            (),
+            {
+                "geometry": LineString(
+                    (-66.90, 10.48),
+                    (-66.91, 10.49),
+                    srid=4326,
+                ),
+                "distance_km": 5.50,
+                "duration_minutes": 15,
+                "provider": "test",
+                "candidates_considered": 1,
+            },
+        )()
+
+        mock_plan_route.return_value = resultado
+
+        response = self.client.post(
+            f"/api/misiones/{mision.pk}/planificar-ruta/",
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+
+        mision.refresh_from_db()
+
+        self.assertEqual(
+            mision.estado_mision,
+            Mision.Estados.ASIGNADA,
+        )
 
     # ------------------------------------------------------------------
     # Inventario
