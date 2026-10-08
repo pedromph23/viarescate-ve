@@ -1356,3 +1356,473 @@ class AuditServiceTests(TestCase):
             AuditService.get_client_ip(request),
             "10.0.0.5",
         )
+
+
+class FakeRouteProvider:
+    """Proveedor determinista para probar el motor sin Internet."""
+
+    name = "fake"
+
+    def __init__(self, candidates):
+        self.candidates = candidates
+
+    def calculate_routes(
+        self,
+        origin,
+        destination,
+        *,
+        alternatives=True,
+    ):
+        return self.candidates
+
+
+class RouteEvaluatorTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.estado = Estado.objects.create(
+            codigo="RT01",
+            nombre="Estado Rutas",
+        )
+
+    def crear_via(
+        self,
+        codigo,
+        geometria,
+        estado_vial=Via.Estados.NORMAL,
+    ):
+        return Via.objects.create(
+            nombre=f"Vía {codigo}",
+            codigo=codigo,
+            estado=self.estado,
+            geometria=geometria,
+            estado_vial=estado_vial,
+            activa=True,
+        )
+
+    def crear_geometria(self, y):
+        return LineString(
+            (-66.95, y),
+            (-66.90, y),
+            srid=4326,
+        )
+
+    def crear_reporte(
+        self,
+        via,
+        *,
+        estado_reporte=ReporteVial.Estados.CONFIRMADO,
+        severidad=3,
+    ):
+        return ReporteVial.objects.create(
+            via=via,
+            tipo=ReporteVial.Tipos.OBSTACULO,
+            estado_reporte=estado_reporte,
+            ubicacion=Point(-66.925, 10.50, srid=4326),
+            titulo="Obstáculo de prueba",
+            descripcion="Reporte generado para pruebas del motor.",
+            severidad=severidad,
+        )
+
+    def test_via_normal_no_agrega_riesgo(self):
+        via = self.crear_via(
+            "RT-VIA-001",
+            self.crear_geometria(10.50),
+            Via.Estados.NORMAL,
+        )
+
+        from operaciones.routing.evaluator import RouteEvaluator
+
+        evaluation = RouteEvaluator().evaluate(
+            via.geometria,
+            distance_meters=1000,
+            duration_seconds=600,
+        )
+
+        self.assertFalse(evaluation.blocked)
+        self.assertEqual(evaluation.risk_score, 0.0)
+        self.assertEqual(
+            evaluation.via_ids,
+            (str(via.id),),
+        )
+
+    def test_via_afectada_incrementa_riesgo(self):
+        via = self.crear_via(
+            "RT-VIA-002",
+            self.crear_geometria(10.51),
+            Via.Estados.AFECTADA,
+        )
+
+        from operaciones.routing.evaluator import RouteEvaluator
+
+        evaluation = RouteEvaluator().evaluate(
+            via.geometria,
+            distance_meters=1000,
+            duration_seconds=600,
+        )
+
+        self.assertFalse(evaluation.blocked)
+        self.assertEqual(evaluation.risk_score, 35.0)
+        self.assertEqual(
+            evaluation.via_ids,
+            (str(via.id),),
+        )
+
+    def test_via_cerrada_bloquea_la_ruta(self):
+        via = self.crear_via(
+            "RT-VIA-003",
+            self.crear_geometria(10.52),
+            Via.Estados.CERRADA,
+        )
+
+        from operaciones.routing.evaluator import RouteEvaluator
+
+        evaluation = RouteEvaluator().evaluate(
+            via.geometria,
+            distance_meters=1000,
+            duration_seconds=600,
+        )
+
+        self.assertTrue(evaluation.blocked)
+        self.assertEqual(
+            evaluation.via_ids,
+            (str(via.id),),
+        )
+
+    def test_reporte_confirmado_penaliza_segun_severidad(self):
+        via = self.crear_via(
+            "RT-VIA-004",
+            self.crear_geometria(10.53),
+        )
+        reporte = self.crear_reporte(
+            via,
+            estado_reporte=ReporteVial.Estados.CONFIRMADO,
+            severidad=4,
+        )
+
+        from operaciones.routing.evaluator import RouteEvaluator
+
+        evaluation = RouteEvaluator().evaluate(
+            via.geometria,
+            distance_meters=1000,
+            duration_seconds=600,
+        )
+
+        self.assertEqual(evaluation.risk_score, 40.0)
+        self.assertEqual(
+            evaluation.report_ids,
+            (str(reporte.id),),
+        )
+
+    def test_reporte_pendiente_aplica_penalizacion_reducida(self):
+        via = self.crear_via(
+            "RT-VIA-005",
+            self.crear_geometria(10.54),
+        )
+        self.crear_reporte(
+            via,
+            estado_reporte=ReporteVial.Estados.PENDIENTE,
+            severidad=5,
+        )
+
+        from operaciones.routing.evaluator import RouteEvaluator
+
+        evaluation = RouteEvaluator().evaluate(
+            via.geometria,
+            distance_meters=1000,
+            duration_seconds=600,
+        )
+
+        self.assertEqual(evaluation.risk_score, 20.0)
+
+    def test_reportes_rechazado_y_resuelto_no_penalizan(self):
+        via = self.crear_via(
+            "RT-VIA-006",
+            self.crear_geometria(10.55),
+        )
+
+        self.crear_reporte(
+            via,
+            estado_reporte=ReporteVial.Estados.RECHAZADO,
+            severidad=5,
+        )
+        self.crear_reporte(
+            via,
+            estado_reporte=ReporteVial.Estados.RESUELTO,
+            severidad=5,
+        )
+
+        from operaciones.routing.evaluator import RouteEvaluator
+
+        evaluation = RouteEvaluator().evaluate(
+            via.geometria,
+            distance_meters=1000,
+            duration_seconds=600,
+        )
+
+        self.assertEqual(evaluation.risk_score, 0.0)
+
+
+class RouteServiceTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.estado = Estado.objects.create(
+            codigo="RS01",
+            nombre="Estado Servicio Rutas",
+        )
+
+    def crear_mision(
+        self,
+        codigo,
+        *,
+        modo=Mision.ModosRuta.HUMANITARIA,
+    ):
+        return Mision.objects.create(
+            codigo=codigo,
+            nombre=f"Misión {codigo}",
+            modo_ruta=modo,
+            origen=Point(-66.96, 10.48, srid=4326),
+            destino=Point(-66.89, 10.56, srid=4326),
+            prioridad=3,
+        )
+
+    @staticmethod
+    def crear_candidato(
+        y,
+        *,
+        distancia,
+        duracion,
+    ):
+        from operaciones.routing.base import RouteCandidate
+
+        return RouteCandidate(
+            geometry=LineString(
+                (-66.95, y),
+                (-66.90, y),
+                srid=4326,
+            ),
+            distance_meters=distancia,
+            duration_seconds=duracion,
+        )
+
+    def test_mas_corta_selecciona_la_menor_distancia(self):
+        mission = self.crear_mision(
+            "RT-MIS-001",
+            modo=Mision.ModosRuta.MAS_CORTA,
+        )
+
+        candidatos = [
+            self.crear_candidato(
+                10.60,
+                distancia=5000,
+                duracion=600,
+            ),
+            self.crear_candidato(
+                10.61,
+                distancia=3000,
+                duracion=900,
+            ),
+        ]
+
+        from operaciones.routing.services import RouteService
+
+        result = RouteService(
+            provider=FakeRouteProvider(candidatos),
+        ).calculate_for_mission(mission)
+
+        self.assertEqual(result.distance_km, 3.0)
+        self.assertEqual(result.duration_minutes, 15)
+        self.assertEqual(result.candidates_considered, 2)
+
+    def test_mas_rapida_selecciona_el_menor_tiempo(self):
+        mission = self.crear_mision(
+            "RT-MIS-002",
+            modo=Mision.ModosRuta.MAS_RAPIDA,
+        )
+
+        candidatos = [
+            self.crear_candidato(
+                10.62,
+                distancia=3000,
+                duracion=900,
+            ),
+            self.crear_candidato(
+                10.63,
+                distancia=5000,
+                duracion=600,
+            ),
+        ]
+
+        from operaciones.routing.services import RouteService
+
+        result = RouteService(
+            provider=FakeRouteProvider(candidatos),
+        ).calculate_for_mission(mission)
+
+        self.assertEqual(result.distance_km, 5.0)
+        self.assertEqual(result.duration_minutes, 10)
+
+    def test_mas_segura_prioriza_riesgo_sobre_distancia(self):
+        via = Via.objects.create(
+            nombre="Vía riesgosa",
+            codigo="RS-VIA-001",
+            estado=self.estado,
+            geometria=LineString(
+                (-66.95, 10.64),
+                (-66.90, 10.64),
+                srid=4326,
+            ),
+            estado_vial=Via.Estados.CRITICA,
+            activa=True,
+        )
+
+        mission = self.crear_mision(
+            "RT-MIS-003",
+            modo=Mision.ModosRuta.MAS_SEGURA,
+        )
+
+        candidatos = [
+            self.crear_candidato(
+                10.64,
+                distancia=1000,
+                duracion=300,
+            ),
+            self.crear_candidato(
+                10.65,
+                distancia=6000,
+                duracion=900,
+            ),
+        ]
+
+        from operaciones.routing.services import RouteService
+
+        result = RouteService(
+            provider=FakeRouteProvider(candidatos),
+        ).calculate_for_mission(mission)
+
+        self.assertEqual(result.distance_km, 6.0)
+        self.assertEqual(result.duration_minutes, 15)
+
+    def test_ruta_cerrada_no_puede_ser_seleccionada(self):
+        Via.objects.create(
+            nombre="Vía cerrada",
+            codigo="RS-VIA-002",
+            estado=self.estado,
+            geometria=LineString(
+                (-66.95, 10.66),
+                (-66.90, 10.66),
+                srid=4326,
+            ),
+            estado_vial=Via.Estados.CERRADA,
+            activa=True,
+        )
+
+        mission = self.crear_mision(
+            "RT-MIS-004",
+            modo=Mision.ModosRuta.MAS_CORTA,
+        )
+
+        candidatos = [
+            self.crear_candidato(
+                10.66,
+                distancia=1000,
+                duracion=300,
+            ),
+            self.crear_candidato(
+                10.67,
+                distancia=5000,
+                duracion=900,
+            ),
+        ]
+
+        from operaciones.routing.services import RouteService
+
+        result = RouteService(
+            provider=FakeRouteProvider(candidatos),
+        ).calculate_for_mission(mission)
+
+        self.assertEqual(result.distance_km, 5.0)
+
+    def test_todas_las_rutas_cerradas_lanzan_error(self):
+        from operaciones.routing.exceptions import RouteValidationError
+        from operaciones.routing.services import RouteService
+
+        Via.objects.create(
+            nombre="Vía cerrada A",
+            codigo="RS-VIA-003",
+            estado=self.estado,
+            geometria=LineString(
+                (-66.95, 10.68),
+                (-66.90, 10.68),
+                srid=4326,
+            ),
+            estado_vial=Via.Estados.CERRADA,
+            activa=True,
+        )
+
+        Via.objects.create(
+            nombre="Vía cerrada B",
+            codigo="RS-VIA-004",
+            estado=self.estado,
+            geometria=LineString(
+                (-66.95, 10.69),
+                (-66.90, 10.69),
+                srid=4326,
+            ),
+            estado_vial=Via.Estados.CERRADA,
+            activa=True,
+        )
+
+        mission = self.crear_mision(
+            "RT-MIS-005",
+            modo=Mision.ModosRuta.HUMANITARIA,
+        )
+
+        candidatos = [
+            self.crear_candidato(
+                10.68,
+                distancia=1000,
+                duracion=300,
+            ),
+            self.crear_candidato(
+                10.69,
+                distancia=2000,
+                duracion=500,
+            ),
+        ]
+
+        with self.assertRaises(RouteValidationError):
+            RouteService(
+                provider=FakeRouteProvider(candidatos),
+            ).calculate_for_mission(mission)
+
+    def test_save_guarda_ruta_distancia_y_tiempo(self):
+        mission = self.crear_mision(
+            "RT-MIS-006",
+            modo=Mision.ModosRuta.MAS_CORTA,
+        )
+
+        candidato = self.crear_candidato(
+            10.70,
+            distancia=4250,
+            duracion=725,
+        )
+
+        from operaciones.routing.services import RouteService
+
+        result = RouteService(
+            provider=FakeRouteProvider([candidato]),
+        ).calculate_for_mission(
+            mission,
+            save=True,
+        )
+
+        mission.refresh_from_db()
+
+        self.assertEqual(mission.distancia_km, Decimal("4.25"))
+        self.assertEqual(mission.tiempo_estimado_minutos, 12)
+        self.assertIsNotNone(mission.ruta)
+        self.assertTrue(
+            mission.ruta.equals(result.geometry)
+        )
