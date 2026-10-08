@@ -8,6 +8,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from .models import AuditLog, Inventario, Mision, MovimientoInventario
+from .routing.services import RouteService
 
 
 class AuditService:
@@ -96,6 +97,19 @@ class MissionService:
 
         mission.full_clean()
         return mission
+
+    @classmethod
+    def plan_route(
+        cls,
+        mission: Mision,
+        *,
+        save: bool = True,
+    ):
+        """Calcula y, opcionalmente, persiste la ruta de una misión."""
+        return RouteService().calculate_for_mission(
+            mission,
+            save=save,
+        )
 
 
 class InventoryService:

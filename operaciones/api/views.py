@@ -3,7 +3,10 @@ from django.db import transaction
 from django.utils import timezone
 
 from rest_framework import filters, serializers, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from operaciones.routing.exceptions import RoutingError
 
 from operaciones.models import (
     AuditLog,
@@ -17,7 +20,7 @@ from operaciones.models import (
     Vehiculo,
     Via,
 )
-from operaciones.services import AuditService, InventoryService
+from operaciones.services import AuditService, InventoryService, MissionService
 
 from .filters import (
     AuditLogFilter,
@@ -381,6 +384,53 @@ class MisionViewSet(AuditableModelViewSet):
         with transaction.atomic():
             instance = serializer.save()
             self._audit("CREAR_MISION", instance)
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="planificar-ruta",
+        permission_classes=[IsCoordinadorOrAdmin],
+    )
+    def planificar_ruta(self, request, *args, **kwargs):
+        mission = self.get_object()
+
+        try:
+            result = MissionService.plan_route(
+                mission,
+                save=True,
+            )
+        except ValidationError as exc:
+            return Response(
+                {
+                    "detail": str(exc),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except RoutingError as exc:
+            return Response(
+                {
+                    "detail": str(exc),
+                },
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+
+        self._audit(
+            "PLANIFICAR_RUTA_MISION",
+            mission,
+            detalles={
+                "provider": result.provider,
+                "distance_km": result.distance_km,
+                "duration_minutes": result.duration_minutes,
+                "candidates_considered": result.candidates_considered,
+            },
+        )
+
+        serializer = self.get_serializer(mission)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class RecursoViewSet(AuditableModelViewSet):
