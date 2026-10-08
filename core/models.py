@@ -20,6 +20,7 @@ class Municipio(models.Model):
         on_delete=models.PROTECT,
         related_name="municipios",
     )
+    codigo = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=120)
 
     class Meta:
@@ -43,6 +44,7 @@ class Parroquia(models.Model):
         on_delete=models.PROTECT,
         related_name="parroquias",
     )
+    codigo = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=120)
 
     class Meta:

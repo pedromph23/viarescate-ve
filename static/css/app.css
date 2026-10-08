@@ -1,0 +1,688 @@
+:root {
+    --bg: #f5f7f4;
+    --surface: #ffffff;
+    --surface-soft: #edf4ef;
+    --text: #20302a;
+    --text-soft: #65736d;
+    --border: #dce5df;
+    --primary: #28745b;
+    --primary-soft: #dcefe6;
+    --shadow: 0 12px 32px rgba(32, 48, 42, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    background:
+        radial-gradient(circle at top left, #e7f3ec 0, transparent 32rem),
+        linear-gradient(135deg, #f8faf8, #eef5f0);
+    color: var(--text);
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+a {
+    color: inherit;
+}
+
+.container {
+    width: min(1440px, calc(100% - 32px));
+    margin-inline: auto;
+}
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.88);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+}
+
+.navbar {
+    min-height: 72px;
+}
+
+.navbar-inner {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.brand-mark {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #28745b, #6da98e);
+    color: white;
+    font-weight: 800;
+}
+
+.brand strong,
+.brand small {
+    display: block;
+}
+
+.brand small {
+    margin-top: 2px;
+    color: var(--text-soft);
+    font-size: 0.75rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 22px;
+}
+
+.nav-links a {
+    color: var(--text-soft);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    color: var(--primary);
+}
+
+.site-footer {
+    padding: 28px 0;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+}
+
+.map-page {
+    padding: 36px 0 48px;
+}
+
+.page-heading {
+    margin-bottom: 24px;
+}
+
+.eyebrow {
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.page-heading h1 {
+    margin: 8px 0;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+}
+
+.page-heading p {
+    max-width: 720px;
+    margin: 0;
+    color: var(--text-soft);
+    line-height: 1.7;
+}
+
+.map-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 18px;
+}
+
+.map-panel {
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.84);
+    box-shadow: var(--shadow);
+}
+
+.map-panel h2 {
+    margin-top: 0;
+    font-size: 1rem;
+}
+
+.layer-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    color: var(--text-soft);
+    cursor: pointer;
+}
+
+.layer-toggle input {
+    width: 18px;
+    height: 18px;
+}
+
+.map-container {
+    min-height: 650px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+}
+
+.map-legend {
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.map-legend div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+}
+
+.legend-line {
+    display: inline-block;
+    width: 28px;
+    height: 4px;
+    border-radius: 4px;
+}
+
+.normal {
+    background: #4f8a68;
+}
+
+.precaucion {
+    background: #d49a32;
+}
+
+.afectada {
+    background: #df713d;
+}
+
+.critica {
+    background: #b84a4a;
+}
+
+.cerrada {
+    background: #555;
+}
+
+.map-popup {
+    min-width: 190px;
+}
+
+.map-popup strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.map-popup p {
+    margin: 5px 0;
+}
+
+@media (max-width: 800px) {
+    .navbar-inner {
+        align-items: flex-start;
+        padding: 12px 0;
+        flex-direction: column;
+    }
+
+    .nav-links {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .map-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .map-container {
+        min-height: 560px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: min(100% - 20px, 1440px);
+    }
+
+    .map-page {
+        padding-top: 24px;
+    }
+
+    .map-container {
+        min-height: 480px;
+        border-radius: 16px;
+    }
+}
+
+/* ==========================================================
+   Página pública
+   ========================================================== */
+
+.home-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 5rem 0;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(111, 168, 146, 0.18), transparent 34%),
+        radial-gradient(circle at 85% 15%, rgba(226, 191, 124, 0.18), transparent 30%),
+        linear-gradient(135deg, #f4f7f2 0%, #eaf1ec 48%, #f7f2e8 100%);
+}
+
+.home-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+    gap: 3rem;
+    align-items: center;
+}
+
+.home-hero-content h1 {
+    max-width: 850px;
+    margin: 0.5rem 0 1.25rem;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+}
+
+.hero-highlight {
+    display: block;
+    background: linear-gradient(120deg, #467d69, #8c7650);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-lead {
+    max-width: 720px;
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.75;
+    color: #536158;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 2rem;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0.75rem 1.15rem;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        background-color 160ms ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+}
+
+.button-primary {
+    color: #fff;
+    background: linear-gradient(135deg, #427662, #5f8d78);
+    box-shadow: 0 10px 24px rgba(66, 118, 98, 0.22);
+}
+
+.button-primary:hover {
+    color: #fff;
+    box-shadow: 0 14px 28px rgba(66, 118, 98, 0.28);
+}
+
+.button-secondary {
+    color: #4d5d54;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(75, 95, 83, 0.14);
+}
+
+.home-hero-card {
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.68);
+    box-shadow: 0 24px 60px rgba(65, 81, 70, 0.13);
+    backdrop-filter: blur(16px);
+}
+
+.hero-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #526157;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.status-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #67987e;
+    box-shadow: 0 0 0 5px rgba(103, 152, 126, 0.13);
+}
+
+.hero-card-body {
+    margin-top: 2rem;
+}
+
+.hero-card-body strong {
+    display: block;
+    font-size: 1.4rem;
+    line-height: 1.25;
+}
+
+.hero-card-body p {
+    margin: 0.8rem 0 1.25rem;
+    color: #617067;
+    line-height: 1.65;
+}
+
+.hero-card-link {
+    color: #47745f;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.home-section {
+    padding: 5rem 0;
+}
+
+.home-section-soft {
+    background:
+        linear-gradient(135deg, rgba(238, 244, 239, 0.9), rgba(248, 244, 236, 0.82));
+}
+
+.section-heading {
+    max-width: 760px;
+    margin-bottom: 2rem;
+}
+
+.section-heading h2 {
+    margin: 0.45rem 0 0.8rem;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+}
+
+.section-heading p {
+    margin: 0;
+    color: #637068;
+    line-height: 1.7;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.stat-card,
+.feature-card {
+    border: 1px solid rgba(78, 97, 85, 0.1);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.76);
+    box-shadow: 0 12px 35px rgba(72, 84, 76, 0.07);
+}
+
+.stat-card {
+    min-height: 180px;
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    color: #65736b;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.stat-value {
+    margin-top: 1rem;
+    font-size: 2.8rem;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.stat-description {
+    margin-top: auto;
+    padding-top: 1rem;
+    color: #78847d;
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.feature-card {
+    padding: 1.5rem;
+}
+
+.feature-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    margin-bottom: 1rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #e1eee6, #f0e8d8);
+    color: #4b725f;
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.feature-card h3 {
+    margin: 0 0 0.6rem;
+}
+
+.feature-card p {
+    margin: 0;
+    color: #69756e;
+    line-height: 1.65;
+}
+
+.home-map-cta {
+    padding: 0 0 5rem;
+}
+
+.map-cta-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2rem;
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 90% 20%, rgba(224, 194, 137, 0.2), transparent 35%),
+        linear-gradient(135deg, #e9f1eb, #f4eee2);
+}
+
+.map-cta-card h2 {
+    margin: 0.45rem 0 0.65rem;
+}
+
+.map-cta-card p {
+    max-width: 680px;
+    margin: 0;
+    color: #68756d;
+    line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+    .home-hero {
+        padding: 4rem 0;
+    }
+
+    .home-hero-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .home-section {
+        padding: 3.5rem 0;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .map-cta-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-hero {
+        padding: 3rem 0;
+    }
+
+    .home-hero-content h1 {
+        font-size: 2.65rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .button {
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        min-height: 150px;
+    }
+}
+
+/* ==========================================================
+   GIS operativo
+   ========================================================== */
+
+.map-shell {
+    position: relative;
+}
+
+.map-status {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    z-index: 500;
+    width: min(90%, 520px);
+    transform: translateX(-50%);
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(72, 91, 80, 0.12);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 8px 24px rgba(45, 59, 50, 0.14);
+    color: #526158;
+    font-size: 0.9rem;
+    font-weight: 650;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.map-status[data-status="loading"] {
+    border-color: rgba(71, 122, 102, 0.2);
+}
+
+.map-status[data-status="empty"] {
+    border-color: rgba(138, 109, 69, 0.2);
+}
+
+.map-status[data-status="error"] {
+    border-color: rgba(182, 92, 88, 0.24);
+}
+
+.map-container {
+    background: #e7ece8;
+}
+
+.map-popup {
+    min-width: 210px;
+    color: #26342d;
+}
+
+.map-popup strong {
+    display: block;
+    margin-bottom: 0.7rem;
+    color: #30483c;
+    font-size: 1rem;
+}
+
+.map-popup p {
+    margin: 0.4rem 0;
+    color: #627067;
+    line-height: 1.45;
+}
+
+.map-popup-label {
+    color: #43574c;
+    font-weight: 700;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 16px;
+}
+
+.leaflet-popup-content {
+    margin: 15px 17px;
+}
+
+.leaflet-control-zoom {
+    border: 1px solid rgba(55, 72, 62, 0.12) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(40, 54, 46, 0.12) !important;
+}
+
+.leaflet-control-zoom a {
+    color: #40574b !important;
+}
+
+@media (max-width: 480px) {
+    .map-status {
+        top: 10px;
+        width: calc(100% - 24px);
+        font-size: 0.82rem;
+    }
+}

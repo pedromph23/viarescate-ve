@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mapa operativo · VíaRescate VE{% endblock %}
+
+{% block content %}
+<section class="map-page">
+    <div class="container">
+        <div class="page-heading">
+            <div>
+                <span class="eyebrow">Información geográfica</span>
+                <h1>Mapa operativo</h1>
+                <p>
+                    Consulta centros de ayuda, refugios, vías e incidencias
+                    viales registradas en VíaRescate VE.
+                </p>
+            </div>
+        </div>
+
+        <div class="map-layout">
+            <aside class="map-panel" aria-label="Controles del mapa">
+                <h2>Capas</h2>
+
+                <label class="layer-toggle">
+                    <input
+                        type="checkbox"
+                        data-layer-toggle="centros"
+                        checked
+                    >
+                    <span>Centros de ayuda</span>
+                </label>
+
+                <label class="layer-toggle">
+                    <input
+                        type="checkbox"
+                        data-layer-toggle="refugios"
+                        checked
+                    >
+                    <span>Refugios</span>
+                </label>
+
+                <label class="layer-toggle">
+                    <input
+                        type="checkbox"
+                        data-layer-toggle="vias"
+                        checked
+                    >
+                    <span>Vías</span>
+                </label>
+
+                <label class="layer-toggle">
+                    <input
+                        type="checkbox"
+                        data-layer-toggle="reportes"
+                        checked
+                    >
+                    <span>Incidencias viales</span>
+                </label>
+
+                <div class="map-legend">
+                    <h2>Leyenda vial</h2>
+
+                    <div><span class="legend-line normal"></span> Normal</div>
+                    <div><span class="legend-line precaucion"></span> Precaución</div>
+                    <div><span class="legend-line afectada"></span> Afectada</div>
+                    <div><span class="legend-line critica"></span> Crítica</div>
+                    <div><span class="legend-line cerrada"></span> Cerrada</div>
+                </div>
+            </aside>
+
+            <div class="map-shell">
+                <div
+                    class="map-status"
+                    data-map-status
+                    role="status"
+                    aria-live="polite"
+                    hidden
+                ></div>
+
+                <div
+                    id="map"
+                    class="map-container"
+                    aria-label="Mapa interactivo de VíaRescate VE"
+                ></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/mapa.js' %}"></script>
+{% endblock %}
