@@ -1,11 +1,12 @@
 {
+  "rewrites": [
+    { "source": "/static", "destination": "/static" },
+    { "source": "/(.*)", "destination": "api/index.py" }
+  ],
   "functions": {
-    "config/wsgi.py": {
+    "api/index.py": {
       "runtime": "vercel-python-gis-runtime@1.1.1",
       "maxDuration": 30
     }
-  },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "config/wsgi.py" }
-  ]
+  }
 }
