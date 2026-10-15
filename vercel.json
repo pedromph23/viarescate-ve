@@ -5,7 +5,8 @@
   ],
   "functions": {
     "api/index.py": {
-      "runtime": "vercel-python-gis-runtime@1.1.1"
+      "runtime": "vercel-python-gis@1.0.0",
+      "maxDuration": 30
     }
   }
 }
