@@ -3,15 +3,10 @@
   "builds": [
     {
       "src": "config/wsgi.py",
-      "use": "@vercel/python",
-      "config": { "maxLambdaSize": "50mb" }
+      "use": "vercel-python-gis-modern@1.0.6"
     }
   ],
-  "routes": [
-    { "src": "/(.*)", "dest": "config/wsgi.py" }
-  ],
-  "env": {
-    "DJANGO_SETTINGS_MODULE": "config.settings.production",
-    "PYTHONUNBUFFERED": "1"
-  }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "config/wsgi.py" }
+  ]
 }
