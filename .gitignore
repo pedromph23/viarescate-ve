@@ -55,3 +55,4 @@ pnpm-debug.log*
 # Local tooling
 .mypy_cache/
 .ruff_cache/
+.vercel/
