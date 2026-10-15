@@ -1,12 +1,11 @@
 {
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "vercel-python-gis-runtime@1.1.1"
-    }
-  ],
   "rewrites": [
-    { "source": "/static/(.*)", "destination": "/static/$1" },
+    { "source": "/static", "destination": "/static" },
     { "source": "/(.*)", "destination": "api/index.py" }
-  ]
+  ],
+  "functions": {
+    "api/index.py": {
+      "runtime": "vercel-python-gis-runtime@1.1.1"
+    }
+  }
 }
