@@ -1,12 +1,12 @@
 {
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "vercel-python-gis-modern@1.0.6"
+    }
+  ],
   "rewrites": [
     { "source": "/static", "destination": "/static" },
     { "source": "/(.*)", "destination": "api/index.py" }
-  ],
-  "functions": {
-    "api/index.py": {
-      "runtime": "vercel-python-gis@1.0.0",
-      "maxDuration": 30
-    }
-  }
+  ]
 }
