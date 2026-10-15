@@ -1,14 +1,12 @@
 {
-  "buildCommand": "",
-  "installCommand": "pip install --break-system-packages -r requirements.txt",
+  "rewrites": [
+    { "source": "/static", "destination": "/static" },
+    { "source": "/(.*)", "destination": "api/index.py" }
+  ],
   "functions": {
     "api/index.py": {
       "runtime": "vercel-python-gis@1.0.0",
       "maxDuration": 30
     }
-  },
-  "rewrites": [
-    { "source": "/static", "destination": "/static" },
-    { "source": "/(.*)", "destination": "api/index.py" }
-  ]
+  }
 }
