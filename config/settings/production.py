@@ -113,3 +113,11 @@ AUDIT_TRUST_PROXY_HEADERS = env.bool(
 GDAL_LIBRARY_PATH = "libgdal.so"
 GEOS_LIBRARY_PATH = "libgeos_c.so.1"
 PROJ_LIBRARY_PATH = "libproj.so"
+
+
+# ---------------------------------------------------------------------------
+# GeoDjango: rutas a librerías nativas provistas por vercel-python-gis-modern
+# ---------------------------------------------------------------------------
+GDAL_LIBRARY_PATH = "libgdal.so"
+GEOS_LIBRARY_PATH = "libgeos_c.so.1"
+PROJ_LIBRARY_PATH = "libproj.so"
