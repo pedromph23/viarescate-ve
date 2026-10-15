@@ -94,11 +94,12 @@ DATABASES = {
     "default": env.db(
         "DATABASE_URL",
         default=(
-            f"postgis://{env('DB_USER', default='viarescate')}:"
-            f"{env('DB_PASSWORD', default='')}@"
-            f"{env('DB_HOST', default='127.0.0.1')}:"
-            f"{env('DB_PORT', default='5432')}/"
-            f"{env('DB_NAME', default='viarescate_ve')}"
+            f"postgis://{env('SUPABASE_DB_USER', default='viarescate')}:"
+            f"{env('SUPABASE_DB_PASSWORD', default='')}@"
+            f"{env('SUPABASE_DB_HOST', default='127.0.0.1')}:"
+            f"{env('SUPABASE_DB_PORT', default='5432')}/"
+            f"{env('SUPABASE_DB_NAME', default='viarescate_ve')}"
+            "?sslmode=require"
         ),
     )
 }
