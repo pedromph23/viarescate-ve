@@ -1,2064 +1,495 @@
 # VíaRescate VE
 
-Sistema inteligente de rutas para la distribución de ayuda humanitaria en Venezuela.
+**Sistema Inteligente de Rutas para Distribución de Ayuda Humanitaria en Venezuela**
 
-VíaRescate VE es una aplicación web desarrollada con **Django/GeoDjango** para apoyar la gestión de operaciones humanitarias, información territorial, recursos, vehículos, refugios, reportes viales y planificación de rutas.
+Optimización de rutas desde centros de acopio hacia refugios, considerando
+distancia, tiempo, estado de las vías, incidentes y prioridad humanitaria.
 
-> **Estado actual:** proyecto funcional en desarrollo progresivo. Este README documenta el entorno local actualmente verificado y la arquitectura existente. No se consideran terminadas funcionalidades que todavía estén en desarrollo.
-
----
-
-# 1. Descripción del proyecto
-
-VíaRescate VE tiene como objetivo proporcionar una plataforma para apoyar la planificación y gestión de operaciones de ayuda humanitaria en Venezuela.
-
-El sistema combina:
-
-* Información territorial de Venezuela.
-* Información geográfica.
-* Mapas interactivos.
-* Gestión de operaciones.
-* Gestión de recursos.
-* Gestión de inventarios.
-* Gestión de vehículos.
-* Gestión de refugios.
-* Gestión de centros de ayuda.
-* Reportes sobre vías.
-* Evaluación del estado de las vías.
-* Cálculo y evaluación de rutas.
-* Auditoría de operaciones.
-* API para funcionalidades operativas.
-* PostgreSQL/PostGIS para almacenamiento geoespacial.
-
-El proyecto se desarrolla de forma progresiva para evitar romper las funcionalidades existentes.
+🌐 **Producción:** https://viarescate-ve.vercel.app
 
 ---
 
-# 2. Tecnologías utilizadas
+## Tabla de contenidos
 
-## Backend
-
-* Python
-* Django
-* Django REST Framework
-* GeoDjango
-
-## Base de datos
-
-* PostgreSQL
-* PostGIS
-
-## Frontend
-
-* HTML
-* CSS
-* JavaScript
-* Leaflet
-* GeoJSON
-
-## Infraestructura
-
-* Windows
-* WSL 2
-* Debian / Ubuntu
-* Visual Studio Code
-* Git
-* GitHub
-* Render
-* Supabase
-* Gunicorn
-
-## Tecnologías contempladas progresivamente
-
-* Redis
-* Celery
-* Django Channels
-* ASGI
-* Optimización de rutas
-* Servicios externos de routing
-* OSRM
+1. [Características](#características)
+2. [Stack tecnológico](#stack-tecnológico)
+3. [Arquitectura](#arquitectura)
+4. [Instalación local](#instalación-local)
+5. [Variables de entorno](#variables-de-entorno)
+6. [Tests](#tests)
+7. [Despliegue a producción](#despliegue-a-producción)
+8. [Problemas resueltos](#problemas-resueltos)
+9. [Limitaciones conocidas](#limitaciones-conocidas)
+10. [Estructura del proyecto](#estructura-del-proyecto)
+11. [Contribuir](#contribuir)
 
 ---
 
-# 3. Arquitectura general
+## Características
 
-La arquitectura general del proyecto se puede representar de la siguiente manera:
-
-```text
-Windows
-   │
-   └── WSL 2
-        │
-        └── Linux
-             │
-             ├── Git
-             ├── Python
-             ├── Django
-             ├── PostgreSQL
-             ├── PostGIS
-             └── VíaRescate VE
-                    │
-                    ├── GeoDjango
-                    ├── API
-                    ├── Mapas
-                    ├── Operaciones
-                    └── Routing
-```
-
-Para producción:
-
-```text
-                    ┌──────────────┐
-                    │    Usuario   │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │    Render    │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ Django /     │
-                    │ GeoDjango    │
-                    └──────┬───────┘
-                           │
-                           ▼
-                 ┌────────────────────┐
-                 │ Supabase PostgreSQL│
-                 │      + PostGIS     │
-                 └────────────────────┘
-```
-
-GitHub funciona como repositorio principal del código fuente.
+- 🗺️ Mapa interactivo con Leaflet (centros, refugios, vías, reportes, vehículos)
+- 🛣️ Motor de optimización de rutas configurable (distancia, tiempo, riesgo, prioridad)
+- 📍 PostGIS para consultas geoespaciales (SRID 4326, índices GiST)
+- 🚨 Reportes ciudadanos de incidentes viales con evidencia fotográfica
+- 📦 Inventario y distribución de ayuda humanitaria por centro de acopio
+- 🚚 Gestión de vehículos, misiones y seguimiento en ruta
+- 🔐 Autenticación con roles (administrador, coordinador, operador, voluntario, usuario)
+- 📊 Dashboard operativo con KPIs y alertas
+- 🌓 Modo claro / oscuro, mobile-first, responsive (320px → 1920px)
+- 🔄 Recalculo automático de rutas ante cambios en el estado de las vías
+- 📝 Auditoría completa de acciones sobre datos sensibles
 
 ---
 
-# 4. Requisitos para desarrollo local
+## Stack tecnológico
 
-Para desarrollar VíaRescate VE en Windows se recomienda utilizar:
+### Backend
 
-* Windows 10 versión 2004 o superior, o Windows 11.
-* WSL 2.
-* Una distribución Linux.
-* Visual Studio Code.
-* Git.
-* Python.
-* PostgreSQL.
-* PostGIS.
+| Componente | Versión |
+|-----------|---------|
+| Python | 3.12 (producción) / 3.14 (local) |
+| Django | 6.1.1 |
+| Django REST Framework | 3.18.3 |
+| GeoDjango | incluido en Django |
+| PostgreSQL | 16 |
+| PostGIS | 3.3 |
+| WhiteNoise | 6.8.2 |
+| Channels + Redis | 4.3.2 / 4.3.0 |
+| Celery | 5.6.3 |
 
-Microsoft recomienda actualmente utilizar:
+### Frontend
 
-```powershell
-wsl --install
-```
+- HTML5, CSS3, JavaScript ES6+
+- Leaflet (mapas interactivos)
+- Tailwind CSS (utilidades)
 
-para instalar WSL y una distribución Linux.
+### Infraestructura
 
----
-
-# 5. Instalación de WSL 2 en Windows
-
-## 5.1. ¿Qué es WSL?
-
-WSL significa:
-
-```text
-Windows Subsystem for Linux
-```
-
-Permite ejecutar una distribución Linux directamente dentro de Windows y utilizar Bash, Git, Python, PostgreSQL y otras herramientas Linux sin tener que instalar una máquina virtual tradicional ni realizar un arranque dual.
-
-Para VíaRescate VE, WSL permite tener un entorno Linux de desarrollo mientras se mantiene Windows como sistema operativo principal.
+| Entorno | Plataforma |
+|---------|-----------|
+| Desarrollo | Windows 11 + WSL2 (Ubuntu) + VS Code |
+| Repositorio | GitHub |
+| Base de datos producción | Supabase (PostgreSQL + PostGIS administrado) |
+| Deploy backend | Vercel (runtime Python GIS serverless) |
 
 ---
 
-# 6. Comprobar la versión de Windows
-
-Antes de instalar WSL:
-
-Presionar:
-
-```text
-Windows + R
-```
-
-Escribir:
-
-```text
-winver
-```
-
-Presionar:
-
-```text
-Enter
-```
-
-Se recomienda Windows 11 o Windows 10 versión 2004/build 19041 o posterior.
-
----
-
-# 7. Instalar WSL desde PowerShell
-
-Abrir:
-
-```text
-Inicio
-→ PowerShell
-→ Ejecutar como administrador
-```
-
-Ejecutar:
-
-```powershell
-wsl --install
-```
-
-Este comando instala los componentes necesarios de WSL y configura WSL 2 como versión predeterminada. En una instalación normal también instala Ubuntu como distribución predeterminada.
-
-Después de ejecutar el comando puede ser necesario reiniciar Windows.
-
----
-
-# 8. Reiniciar Windows
-
-Reiniciar el equipo:
-
-```text
-Inicio → Reiniciar
-```
-
-Después del reinicio, Windows puede continuar automáticamente con la instalación de Linux.
-
----
-
-# 9. Crear el usuario de Linux
-
-La primera vez que se inicia la distribución Linux aparecerá una terminal solicitando:
-
-```text
-Enter new UNIX username:
-```
-
-Introducir un nombre de usuario.
-
-Por ejemplo:
-
-```text
-pedro
-```
-
-Después solicitará:
-
-```text
-New password:
-```
-
-Escribir una contraseña.
-
-> Al escribir la contraseña en Linux no aparecerán caracteres en pantalla. Es normal.
-
-Confirmar la contraseña.
-
-Al terminar aparecerá una terminal similar a:
-
-```text
-pedro@DESKTOP-XXXX:~$
-```
-
-Esto significa que Linux dentro de WSL está funcionando.
-
----
-
-# 10. Comprobar WSL
-
-Desde PowerShell:
-
-```powershell
-wsl --status
-```
-
-También:
-
-```powershell
-wsl --list --verbose
-```
-
-o:
-
-```powershell
-wsl -l -v
-```
-
-Debe aparecer la distribución instalada y la columna:
-
-```text
-VERSION
-2
-```
-
-Microsoft documenta `wsl --list --verbose` como comando para comprobar las distribuciones instaladas y si están utilizando WSL 1 o WSL 2.
-
-Ejemplo:
-
-```text
-NAME      STATE           VERSION
-Debian    Running         2
-```
-
-o:
-
-```text
-Ubuntu    Running         2
-```
-
----
-
-# 11. Instalar una distribución específica
-
-Si se desea consultar las distribuciones disponibles:
-
-```powershell
-wsl --list --online
-```
-
-También:
-
-```powershell
-wsl -l -o
-```
-
-Para instalar una distribución específica:
-
-```powershell
-wsl --install -d Debian
-```
-
-o:
-
-```powershell
-wsl --install -d Ubuntu
-```
-
-Microsoft permite especificar la distribución mediante `-d`.
-
----
-
-# 12. Recomendación para VíaRescate VE
-
-El desarrollo actual de VíaRescate VE fue realizado en un entorno:
-
-```text
-Debian GNU/Linux 13 (trixie)
-```
-
-Por lo tanto, Debian es una opción válida para reproducir el entorno utilizado actualmente.
-
-Ejemplo:
-
-```powershell
-wsl --install -d Debian
-```
-
-Después abrir:
-
-```text
-Debian
-```
-
-desde el menú Inicio de Windows.
-
----
-
-# 13. Actualizar Linux
-
-Dentro de la terminal Linux:
-
-```bash
-sudo apt update
-```
-
-Después:
-
-```bash
-sudo apt upgrade -y
-```
-
-Recomendado:
-
-```bash
-sudo apt update && sudo apt upgrade -y
-```
-
----
-
-# 14. Instalar herramientas básicas
-
-En Debian/Ubuntu:
-
-```bash
-sudo apt install -y \
-    git \
-    curl \
-    wget \
-    build-essential \
-    python3 \
-    python3-pip \
-    python3-venv \
-    python3-dev
-```
-
-Comprobar:
-
-```bash
-git --version
-```
-
-```bash
-python3 --version
-```
-
-```bash
-pip3 --version
-```
-
----
-
-# 15. Instalar Visual Studio Code
-
-Instalar Visual Studio Code en Windows desde su instalador oficial.
-
-Después instalar la extensión:
-
-```text
-WSL
-```
-
-de Microsoft.
-
-La extensión permite abrir el proyecto almacenado en Linux directamente desde VS Code y ejecutar Python/Django dentro del entorno WSL.
-
-Microsoft recomienda utilizar VS Code junto con WSL para desarrollar y depurar aplicaciones dentro del entorno Linux.
-
----
-
-# 16. Abrir VíaRescate VE con VS Code
-
-Desde la terminal Linux:
-
-```bash
-cd ~/proyectos/viarescate-ve
-```
-
-Después:
-
-```bash
-code .
-```
-
-Si `code` está correctamente configurado, VS Code se abrirá conectado al entorno WSL.
-
-En VS Code debe aparecer que está conectado a WSL.
-
----
-
-# 17. Crear la carpeta de proyectos
-
-Si todavía no existe:
-
-```bash
-mkdir -p ~/proyectos
-```
-
-Entrar:
-
-```bash
-cd ~/proyectos
-```
-
----
-
-# 18. Clonar VíaRescate VE
-
-Repositorio:
-
-```text
-https://github.com/pedromph23/viarescate-ve.git
-```
-
-Clonar:
-
-```bash
-git clone https://github.com/pedromph23/viarescate-ve.git
-```
-
-Entrar:
-
-```bash
-cd viarescate-ve
-```
-
-Comprobar:
-
-```bash
-git status
-```
-
----
-
-# 19. Crear entorno virtual Python
-
-Dentro del proyecto:
-
-```bash
-python3 -m venv .venv
-```
-
-Activar:
-
-```bash
-source .venv/bin/activate
-```
-
-La terminal debe mostrar algo parecido a:
-
-```text
-(.venv) pedro@DESKTOP-XXXX:~/proyectos/viarescate-ve$
-```
-
----
-
-# 20. Actualizar pip
-
-Con el entorno virtual activo:
-
-```bash
-python -m pip install --upgrade pip
-```
-
----
-
-# 21. Instalar dependencias de VíaRescate VE
-
-```bash
-pip install -r requirements.txt
-```
-
-Si se actualizan las dependencias:
-
-```bash
-pip install --upgrade -r requirements.txt
-```
-
----
-
-# 22. PostgreSQL y PostGIS
-
-VíaRescate VE utiliza PostgreSQL junto con PostGIS.
-
-El backend de Django utiliza:
-
-```python
-django.contrib.gis.db.backends.postgis
-```
-
-Por este motivo PostGIS es obligatorio para el funcionamiento geoespacial del proyecto.
-
----
-
-# 23. Instalar PostgreSQL
-
-En Debian/Ubuntu:
-
-```bash
-sudo apt update
-```
-
-Después:
-
-```bash
-sudo apt install -y postgresql postgresql-contrib
-```
-
-Comprobar:
-
-```bash
-psql --version
-```
-
----
-
-# 24. Iniciar PostgreSQL
-
-En WSL:
-
-```bash
-sudo service postgresql start
-```
-
-Comprobar:
-
-```bash
-sudo service postgresql status
-```
-
-El entorno local actualmente verificado muestra:
-
-```text
-postgresql.service - PostgreSQL RDBMS
-Active: active
-```
-
----
-
-# 25. Crear usuario PostgreSQL
-
-Entrar como administrador:
-
-```bash
-sudo -u postgres psql
-```
-
-Crear usuario:
-
-```sql
-CREATE USER viarescate WITH PASSWORD 'TU_PASSWORD_LOCAL';
-```
-
----
-
-# 26. Crear base de datos
-
-Crear:
-
-```sql
-CREATE DATABASE viarescate_ve OWNER viarescate;
-```
-
-Conectarse:
-
-```sql
-\c viarescate_ve
-```
-
----
-
-# 27. Instalar y habilitar PostGIS
-
-Dentro de PostgreSQL:
-
-```sql
-CREATE EXTENSION IF NOT EXISTS postgis;
-```
-
-Comprobar:
-
-```sql
-SELECT PostGIS_Version();
-```
-
-La versión actualmente verificada en el entorno local es:
-
-```text
-3.5
-```
-
-Salir:
-
-```sql
-\q
-```
-
----
-
-# 28. Configurar `.env`
-
-Copiar:
-
-```bash
-cp .env.example .env
-```
-
-Editar:
-
-```bash
-nano .env
-```
-
-Configuración recomendada para una instalación nueva:
-
-```env
-DB_NAME=viarescate_ve
-DB_USER=viarescate
-DB_PASSWORD=TU_PASSWORD_LOCAL
-DB_HOST=127.0.0.1
-DB_PORT=5432
-```
-
-Guardar el archivo.
-
-> **Importante:** `.env` no debe subirse a GitHub.
-
----
-
-# 29. Configuración actual del entorno local
-
-En el entorno local verificado actualmente existe:
-
-```text
-DB_NAME=viarescate_ve
-DB_HOST=127.0.0.1
-DB_PORT=5432
-```
-
-La configuración local actualmente funcional utiliza el usuario PostgreSQL definido en `.env`.
-
-El archivo `.env.example` utiliza:
-
-```env
-DB_USER=viarescate
-```
-
-Mientras que la configuración local actualmente verificada utiliza:
-
-```env
-DB_USER=postgres
-```
-
-No cambiar una configuración local funcional sin comprobar primero la contraseña del usuario `viarescate`.
-
----
-
-# 30. Configuración de Django
-
-La configuración principal se encuentra en:
-
-```text
-config/settings/base.py
-```
-
-El backend utiliza:
-
-```python
-django.contrib.gis.db.backends.postgis
-```
-
-La conexión utiliza las variables:
-
-```text
-DB_NAME
-DB_USER
-DB_PASSWORD
-DB_HOST
-DB_PORT
-```
-
----
-
-# 31. Verificar Django
-
-Con el entorno virtual activo:
-
-```bash
-python manage.py check
-```
-
-Resultado esperado:
-
-```text
-System check identified no issues (0 silenced).
-```
-
-El entorno local actualmente verificado devuelve exactamente ese resultado.
-
----
-
-# 32. Migraciones
-
-Crear migraciones después de modificar modelos:
-
-```bash
-python manage.py makemigrations
-```
-
-Aplicar:
-
-```bash
-python manage.py migrate
-```
-
-Ver estado:
-
-```bash
-python manage.py showmigrations
-```
-
-Comprobar operaciones pendientes:
-
-```bash
-python manage.py migrate --plan
-```
-
-Si no hay migraciones pendientes:
-
-```text
-Planned operations: No planned migration operations.
-```
-
----
-
-# 33. Estado actual de migraciones
-
-En el entorno local verificado:
-
-* Las migraciones están aplicadas.
-* Django no presenta errores de configuración.
-* No existen operaciones pendientes.
-* `mapa` actualmente no tiene migraciones propias.
-
----
-
-# 34. Datos territoriales de Venezuela
-
-La base local contiene información territorial real de Venezuela.
-
-Registros actualmente verificados:
-
-| Tabla            | Registros |
-| ---------------- | --------: |
-| `core_estado`    |        24 |
-| `core_municipio` |       335 |
-| `core_parroquia` |     1.134 |
-
-Por tanto:
-
-```text
-24 estados
-335 municipios
-1.134 parroquias
-```
-
-Estos datos territoriales deben conservarse al realizar limpiezas de datos ficticios de operaciones.
-
----
-
-# 35. Cargar datos territoriales
-
-Si la base de datos está vacía y el comando está disponible:
-
-```bash
-python manage.py load_territorial_data
-```
-
-Después comprobar:
-
-```bash
-python manage.py shell
-```
-
-También puede verificarse directamente desde PostgreSQL.
-
----
-
-# 36. Verificar datos desde PostgreSQL
-
-Conectarse:
-
-```bash
-psql -h 127.0.0.1 -U postgres -d viarescate_ve
-```
-
-Ejecutar:
-
-```sql
-SELECT COUNT(*) FROM core_estado;
-```
-
-```sql
-SELECT COUNT(*) FROM core_municipio;
-```
-
-```sql
-SELECT COUNT(*) FROM core_parroquia;
-```
-
-Valores actualmente verificados:
-
-```text
-core_estado      = 24
-core_municipio   = 335
-core_parroquia   = 1134
-```
-
----
-
-# 37. Tablas actuales
-
-La base local actualmente contiene:
-
-```text
-auth_group
-auth_group_permissions
-auth_permission
-core_estado
-core_municipio
-core_parroquia
-django_admin_log
-django_content_type
-django_migrations
-django_session
-operaciones_auditlog
-operaciones_centroayuda
-operaciones_inventario
-operaciones_mision
-operaciones_movimientoinventario
-operaciones_recurso
-operaciones_refugio
-operaciones_reportevial
-operaciones_vehiculo
-operaciones_via
-spatial_ref_sys
-usuarios_usuario
-usuarios_usuario_groups
-usuarios_usuario_user_permissions
-```
-
-La tabla:
-
-```text
-spatial_ref_sys
-```
-
-pertenece a PostGIS.
-
----
-
-# 38. Crear superusuario
-
-Ejecutar:
-
-```bash
-python manage.py createsuperuser
-```
-
-Seguir las instrucciones.
-
----
-
-# 39. Ejecutar VíaRescate VE
-
-Activar el entorno:
-
-```bash
-cd ~/proyectos/viarescate-ve
-source .venv/bin/activate
-```
-
-Ejecutar:
-
-```bash
-python manage.py runserver
-```
-
-Abrir en Windows:
-
-```text
-http://127.0.0.1:8000/
-```
-
-Administrador:
-
-```text
-http://127.0.0.1:8000/admin/
-```
-
-Detener:
-
-```text
-Ctrl + C
-```
-
----
-
-# 40. Flujo completo de instalación
-
-Una instalación nueva puede seguir este flujo:
-
-```text
-Windows
-   ↓
-Instalar WSL 2
-   ↓
-Instalar Debian/Ubuntu
-   ↓
-Actualizar Linux
-   ↓
-Instalar Git
-   ↓
-Instalar Python
-   ↓
-Instalar VS Code + extensión WSL
-   ↓
-Clonar GitHub
-   ↓
-Crear .venv
-   ↓
-Instalar requirements.txt
-   ↓
-Instalar PostgreSQL
-   ↓
-Instalar/configurar PostGIS
-   ↓
-Crear viarescate_ve
-   ↓
-Configurar .env
-   ↓
-Ejecutar migrate
-   ↓
-Cargar datos territoriales
-   ↓
-Crear superusuario
-   ↓
-Ejecutar runserver
-   ↓
-Probar aplicación
-```
-
----
-
-# 41. Estructura del proyecto
-
-La estructura principal es:
-
-```text
-viarescate-ve/
+## Arquitectura
+┌──────────────────┐
+│ USUARIO │
+│ PC / TABLET / 📱 │
+└────────┬─────────┘
 │
+▼
+┌──────────────────────┐
+│ VERCEL │
+│ Django WSGI │
+│ Serverless Function │
+│ + WhiteNoise │
+│ + Runtime GIS │
+└──────────┬───────────┘
+│
+▼
+┌──────────────────────┐
+│ SUPABASE │
+│ PostgreSQL + PostGIS │
+└──────────────────────┘
+
+
+### Apps Django
+
+| App | Responsabilidad |
+|-----|-----------------|
+| `core` | Estados, municipios, parroquias, validadores centrales |
+| `usuarios` | Autenticación, roles, permisos |
+| `mapa` | Vistas y API del mapa interactivo |
+| `operaciones` | Centros, refugios, vías, vehículos, misiones, inventario, reportes |
+
+---
+
+## Instalación local
+
+### Requisitos previos
+
+```bash
+python3 --version    # >= 3.12
+psql --version       # >= 15
+git --version
+code --version       # VS Code con extensión WSL
+
+1. Clonar el repositorio
+
+git clone git@github.com:pedromph23/viarescate-ve.git
+cd viarescate-ve
+
+2. Crear entorno virtual
+bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+3. Configurar PostgreSQL + PostGIS local
+bash
+sudo apt update
+sudo apt install -y postgresql postgresql-16-postgis-3 gdal-bin libgdal-dev
+
+sudo -u postgres psql << 'SQL'
+CREATE DATABASE viarescate_ve;
+CREATE USER viarescate WITH PASSWORD 'cambia-esto';
+GRANT ALL PRIVILEGES ON DATABASE viarescate_ve TO viarescate;
+\c viarescate_ve
+CREATE EXTENSION IF NOT EXISTS postgis;
+SQL
+4. Configurar .env
+bash
+cp .env.example .env
+# Editar .env con valores reales
+5. Migrar base de datos
+bash
+python manage.py migrate
+python manage.py createsuperuser
+6. Levantar servidor
+bash
+python manage.py runserver 8000
+Abrir http://127.0.0.1:8000/
+
+Variables de entorno
+Ver .env.example para la plantilla completa. Variables clave:
+
+Desarrollo local (PostgreSQL local)
+env
+DJANGO_SECRET_KEY=token-de-64-caracteres
+DJANGO_DEBUG=True
+DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost
+DJANGO_CSRF_TRUSTED_ORIGINS=http://127.0.0.1:8000,http://localhost:8000
+
+DB_NAME=viarescate_ve
+DB_USER=viarescate
+DB_PASSWORD=cambia-esto
+DB_HOST=127.0.0.1
+DB_PORT=5432
+
+REDIS_URL=redis://127.0.0.1:6379/0
+
+TIME_ZONE=America/Caracas
+LANGUAGE_CODE=es-ve
+Producción (Supabase + Vercel)
+env
+DJANGO_SETTINGS_MODULE=config.settings.production
+DJANGO_SECRET_KEY=<token de 64+ chars generado con secrets.token_urlsafe>
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=viarescate-ve.vercel.app,.vercel.app
+DJANGO_CSRF_TRUSTED_ORIGINS=https://viarescate-ve.vercel.app,https://*.vercel.app
+DJANGO_SECURE_SSL_REDIRECT=False
+
+DATABASE_URL=postgis://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
+
+USE_S3_MEDIA=False
+PIP_BREAK_SYSTEM_PACKAGES=1
+Tests
+bash
+python manage.py check
+python manage.py test
+Despliegue a producción
+Esta sección documenta la configuración crítica para desplegar Django + GeoDjango
+en Vercel. Vercel no incluye GDAL/GEOS/PROJ en su runtime estándar, por lo
+que se requiere un runtime especializado.
+
+Arquitectura de producción
+Componente	Plataforma	Detalle
+Backend Django	Vercel	Runtime vercel-python-gis-modern@1.0.6
+Base de datos	Supabase	PostgreSQL + PostGIS, pooler :5432
+Static files	WhiteNoise	CompressedStaticFilesStorage, staticfiles/ commiteado
+Media files	(pendiente)	Supabase Storage S3
+1. Supabase — base de datos
+Crear proyecto en https://supabase.com
+
+Habilitar PostGIS en SQL Editor → New query:
+
+sql
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS postgis_topology;
+Verificar:
+
+sql
+SELECT postgis_version();
+-- Debe devolver: 3.3 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
+Obtener la URL de conexión en Settings → Database → Connection string → URI
+
+Formato final de DATABASE_URL (importante el scheme postgis://):
+
+text
+postgis://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
+⚠️ Cambiar postgresql:// por postgis://. Sin ese cambio, Django usa el
+backend estándar y PostGIS falla al hacer consultas geoespaciales.
+
+2. Archivos críticos de Vercel
+vercel.json
+json
+{
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "vercel-python-gis-modern@1.0.6"
+    }
+  ],
+  "rewrites": [
+    { "source": "/static", "destination": "/static" },
+    { "source": "/(.*)", "destination": "api/index.py" }
+  ]
+}
+api/index.py — punto de entrada
+python
+import os
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.production")
+
+from django.core.wsgi import get_wsgi_application
+
+app = get_wsgi_application()
+config/settings/production.py — fragmentos clave
+python
+import os
+
+DEBUG = False
+SECRET_KEY = env("DJANGO_SECRET_KEY")
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=[])
+CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[])
+
+# WhiteNoise — SIN manifest para evitar fallos si falta algún archivo
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"
+    },
+}
+
+# Rutas GIS — leídas del entorno (el runtime las expone en /var/task/lib)
+GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH", "libgdal.so")
+GEOS_LIBRARY_PATH = os.environ.get("GEOS_LIBRARY_PATH", "libgeos_c.so.1")
+PROJ_LIBRARY_PATH = os.environ.get("PROJ_LIBRARY_PATH", "libproj.so")
+
+# Channels in-memory (Vercel no ejecuta Redis persistente)
+CHANNEL_LAYERS = {
+    "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
+}
+3. Configuración en el dashboard de Vercel
+Settings → Build & Development:
+
+Campo	Valor
+Framework Preset	Other
+Build Command	(vacío)
+Install Command	(vacío)
+Output Directory	(vacío)
+Node.js Version	22.x
+⚠️ Build Command debe estar VACÍO. El entorno de build de Vercel no
+tiene GDAL, por lo que ejecutar python manage.py collectstatic falla con
+libgdal.so not found. Los estáticos se generan localmente y se commitean.
+
+Settings → Environment Variables:
+
+Variable	Valor
+DJANGO_SETTINGS_MODULE	config.settings.production
+DJANGO_SECRET_KEY	(token de 64+ chars)
+DJANGO_DEBUG	False
+DJANGO_ALLOWED_HOSTS	viarescate-ve.vercel.app,.vercel.app
+DJANGO_CSRF_TRUSTED_ORIGINS	https://viarescate-ve.vercel.app,https://*.vercel.app
+DJANGO_SECURE_SSL_REDIRECT	False
+DATABASE_URL	postgis://... (ver arriba)
+USE_S3_MEDIA	False
+PIP_BREAK_SYSTEM_PACKAGES	1
+PIP_BREAK_SYSTEM_PACKAGES=1 es obligatorio — Vercel usa uv y bloquea
+instalaciones globales con pip por PEP 668.
+
+.vercel.app (con punto inicial) permite que los preview deployments
+funcionen sin DisallowedHost.
+
+4. Estáticos en el repositorio
+Los archivos estáticos se generan en local y se commitean:
+
+bash
+# .gitignore NO debe contener staticfiles/
+set -a; source .env; set +a
+export DJANGO_SETTINGS_MODULE=config.settings.production
+export DJANGO_SECURE_SSL_REDIRECT=False
+
+rm -rf staticfiles/
+python manage.py collectstatic --noinput
+# → ~180 archivos copiados, ~166 post-processed
+Luego:
+
+bash
+git add staticfiles/
+git commit -m "chore: update staticfiles"
+git push origin main
+5. Migraciones en producción
+Desde local, apuntando a Supabase:
+
+bash
+set -a; source .env; set +a
+export DJANGO_SETTINGS_MODULE=config.settings.production
+
+python manage.py migrate
+python manage.py createsuperuser
+No ejecutar migraciones desde Vercel. Hacerlo siempre desde local.
+
+6. Proceso completo de deploy
+bash
+# 1. Cambios en código
+git add .
+git commit -m "feat: ..."
+
+# 2. Si tocaste CSS/JS/assets, regenerar estáticos
+set -a; source .env; set +a
+export DJANGO_SETTINGS_MODULE=config.settings.production DJANGO_SECURE_SSL_REDIRECT=False
+python manage.py collectstatic --noinput
+git add staticfiles/
+git commit -m "chore: update staticfiles"
+
+# 3. Push
+git push origin main
+
+# 4. Vercel despliega automáticamente (~1-2 min)
+7. Verificación post-deploy
+bash
+curl -I https://viarescate-ve.vercel.app/            # → 200
+curl -I https://viarescate-ve.vercel.app/admin/      # → 302 → /admin/login/
+curl -I https://viarescate-ve.vercel.app/static/css/app.css  # → 200
+Problemas resueltos
+Estos son los 5 obstáculos encontrados durante el setup inicial. Documentados
+para no repetirlos si se reconfigura el proyecto.
+
+#	Error	Causa	Solución
+1	Could not find the GDAL library	Vercel @vercel/python no trae GDAL/GEOS/PROJ	Usar runtime vercel-python-gis-modern@1.0.6
+2	spawn pip3.9 ENOENT	vercel-python-gis@1.0.0 espera Python 3.9 (ya no existe en Vercel)	Migrar a vercel-python-gis-modern@1.0.6 (Python 3.12)
+3	externally-managed-environment (PEP 668)	Vercel usa uv, bloquea pip install global	Env var PIP_BREAK_SYSTEM_PACKAGES=1
+4	Missing staticfiles manifest entry	CompressedManifestStaticFilesStorage exige manifest completo	Cambiar a CompressedStaticFilesStorage
+5	libgdal.so not found durante build	collectstatic corre en el build env, que no tiene GDAL	Build Command vacío + staticfiles/ commiteado
+Limitaciones conocidas
+En Vercel (runtime serverless)
+❌ WebSockets persistentes — Vercel no los soporta. Usar Server-Sent Events (SSE)
+o polling controlado.
+
+❌ Celery / workers persistentes — no se ejecutan en Vercel. Mover a Railway,
+Fly.io o cron externo si se necesitan.
+
+❌ Redis persistente — no disponible en Vercel. CHANNEL_LAYERS usa
+InMemoryChannelLayer (válido para dev y baja concurrencia).
+
+⚠️ Media files efímeros — el filesystem de Vercel se resetea en cada deploy.
+Activar USE_S3_MEDIA=True con Supabase Storage para persistir.
+
+⚠️ Cold starts — primera request tras inactividad puede tardar 2-5s.
+
+⚠️ Timeout de funciones — Plan Hobby: 10s, Plan Pro: 60s.
+
+Backend
+No confiar en el filesystem efímero para datos persistentes.
+
+No usar DEBUG=True en producción.
+
+Estructura del proyecto
+text
+viarescate-ve/
+├── api/
+│   └── index.py                    # Entrypoint para Vercel
 ├── config/
 │   ├── settings/
-│   │   ├── base.py
-│   │   ├── development.py
-│   │   ├── production.py
-│   │   └── __init__.py
-│   │
-│   ├── asgi.py
+│   │   ├── __init__.py
+│   │   ├── base.py                 # Configuración común
+│   │   ├── development.py          # Dev local
+│   │   └── production.py           # Producción (Vercel + Supabase)
 │   ├── urls.py
+│   ├── asgi.py
 │   ├── wsgi.py
-│   └── __init__.py
-│
-├── core/
-│
-├── usuarios/
-│
-├── mapa/
-│
-├── operaciones/
-│   ├── api/
-│   └── routing/
-│
-├── data/
-│   └── territorial/
-│
-├── static/
-│
+│   └── routing.py                  # Channels (si aplica)
+├── core/                           # Estados, municipios, parroquias, validadores
+├── usuarios/                       # Autenticación y roles
+├── mapa/                           # Vistas y API del mapa
+├── operaciones/                    # Centros, refugios, vías, misiones, inventario
 ├── templates/
-│
-├── .env.example
-├── manage.py
+│   ├── base.html
+│   ├── components/
+│   ├── includes/
+│   ├── public/
+│   ├── mapa/
+│   ├── usuarios/
+│   └── operaciones/
+├── static/                         # Fuentes (CSS/JS sin compilar)
+│   ├── css/
+│   ├── js/
+│   └── vendor/                     # Leaflet, etc.
+├── staticfiles/                    # Salida de collectstatic (commiteado)
+├── docs/
+│   └── deployment.md               # Guía extendida de deploy (opcional)
 ├── requirements.txt
-├── render.yaml
+├── vercel.json
+├── .env.example
+├── .gitignore
+├── manage.py
 └── README.md
-```
+Contribuir
+Hacer fork del repositorio
+
+Crear rama: git checkout -b feature/nueva-funcionalidad
+
+Commits con convención:
+
+feat: nueva funcionalidad
+
+fix: corrección de bug
+
+docs: documentación
+
+chore: tareas de mantenimiento
+
+test: tests
+
+Ejecutar tests: python manage.py test
+
+Abrir Pull Request a main
+
+Recursos
+Repositorio: https://github.com/pedromph23/viarescate-ve
+
+Producción: https://viarescate-ve.vercel.app
+
+Supabase: https://supabase.com
+
+Vercel: https://vercel.com
+
+PostGIS: https://postgis.net
+
+Licencia
+Ver archivo LICENSE.
+
+VíaRescate VE — Ayuda donde más se necesita.
+
+text
 
 ---
 
-# 42. Aplicación `core`
+## Cómo aplicarlo
 
-El módulo `core` contiene principalmente la información territorial y modelos centrales del sistema.
-
-Actualmente incluye información de:
-
-```text
-Estados
-Municipios
-Parroquias
-```
-
-La información geográfica utiliza las capacidades de GeoDjango/PostGIS cuando corresponde.
-
----
-
-# 43. Aplicación `usuarios`
-
-El módulo:
-
-```text
-usuarios/
-```
-
-gestiona los usuarios del sistema y la integración con las funcionalidades de autenticación/autorización de Django.
-
----
-
-# 44. Aplicación `mapa`
-
-El módulo:
-
-```text
-mapa/
-```
-
-contiene funcionalidades relacionadas con la visualización geográfica.
-
-La interfaz utiliza tecnologías como:
-
-```text
-Leaflet
-GeoJSON
-JavaScript
-GeoDjango/PostGIS
-```
-
----
-
-# 45. Aplicación `operaciones`
-
-El módulo:
-
-```text
-operaciones/
-```
-
-concentra funcionalidades operativas.
-
-Entre ellas:
-
-* Centros de ayuda.
-* Inventarios.
-* Misiones.
-* Movimientos de inventario.
-* Recursos.
-* Refugios.
-* Reportes viales.
-* Vehículos.
-* Vías.
-* Auditoría.
-
----
-
-# 46. Sistema de rutas
-
-El sistema posee una estructura:
-
-```text
-operaciones/routing/
-```
-
-para gestionar proveedores y servicios relacionados con rutas.
-
-Existe integración/proceso de trabajo con proveedores como:
-
-```text
-OSRM
-```
-
-La evaluación de rutas puede considerar el estado de las vías.
-
----
-
-# 47. Estados de las vías
-
-El sistema contempla estados como:
-
-```text
-NORMAL
-PRECAUCION
-AFECTADA
-CRITICA
-CERRADA
-```
-
-Estos estados permiten evaluar la transitabilidad de las rutas.
-
----
-
-# 48. Estados de reportes viales
-
-Los reportes pueden utilizar estados como:
-
-```text
-CONFIRMADO
-PENDIENTE
-RECHAZADO
-RESUELTO
-```
-
-Esto permite diferenciar información reportada de información validada.
-
----
-
-# 49. Auditoría
-
-Existe funcionalidad de auditoría.
-
-La base de datos contiene:
-
-```text
-operaciones_auditlog
-```
-
-La auditoría debe utilizarse para registrar acciones relevantes dentro de la aplicación.
-
-No debe utilizarse para almacenar información sensible innecesaria.
-
----
-
-# 50. API
-
-La aplicación cuenta con una estructura API:
-
-```text
-operaciones/api/
-```
-
-Antes de modificar una API utilizada por el frontend deben comprobarse:
-
-* URL.
-* Método HTTP.
-* Parámetros.
-* Serializadores.
-* Permisos.
-* Respuesta JSON.
-* Vistas.
-* Consumo JavaScript.
-
----
-
-# 51. Git y GitHub
-
-Comprobar estado:
-
-```bash
-git status
-```
-
-Ver ramas:
-
-```bash
-git branch
-```
-
-Actualizar:
-
-```bash
-git pull origin main
-```
-
-Agregar cambios:
-
-```bash
-git add .
-```
-
-Crear commit:
-
-```bash
-git commit -m "descripcion del cambio"
-```
-
-Subir:
-
-```bash
-git push origin main
-```
-
----
-
-# 52. Ejemplos de commits
-
-```text
-feat: agregar gestión de refugios
-```
-
-```text
-fix: corregir mapa público
-```
-
-```text
-fix: corregir cálculo de rutas
-```
-
-```text
-docs: actualizar README
-```
-
-```text
-refactor: reorganizar servicios de operaciones
-```
-
-```text
-chore: actualizar dependencias
-```
-
----
-
-# 53. `.gitignore`
-
-El proyecto debe evitar subir archivos temporales y secretos.
-
-Especialmente:
-
-```text
-.env
-.venv/
-__pycache__/
-*.pyc
-```
-
-No se deben subir contraseñas, tokens ni claves privadas.
-
----
-
-# 54. Seguridad
-
-Nunca subir a GitHub:
-
-```text
-.env
-contraseñas
-tokens
-SECRET_KEY reales
-credenciales PostgreSQL
-credenciales SMTP
-claves privadas
-archivos .pem
-archivos .key
-```
-
-Antes de hacer:
-
-```bash
-git push
-```
-
-revisar:
-
-```bash
-git status
-```
-
-y:
-
-```bash
-git diff --cached
-```
-
----
-
-# 55. Regla para cambios de base de datos
-
-Los cambios estructurales deben seguir:
-
-```text
-models.py
-    ↓
-makemigrations
-    ↓
-migrate
-    ↓
-pruebas
-```
-
-No se recomienda modificar manualmente las tablas de producción para cambios que deberían estar representados mediante modelos y migraciones de Django.
-
----
-
-# 56. Desarrollo progresivo
-
-VíaRescate VE debe desarrollarse de manera incremental.
-
-Antes de modificar una funcionalidad existente:
-
-1. Revisar el código actual.
-2. Identificar dependencias.
-3. Revisar modelos.
-4. Revisar URLs.
-5. Revisar APIs.
-6. Revisar templates.
-7. Revisar JavaScript.
-8. Realizar el cambio.
-9. Ejecutar `python manage.py check`.
-10. Ejecutar migraciones si corresponde.
-11. Probar localmente.
-12. Hacer commit.
-13. Subir a GitHub.
-14. Verificar Render.
-
-No realizar una reescritura completa cuando una modificación puntual sea suficiente.
-
----
-
-# 57. Producción
-
-El despliegue previsto utiliza:
-
-```text
-GitHub
-   ↓
-Render
-   ↓
-Django / GeoDjango
-   ↓
-Supabase PostgreSQL + PostGIS
-```
-
-Render ejecuta Django utilizando Gunicorn.
-
-La configuración de producción se encuentra separada de la configuración de desarrollo.
-
----
-
-# 58. Configuración de Django
-
-El proyecto separa:
-
-```text
-config/settings/base.py
-config/settings/development.py
-config/settings/production.py
-```
-
-Esto permite mantener configuraciones diferentes para:
-
-```text
-Desarrollo local
-```
-
-y:
-
-```text
-Producción
-```
-
----
-
-# 59. Render
-
-El proyecto contiene:
-
-```text
-render.yaml
-```
-
-La aplicación está preparada para ejecutarse con:
-
-```text
-gunicorn config.wsgi:application
-```
-
-Las variables sensibles deben configurarse en Render y no en el repositorio.
-
----
-
-# 60. Supabase
-
-Supabase se utiliza como infraestructura PostgreSQL/PostGIS para producción.
-
-La conexión debe configurarse mediante variables de entorno.
-
-No almacenar directamente en GitHub:
-
-* contraseña de Supabase;
-* claves privadas;
-* tokens;
-* secretos;
-* credenciales de conexión.
-
----
-
-# 61. Desarrollo local vs producción
-
-## Desarrollo
-
-```text
-Windows
-  ↓
-WSL 2
-  ↓
-Linux
-  ↓
-PostgreSQL/PostGIS local
-  ↓
-Django
-```
-
-## Producción
-
-```text
-Internet
-  ↓
-Render
-  ↓
-Django
-  ↓
-Supabase PostgreSQL/PostGIS
-```
-
----
-
-# 62. Comandos de diagnóstico
-
-## WSL
-
-Desde PowerShell:
-
-```powershell
-wsl --status
-```
-
-```powershell
-wsl -l -v
-```
-
-## PostgreSQL
-
-```bash
-sudo service postgresql status
-```
-
-## Django
-
-```bash
-python manage.py check
-```
-
-## Migraciones
-
-```bash
-python manage.py showmigrations
-```
-
-```bash
-python manage.py migrate --plan
-```
-
-## Git
-
-```bash
-git status
-```
-
-```bash
-git log --oneline -5
-```
-
----
-
-# 63. Solución de problemas de WSL
-
-## `wsl --install` muestra la ayuda
-
-Microsoft indica que si WSL ya está instalado, `wsl --install` puede mostrar la ayuda en lugar de instalar una distribución.
-
-Consultar:
-
-```powershell
-wsl --list --online
-```
-
-Después:
-
-```powershell
-wsl --install -d Debian
-```
-
-o:
-
-```powershell
-wsl --install -d Ubuntu
-```
-
----
-
-## La instalación se queda en 0.0 %
-
-Puede utilizarse:
-
-```powershell
-wsl --install --web-download -d Debian
-```
-
-Microsoft documenta esta alternativa para descargar la distribución desde una fuente en línea cuando la instalación normal se bloquea.
-
----
-
-# 64. Solución de problemas de PostgreSQL
-
-Si PostgreSQL no está iniciado:
-
-```bash
-sudo service postgresql start
-```
-
-Comprobar:
-
-```bash
-sudo service postgresql status
-```
-
-Comprobar versión:
-
-```bash
-psql --version
-```
-
----
-
-# 65. Solución de problemas de conexión
-
-Comprobar las variables:
-
-```text
-DB_NAME
-DB_USER
-DB_PASSWORD
-DB_HOST
-DB_PORT
-```
-
-La configuración local utiliza:
-
-```text
-DB_HOST=127.0.0.1
-DB_PORT=5432
-```
-
-Probar:
-
-```bash
-psql -h 127.0.0.1 -U postgres -d viarescate_ve
-```
-
----
-
-# 66. Solución de problemas de PostGIS
-
-Conectarse:
-
-```bash
-psql -h 127.0.0.1 -U postgres -d viarescate_ve
-```
-
-Ejecutar:
-
-```sql
-SELECT PostGIS_Version();
-```
-
-Si la extensión no existe:
-
-```sql
-CREATE EXTENSION IF NOT EXISTS postgis;
-```
-
----
-
-# 67. Solución de problemas de Django
-
-Ejecutar:
-
-```bash
-python manage.py check
-```
-
-Después:
-
-```bash
-python manage.py migrate --plan
-```
-
-Si se modificaron modelos:
-
-```bash
-python manage.py makemigrations
-```
-
-Después:
-
-```bash
-python manage.py migrate
-```
-
----
-
-# 68. Verificación local actual
-
-El entorno local de VíaRescate VE fue verificado con:
-
-```text
-Sistema:
-Debian GNU/Linux 13 (trixie)
-
-PostgreSQL:
-Activo
-
-Puerto:
-5432
-
-Base:
-viarescate_ve
-
-Codificación:
-UTF8
-
-PostGIS:
-3.5
-
-Django backend:
-django.contrib.gis.db.backends.postgis
-
-Host:
-127.0.0.1
-
-Migraciones:
-Aplicadas
-
-Migraciones pendientes:
-Ninguna
-
-Django check:
-Sin errores
-```
-
-Datos territoriales:
-
-```text
-Estados:     24
-Municipios:  335
-Parroquias:  1.134
-```
-
----
-
-# 69. Instalación rápida desde cero
-
-Para reproducir el entorno:
-
-## Windows / PowerShell como administrador
-
-```powershell
-wsl --install -d Debian
-```
-
-Reiniciar Windows si lo solicita.
-
-Abrir Debian.
-
-## Linux / WSL
-
-```bash
-sudo apt update
-sudo apt upgrade -y
-```
-
-Instalar herramientas:
-
-```bash
-sudo apt install -y \
-    git \
-    curl \
-    wget \
-    build-essential \
-    python3 \
-    python3-pip \
-    python3-venv \
-    python3-dev \
-    postgresql \
-    postgresql-contrib
-```
-
-Crear carpeta:
-
-```bash
-mkdir -p ~/proyectos
-cd ~/proyectos
-```
-
-Clonar:
-
-```bash
-git clone https://github.com/pedromph23/viarescate-ve.git
-cd viarescate-ve
-```
-
-Crear entorno:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-Instalar dependencias:
-
-```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-Iniciar PostgreSQL:
-
-```bash
-sudo service postgresql start
-```
-
-Crear base:
-
-```bash
-sudo -u postgres psql
-```
-
-Dentro:
-
-```sql
-CREATE USER viarescate WITH PASSWORD 'TU_PASSWORD_LOCAL';
-CREATE DATABASE viarescate_ve OWNER viarescate;
-\c viarescate_ve
-CREATE EXTENSION IF NOT EXISTS postgis;
-SELECT PostGIS_Version();
-\q
-```
-
-Configurar:
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-Aplicar migraciones:
-
-```bash
-python manage.py migrate
-```
-
-Cargar territorio:
-
-```bash
-python manage.py load_territorial_data
-```
-
-Crear administrador:
-
-```bash
-python manage.py createsuperuser
-```
-
-Comprobar:
-
-```bash
-python manage.py check
-```
-
-Ejecutar:
-
-```bash
-python manage.py runserver
-```
-
-Abrir:
-
-```text
-http://127.0.0.1:8000/
-```
-
----
-
-# 70. Flujo de trabajo diario recomendado
-
-Cada vez que se vaya a trabajar en el proyecto:
+Guarda todo lo anterior (desde `# VíaRescate VE` hasta `*Ayuda donde más se necesita.*`) en un archivo llamado `README.md` en la raíz del proyecto, o si prefieres hacerlo desde la terminal:
 
 ```bash
 cd ~/proyectos/viarescate-ve
-```
+# Pega el contenido en un editor:
+nano README.md
+# o
+code README.md
+Luego commitea:
 
-Activar entorno:
-
-```bash
-source .venv/bin/activate
-```
-
-Actualizar código:
-
-```bash
-git pull origin main
-```
-
-Comprobar:
-
-```bash
-python manage.py check
-```
-
-Trabajar en VS Code:
-
-```bash
-code .
-```
-
-Después de realizar cambios:
-
-```bash
-python manage.py check
-```
-
-Si se modificaron modelos:
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-Probar:
-
-```bash
-python manage.py runserver
-```
-
-Después:
-
-```bash
-git status
-```
-
-Agregar:
-
-```bash
-git add .
-```
-
-Commit:
-
-```bash
-git commit -m "descripcion del cambio"
-```
-
-Push:
-
-```bash
+bash
+git add README.md
+git commit -m "docs: comprehensive README with deployment guide"
 git push origin main
-```
+Listo. Un solo archivo, todo incluido.
 
----
-
-# 71. Próximos pasos del proyecto
-
-La evolución del proyecto puede continuar progresivamente con:
-
-1. Consolidación del mapa público y administrativo.
-2. Reutilización de servicios geográficos.
-3. Mejoras de visualización con Leaflet.
-4. Gestión avanzada de vías.
-5. Evaluación de rutas.
-6. Optimización de distribución de ayuda.
-7. Gestión avanzada de recursos.
-8. Mejoras en auditoría.
-9. Pruebas automatizadas.
-10. Mejoras de seguridad.
-11. Optimización del despliegue.
-12. Integración progresiva de Celery y Redis.
-13. Integración progresiva de ASGI/Channels.
-14. Mejoras de monitoreo y operación.
-
----
-
-# 72. Reglas importantes del proyecto
-
-### No modificar producción directamente
-
-Los cambios de esquema deben pasar por:
-
-```text
-models.py
-→ makemigrations
-→ migrate
-```
-
-### No subir secretos
-
-Nunca:
-
-```text
-.env
-passwords
-tokens
-private keys
-```
-
-### No romper funcionalidades existentes
-
-Antes de modificar una funcionalidad:
-
-```text
-revisar
-→ cambiar
-→ comprobar
-→ probar
-→ desplegar
-```
-
-### Mantener datos territoriales reales
-
-Los datos de:
-
-```text
-Estados
-Municipios
-Parroquias
-```
-
-son datos territoriales reales y deben conservarse.
-
-Los datos ficticios de pruebas operativas pueden limpiarse de forma controlada.
-
----
-
-# 73. Referencias oficiales
-
-Documentación oficial de Microsoft sobre WSL:
-
-https://learn.microsoft.com/es-es/windows/wsl/install
-
-Documentación sobre configuración de entornos de desarrollo con WSL:
-
-https://learn.microsoft.com/es-es/windows/wsl/setup/environment
-
-Documentación de comandos de WSL:
-
-https://learn.microsoft.com/windows/wsl/basic-commands
-
----
-
-# 74. Proyecto
-
-Repositorio:
-
-https://github.com/pedromph23/viarescate-ve
-
-VíaRescate VE:
-
-**Sistema inteligente de rutas para distribución de ayuda humanitaria en Venezuela.**
-
-Desarrollado progresivamente con:
-
-```text
-Django
-GeoDjango
-PostgreSQL
-PostGIS
-Leaflet
-GitHub
-Render
-Supabase
-WSL
-```
 
