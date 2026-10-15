@@ -2,7 +2,7 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "vercel-python-gis-modern@1.0.6"
+      "use": "vercel-python-gis-runtime@1.1.1"
     }
   ],
   "rewrites": [
