@@ -43,7 +43,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 # Static files con WhiteNoise (Vercel no sirve /static/ por defecto)
 # ---------------------------------------------------------------------------
 STORAGES["staticfiles"] = {  # noqa: F405
-    "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
 }
 
 
