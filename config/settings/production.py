@@ -110,29 +110,37 @@ AUDIT_TRUST_PROXY_HEADERS = env.bool(
 # ---------------------------------------------------------------------------
 # GeoDjango: rutas a librerías nativas provistas por vercel-python-gis-modern
 # ---------------------------------------------------------------------------
-GDAL_LIBRARY_PATH = "libgdal.so"
-GEOS_LIBRARY_PATH = "libgeos_c.so.1"
-PROJ_LIBRARY_PATH = "libproj.so"
+# GDAL_LIBRARY_PATH = "libgdal.so"  # deshabilitado: Django detecta las libs del sistema automáticamente
+# GEOS_LIBRARY_PATH = "libgeos_c.so.1"  # deshabilitado: Django detecta las libs del sistema automáticamente
+# PROJ_LIBRARY_PATH = "libproj.so"  # deshabilitado: Django detecta las libs del sistema automáticamente
 
 
 # ---------------------------------------------------------------------------
 # GeoDjango: rutas a librerías nativas provistas por vercel-python-gis-modern
 # ---------------------------------------------------------------------------
-GDAL_LIBRARY_PATH = "libgdal.so"
-GEOS_LIBRARY_PATH = "libgeos_c.so.1"
-PROJ_LIBRARY_PATH = "libproj.so"
+# GDAL_LIBRARY_PATH = "libgdal.so"  # deshabilitado: Django detecta las libs del sistema automáticamente
+# GEOS_LIBRARY_PATH = "libgeos_c.so.1"  # deshabilitado: Django detecta las libs del sistema automáticamente
+# PROJ_LIBRARY_PATH = "libproj.so"  # deshabilitado: Django detecta las libs del sistema automáticamente
 
 
 # ---------------------------------------------------------------------------
 # GeoDjango: rutas a librerías nativas provistas por vercel-python-gis-runtime
 # ---------------------------------------------------------------------------
-GDAL_LIBRARY_PATH = "libgdal.so"
-GEOS_LIBRARY_PATH = "libgeos_c.so.1"
-PROJ_LIBRARY_PATH = "libproj.so"
+# GDAL_LIBRARY_PATH = "libgdal.so"  # deshabilitado: Django detecta las libs del sistema automáticamente
+# GEOS_LIBRARY_PATH = "libgeos_c.so.1"  # deshabilitado: Django detecta las libs del sistema automáticamente
+# PROJ_LIBRARY_PATH = "libproj.so"  # deshabilitado: Django detecta las libs del sistema automáticamente
 
 
 # ---------------------------------------------------------------------------
 # GeoDjango: rutas a librerías nativas provistas por vercel-python-gis
+# ---------------------------------------------------------------------------
+# GDAL_LIBRARY_PATH = "libgdal.so"  # deshabilitado: Django detecta las libs del sistema automáticamente
+# GEOS_LIBRARY_PATH = "libgeos_c.so.1"  # deshabilitado: Django detecta las libs del sistema automáticamente
+# PROJ_LIBRARY_PATH = "libproj.so"  # deshabilitado: Django detecta las libs del sistema automáticamente
+
+
+# ---------------------------------------------------------------------------
+# GeoDjango: rutas a librerías nativas provistas por vercel-python-gis-runtime
 # ---------------------------------------------------------------------------
 GDAL_LIBRARY_PATH = "libgdal.so"
 GEOS_LIBRARY_PATH = "libgeos_c.so.1"
