@@ -743,12 +743,19 @@ class Necesidad(models.Model):
         ):
             errors["cantidad_recibida"] = msg.NECESIDAD_RECIBIDA_EXCEDE
 
-        # fecha_requerida >= hoy (solo en creación, no en updates)
-        if self._state.adding and self.fecha_requerida is not None:
-            try:
-                validar_fecha_no_pasada(self.fecha_requerida, msg.NECESIDAD_FECHA_PASADA)
-            except ValidationError as e:
-                errors["fecha_requerida"] = e.messages
+        # fecha_requerida: siempre debe ser >= hoy (con margen de 5 min)
+        # No hay excepción ni siquiera para updates: registrar una necesidad
+        # en el pasado no tiene sentido operativo.
+        if self.fecha_requerida is not None:
+            from datetime import timedelta
+            from django.utils import timezone as tz
+            ahora = tz.now()
+            if self.fecha_requerida < ahora - timedelta(minutes=5):
+                errors["fecha_requerida"] = msg.NECESIDAD_FECHA_PASADA
+            elif self.fecha_requerida > ahora + timedelta(days=365 * 5):
+                errors["fecha_requerida"] = (
+                    "La fecha requerida no puede estar a más de 5 años en el futuro."
+                )
 
         # Coherencia estado <-> cantidades
         if self.cantidad_requerida and self.cantidad_recibida is not None:

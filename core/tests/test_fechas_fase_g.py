@@ -23,6 +23,14 @@ class ValidadoresFechaTest(TestCase):
         with self.assertRaises(ValidationError):
             validar_fecha_no_pasada(ayer)
 
+    def test_fecha_no_pasada_rechaza_1989(self):
+        """Un año absurdo debe ser rechazado."""
+        from datetime import datetime
+        from django.utils import timezone as tz
+        vieja = tz.make_aware(datetime(1989, 10, 15, 12, 0))
+        with self.assertRaises(ValidationError):
+            validar_fecha_no_pasada(vieja)
+
     def test_fecha_no_pasada_acepta_hoy(self):
         ahora = timezone.now()
         self.assertEqual(validar_fecha_no_pasada(ahora), ahora)
@@ -91,38 +99,21 @@ class MisionFechasTest(TestCase):
             fecha_salida_planificada=ahora,
             fecha_entrega_estimada=ahora + timedelta(hours=3),
         )
-        m.clean()  # no debe lanzar
+        m.clean()
 
     def test_acepta_fechas_nulas(self):
         m = self._crear_mision()
-        m.clean()  # no debe lanzar
+        m.clean()
 
 
-class RefugioCensoTest(TestCase):
-    """fecha_ultimo_censo no puede ser futura."""
-
-    def _crear_refugio(self, **kwargs):
-        from django.contrib.gis.geos import Point
-        from core.models import Estado, Municipio, Parroquia  # ajusta si es necesario
-        # Nota: Si los modelos usan IDs específicos, este test puede requerir
-        # datos seed. Si falla por FK, se comenta o se usa mock.
-        return None
-
-    def test_placeholder(self):
-        # Se cubre con test de validador arriba. Evitamos FKs aquí.
-        self.assertTrue(True)
-
-
-class NecesidadTest(TestCase):
-    """Validaciones de Necesidad."""
+class NecesidadFechaTest(TestCase):
+    """Validación de fecha_requerida en Necesidad.clean()."""
 
     @classmethod
     def setUpTestData(cls):
-        # Creamos datos mínimos
         from core.models import Estado, Municipio, Parroquia
         from django.contrib.gis.geos import Point
 
-        # Si no existen, saltamos con skip
         try:
             cls.estado = Estado.objects.first() or Estado.objects.create(
                 nombre="Distrito Capital", codigo="DC"
@@ -143,15 +134,80 @@ class NecesidadTest(TestCase):
                 ocupacion=20,
             )
             cls.recurso = Recurso.objects.create(
-                nombre="Agua potable", unidad="litros"
+                nombre="Agua potable test-fecha", unidad="litros"
             )
-        except Exception:
+        except Exception as e:
             cls.refugio = None
             cls.recurso = None
 
     def _skip_if_no_data(self):
         if not self.refugio or not self.recurso:
             self.skipTest("Datos seed no disponibles")
+
+    def test_fecha_requerida_1989_es_rechazada(self):
+        """El caso reportado por el usuario."""
+        self._skip_if_no_data()
+        from datetime import datetime
+        n = Necesidad(
+            refugio=self.refugio,
+            recurso=self.recurso,
+            cantidad_requerida=100,
+            cantidad_recibida=0,
+            fecha_requerida=timezone.make_aware(datetime(1989, 10, 15, 12, 0)),
+        )
+        with self.assertRaises(ValidationError) as ctx:
+            n.clean()
+        self.assertIn("fecha_requerida", ctx.exception.error_dict)
+
+    def test_fecha_requerida_ayer_es_rechazada(self):
+        self._skip_if_no_data()
+        ayer = timezone.now() - timedelta(days=1)
+        n = Necesidad(
+            refugio=self.refugio,
+            recurso=self.recurso,
+            cantidad_requerida=100,
+            cantidad_recibida=0,
+            fecha_requerida=ayer,
+        )
+        with self.assertRaises(ValidationError):
+            n.clean()
+
+    def test_fecha_requerida_ahora_es_aceptada(self):
+        self._skip_if_no_data()
+        ahora = timezone.now()
+        n = Necesidad(
+            refugio=self.refugio,
+            recurso=self.recurso,
+            cantidad_requerida=100,
+            cantidad_recibida=0,
+            fecha_requerida=ahora,
+        )
+        n.clean()
+
+    def test_fecha_requerida_futura_es_aceptada(self):
+        self._skip_if_no_data()
+        futuro = timezone.now() + timedelta(days=3)
+        n = Necesidad(
+            refugio=self.refugio,
+            recurso=self.recurso,
+            cantidad_requerida=100,
+            cantidad_recibida=0,
+            fecha_requerida=futuro,
+        )
+        n.clean()
+
+    def test_fecha_requerida_muy_lejana_es_rechazada(self):
+        self._skip_if_no_data()
+        muy_futuro = timezone.now() + timedelta(days=365 * 10)
+        n = Necesidad(
+            refugio=self.refugio,
+            recurso=self.recurso,
+            cantidad_requerida=100,
+            cantidad_recibida=0,
+            fecha_requerida=muy_futuro,
+        )
+        with self.assertRaises(ValidationError):
+            n.clean()
 
     def test_cantidad_requerida_cero_falla(self):
         self._skip_if_no_data()
@@ -186,17 +242,6 @@ class NecesidadTest(TestCase):
         )
         self.assertEqual(n.cantidad_pendiente, 70)
 
-    def test_estado_pendiente_con_recibida_cero_ok(self):
-        self._skip_if_no_data()
-        n = Necesidad(
-            refugio=self.refugio,
-            recurso=self.recurso,
-            cantidad_requerida=100,
-            cantidad_recibida=0,
-            estado=Necesidad.Estados.PENDIENTE,
-        )
-        n.clean()
-
     def test_estado_incoherente_falla(self):
         self._skip_if_no_data()
         n = Necesidad(
@@ -204,7 +249,7 @@ class NecesidadTest(TestCase):
             recurso=self.recurso,
             cantidad_requerida=100,
             cantidad_recibida=50,
-            estado=Necesidad.Estados.CUBIERTA,  # incoherente con 50/100
+            estado=Necesidad.Estados.CUBIERTA,
         )
         with self.assertRaises(ValidationError):
             n.clean()
