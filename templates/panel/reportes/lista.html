@@ -1,0 +1,25 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}Reportes viales{% endblock %}
+{% block subheading %}Últimos 200 reportes{% endblock %}
+
+{% block panel_content %}
+<div class="panel-card panel-table-wrap">
+    <table class="panel-table">
+        <thead>
+            <tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+        {% for r in reportes %}
+            <tr>
+                <td>{{ r.reportado_en|date:"d/m/Y H:i" }}</td>
+                <td>{{ r.get_tipo_display }}</td>
+                <td>{{ r.descripcion|truncatechars:80 }}</td>
+                <td><span class="badge badge-info">{{ r.get_estado_reporte_display }}</span></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="4" class="panel-empty">Sin registros</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

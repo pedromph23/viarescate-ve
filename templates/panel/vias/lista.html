@@ -1,0 +1,26 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}Vías{% endblock %}
+{% block subheading %}{{ vias|length }} vía{{ vias|length|pluralize }} registrada{{ vias|length|pluralize }}{% endblock %}
+
+{% block panel_content %}
+<div class="panel-card panel-table-wrap">
+    <table class="panel-table">
+        <thead>
+            <tr><th>Nombre</th><th>Código</th><th>Estado</th><th>Estado vial</th><th>Velocidad</th></tr>
+        </thead>
+        <tbody>
+        {% for v in vias %}
+            <tr>
+                <td><strong>{{ v.nombre }}</strong></td>
+                <td>{{ v.codigo|default:"—" }}</td>
+                <td>{{ v.estado.nombre }}</td>
+                <td><span class="badge badge-info">{{ v.get_estado_vial_display }}</span></td>
+                <td>{{ v.velocidad_referencial|default:"—" }} km/h</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5" class="panel-empty">Sin registros</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # Aplicaciones VíaRescate VE.
     "core",
     "usuarios",
+    "panel",
     "mapa",
     "operaciones",
 ]

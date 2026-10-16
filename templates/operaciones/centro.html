@@ -3,6 +3,10 @@
 
 {% block title %}Centro Operativo | VíaRescate Venezuela{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/operaciones.css' %}">
+{% endblock %}
+
 {% block content %}
 <main class="operations-page">
     <section class="operations-header">
@@ -175,7 +179,7 @@
                 <div class="operations-actions">
                     <a
                         class="operation-action"
-                        href="{% url 'admin:index' %}"
+                        href="{% url 'panel:dashboard' %}"
                     >
                         <strong>Administración</strong>
                         <span>Gestionar información operativa</span>
@@ -183,7 +187,7 @@
 
                     <a
                         class="operation-action"
-                        href="{% url 'mapa:mapa' %}"
+                        href="{% url 'mapa:publico' %}"
                     >
                         <strong>Mapa público</strong>
                         <span>Consultar información geográfica pública</span>

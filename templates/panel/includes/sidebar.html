@@ -1,0 +1,39 @@
+{% load static %}
+<aside class="panel-sidebar">
+    <div class="panel-sidebar-brand">
+        <span class="brand-mark">VR</span>
+        <div>
+            <strong>Panel</strong>
+            <small>VíaRescate VE</small>
+        </div>
+    </div>
+
+    <nav class="panel-nav" aria-label="Navegación del panel">
+        <a href="{% url 'panel:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">
+            <span class="panel-nav-ico">▦</span> Dashboard
+        </a>
+        <a href="{% url 'panel:centros_lista' %}" class="{% if 'centros' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span class="panel-nav-ico">◉</span> Centros de acopio
+        </a>
+        <a href="{% url 'panel:refugios_lista' %}" class="{% if 'refugios' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span class="panel-nav-ico">⌂</span> Refugios
+        </a>
+        <a href="{% url 'panel:vias_lista' %}" class="{% if 'vias' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span class="panel-nav-ico">═</span> Vías
+        </a>
+        <a href="{% url 'panel:reportes_lista' %}" class="{% if 'reportes' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span class="panel-nav-ico">⚠</span> Reportes viales
+        </a>
+        <a href="{% url 'panel:usuarios_lista' %}" class="{% if 'usuarios' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span class="panel-nav-ico">☺</span> Usuarios
+        </a>
+    </nav>
+
+    <div class="panel-sidebar-footer">
+        <a href="/" class="panel-back-link">← Volver al sitio</a>
+        <form method="post" action="{% url 'usuarios:logout' %}" class="panel-logout">
+            {% csrf_token %}
+            <button type="submit" class="panel-btn-ghost">Cerrar sesión</button>
+        </form>
+    </div>
+</aside>

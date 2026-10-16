@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% block panel_title %}Panel{% endblock %} · VíaRescate VE{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/panel.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="panel-layout">
+    {% include "panel/includes/sidebar.html" %}
+
+    <div class="panel-main">
+        <header class="panel-topbar">
+            <div>
+                <h1 class="panel-heading">{% block heading %}Panel{% endblock %}</h1>
+                <p class="panel-subheading">{% block subheading %}{% endblock %}</p>
+            </div>
+            <div class="panel-actions">
+                {% block panel_actions %}{% endblock %}
+            </div>
+        </header>
+
+        {% if messages %}
+        <ul class="panel-messages">
+            {% for m in messages %}
+            <li class="panel-message panel-message-{{ m.tags }}">{{ m }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% block panel_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/panel.js' %}" defer></script>
+{% endblock %}

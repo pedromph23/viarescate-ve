@@ -1,0 +1,52 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}Dashboard{% endblock %}
+{% block subheading %}Estado general del sistema{% endblock %}
+
+{% block panel_content %}
+<div class="panel-grid panel-grid-4">
+    <div class="panel-card stat">
+        <div class="stat-label">Centros de acopio</div>
+        <div class="stat-value">{{ centros_activos }}</div>
+        <div class="stat-meta">{{ total_centros }} en total</div>
+    </div>
+    <div class="panel-card stat">
+        <div class="stat-label">Refugios activos</div>
+        <div class="stat-value">{{ refugios_activos }}</div>
+        <div class="stat-meta">{{ total_refugios }} en total</div>
+    </div>
+    <div class="panel-card stat">
+        <div class="stat-label">Usuarios activos</div>
+        <div class="stat-value">{{ usuarios_activos }}</div>
+        <div class="stat-meta">{{ total_usuarios }} en total</div>
+    </div>
+    <div class="panel-card stat">
+        <div class="stat-label">Reportes activos</div>
+        <div class="stat-value">{{ incidencias_activas }}</div>
+        <div class="stat-meta">pendientes / confirmados</div>
+    </div>
+</div>
+
+<div class="panel-grid panel-grid-3">
+    <div class="panel-card">
+        <h3>Vías</h3>
+        <ul class="panel-list">
+            <li><span>Activas</span><strong>{{ vias_activas }}</strong></li>
+            <li><span>Cerradas</span><strong class="text-danger">{{ vias_cerradas }}</strong></li>
+        </ul>
+    </div>
+    <div class="panel-card">
+        <h3>Operaciones</h3>
+        <ul class="panel-list">
+            <li><span>Vehículos disponibles</span><strong>{{ vehiculos_disponibles }}</strong></li>
+            <li><span>Misiones en ruta</span><strong>{{ misiones_en_ruta }}</strong></li>
+        </ul>
+    </div>
+    <div class="panel-card">
+        <h3>Alertas</h3>
+        <ul class="panel-list">
+            <li><span>Inventario bajo mínimo</span><strong class="text-warn">{{ inventario_bajo }}</strong></li>
+        </ul>
+        <p class="panel-hint">Actualizado: {{ ahora|date:"d/m/Y H:i" }}</p>
+    </div>
+</div>
+{% endblock %}

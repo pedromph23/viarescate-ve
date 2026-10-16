@@ -1,0 +1,28 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}{{ titulo }}{% endblock %}
+
+{% block panel_content %}
+<form method="post" class="panel-card panel-form">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="panel-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="panel-form-grid">
+    {% for field in form %}
+        <div class="panel-field {% if field.field.widget.input_type == 'textarea' %}panel-field-full{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="req">*</span>{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<small class="panel-hint">{{ field.help_text }}</small>{% endif %}
+            {% if field.errors %}<div class="panel-field-error">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+    {% endfor %}
+    </div>
+
+    <div class="panel-form-actions">
+        <a href="{% url 'panel:centros_lista' %}" class="panel-btn-ghost">Cancelar</a>
+        <button type="submit" class="panel-btn-primary">Guardar</button>
+    </div>
+</form>
+{% endblock %}

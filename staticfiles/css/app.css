@@ -301,6 +301,7 @@ a {
     font-size: clamp(2.5rem, 6vw, 5rem);
     line-height: 0.98;
     letter-spacing: -0.045em;
+    color: #20302a;
 }
 
 .hero-highlight {
@@ -834,4 +835,899 @@ a {
         padding: 1.4rem;
         border-radius: 18px;
     }
+}
+
+/* ==========================================================================
+   MODO OSCURO
+   ========================================================================== */
+
+
+
+
+
+
+/* Toggle de tema */
+.theme-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.15s;
+}
+.theme-toggle:hover { background: var(--surface-soft); }
+.theme-toggle svg { width: 20px; height: 20px; }
+
+
+.theme-toggle .ico-sun { display: none; }
+.theme-toggle .ico-moon { display: block; }
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+.site-footer {
+    margin-top: 48px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 40px 0 20px;
+}
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 32px;
+}
+.footer-brand .brand { margin-bottom: 12px; }
+.footer-desc { color: var(--text-soft); font-size: 0.9rem; max-width: 320px; margin: 0; }
+.footer-col h4 { margin: 0 0 12px; font-size: 0.95rem; }
+.footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.footer-col a { color: var(--text-soft); text-decoration: none; font-size: 0.9rem; }
+.footer-col a:hover { color: var(--primary); }
+
+.social-links { display: flex; gap: 10px; flex-wrap: wrap; }
+.social-links a {
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    border-radius: 10px;
+    background: var(--surface-soft);
+    color: var(--text-soft);
+    transition: all 0.15s;
+}
+.social-links a:hover { background: var(--primary); color: #fff; }
+.social-links svg { width: 18px; height: 18px; }
+
+.footer-bottom {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+}
+.footer-bottom p { margin: 0; }
+
+/* Navbar hamburguesa (móvil) */
+.nav-burger {
+    display: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 8px;
+    flex-direction: column;
+    gap: 4px;
+}
+.nav-burger span { display: block; width: 22px; height: 2px; background: var(--text); }
+.nav-highlight { color: var(--primary); font-weight: 700; }
+
+@media (max-width: 900px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+    .nav-burger { display: flex; }
+    .nav-links {
+        position: fixed;
+        top: 72px;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        flex-direction: column;
+        padding: 20px;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+        transform: translateY(-120%);
+        transition: transform 0.25s ease;
+    }
+    .nav-links.is-open { transform: translateY(0); }
+    .nav-links a { padding: 8px 0; }
+    .footer-grid { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   ICONOS SVG — tamaño defensivo
+   ========================================================================== */
+svg {
+    max-width: 100%;
+    max-height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+}
+.social-links svg, .social-links a svg {
+    width: 18px !important;
+    height: 18px !important;
+    max-width: 18px;
+    max-height: 18px;
+}
+.theme-toggle svg, button.theme-toggle svg {
+    width: 20px !important;
+    height: 20px !important;
+    max-width: 20px;
+    max-height: 20px;
+}
+
+/* ==========================================================================
+   MODO OSCURO v2 — Paleta neutra + overrides de contraste
+   ========================================================================== */
+
+
+
+
+
+
+
+
+/* Botones con color hardcodeado → ajustar al tema */
+
+
+
+
+
+
+/* Tarjetas y bloques con fondo blanco hardcodeado */
+
+
+/* Inputs y formularios */
+
+
+
+
+/* Texto secundario que quedó oscuro */
+
+
+/* Encabezados y títulos */
+
+
+/* Tablas */
+
+
+
+
+
+
+/* Badges — mantener legibles sobre fondo oscuro */
+
+
+
+
+/* Footer */
+
+
+/* Enlaces del navbar/footer */
+
+
+/* ==========================================================================
+   MODO OSCURO v2.1 — Overrides adicionales para colores hardcodeados
+   ========================================================================== */
+
+/* Gradientes de fondo que quedaron claros */
+
+
+/* Tarjetas y bloques con fondo rgba(255,255,255,...) */
+
+
+/* Botones con color hardcodeado — degradados verdes → azul oscuro */
+
+
+/* Botón secundario */
+
+
+/* Textos con color hardcodeado (#4d5d54, #526157, #617067, #47745f, #536158) */
+
+
+/* Puntos de estado de vías (línea 208-225 del CSS original) */
+
+
+
+
+
+/* Elementos con borde rgba(255,255,255,0.75) */
+
+
+/* Focus en inputs */
+
+
+/* Leaflet (mapa) en modo oscuro — opcional, da más contraste */
+
+
+/* Sombras muy fuertes sobre fondo oscuro */
+
+
+
+/* ==========================================================================
+   MODO OSCURO — consolidado v3
+   ========================================================================== */
+
+
+
+
+
+
+
+
+
+
+/* Botones */
+
+
+
+
+/* Tarjetas genéricas */
+
+
+/* Inputs */
+
+
+
+/* Texto secundario */
+
+
+
+
+/* Tablas */
+
+
+
+
+/* Badges */
+
+
+
+
+/* Enlaces */
+
+
+/* Toggle de tema */
+
+
+.theme-toggle .ico-sun { display: none; }
+.theme-toggle .ico-moon { display: block; }
+
+/* --------------------------------------------------------------------------
+   Leaflet en modo oscuro
+   -------------------------------------------------------------------------- */
+
+
+
+
+
+
+
+
+/* Controles personalizados del mapa */
+
+
+
+
+/* ==========================================================================
+   FIX v5 — Panel del mapa (clase .map-panel)
+   ========================================================================== */
+
+
+
+
+
+
+
+
+
+/* La leyenda dentro del map-panel (colores de texto) */
+
+
+
+
+/* Items de la leyenda con punto de color — texto legible */
+
+
+/* ==========================================================================
+   FIX v6 — Home: secciones con fondos hardcodeados
+   ========================================================================== */
+
+
+
+
+
+/* Tarjetas de estadísticas en la home */
+
+
+
+
+/* Eyebrows / kickers */
+
+
+/* Párrafos de la home */
+
+
+/* Cualquier hero-card o card de la home */
+
+
+/* ==========================================================================
+   FIX v7 — Home completa: overrides consolidados para dark mode
+   ========================================================================== */
+
+/* ----- HERO ----- */
+
+
+
+
+
+
+
+
+
+
+
+
+/* ----- STATS ----- */
+
+
+
+
+
+
+
+
+/* ----- FEATURES ----- */
+
+
+
+
+
+
+
+
+/* ----- MAP CTA ----- */
+
+
+
+
+
+
+/* ----- SECTION HEADINGS ----- */
+
+
+
+
+/* ----- EYEBROW / KICKERS ----- */
+
+
+/* ----- STATUS DOTS (mantener semántica pero más vivos) ----- */
+
+
+/* ----- BOTONES de la home ----- */
+
+
+
+
+
+
+/* ----- ICONOS en feature-icon (svg) ----- */
+
+
+/* ----- BACKGROUNDS DE SECTION ----- */
+
+
+/* Variante soft con un leve gradiente para diferenciarla */
+
+
+/* Cualquier párrafo dentro de secciones */
+
+
+/* Cualquier h2/h3 dentro de secciones */
+
+
+/* ==========================================================================
+   FIX v8 — Home hero card: glassmorphism oscuro + badges coherentes
+   ========================================================================== */
+
+/* La tarjeta mantiene el efecto glass pero en tono oscuro */
+
+
+/* Sombra interna sutil para simular profundidad */
+
+
+/* El badge "Sistema operativo" — del verde apagado al azul */
+
+
+/* El punto verde (status-dot) — dejarlo verde pero más vivo */
+
+
+/* Título del hero card */
+
+
+/* Párrafos y textos secundarios */
+
+
+/* Enlace "Abrir mapa →" */
+
+
+
+
+/* El hero general no debe competir con el fondo */
+
+
+/* Si el hero tiene un gradiente hardcodeado, matarlo */
+
+/* ==========================================================================
+   MODO OSCURO — Consolidado (una sola definición)
+   ==========================================================================
+   Paleta neutral tipo GitHub. Todo el dark mode de la app se controla
+   desde aquí: variables + overrides mínimos para clases con colores
+   hardcodeados.
+   ========================================================================== */
+
+[data-theme="dark"] {
+    --bg:            #0d1117;
+    --surface:       #161b22;
+    --surface-soft:  #21262d;
+    --text:          #f0f6fc;
+    --text-soft:     #8b949e;
+    --border:        #30363d;
+    --primary:       #58a6ff;
+    --primary-soft:  #1f3a5f;
+    --shadow:        0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Body */
+[data-theme="dark"] body {
+    background:
+        radial-gradient(circle at top left, #131a24 0, transparent 32rem),
+        linear-gradient(135deg, #0a0d12, #0d1117);
+    color: var(--text);
+}
+
+/* Header / Footer */
+[data-theme="dark"] .site-header {
+    background: rgba(13, 17, 23, 0.85);
+    border-bottom-color: var(--border);
+}
+[data-theme="dark"] .site-footer {
+    background: var(--surface);
+    border-top-color: var(--border);
+}
+[data-theme="dark"] .brand-mark {
+    background: linear-gradient(135deg, #1f6feb, #58a6ff);
+    color: #ffffff;
+}
+
+/* Toggle de tema */
+[data-theme="dark"] .theme-toggle .ico-sun { display: block; }
+[data-theme="dark"] .theme-toggle .ico-moon { display: none; }
+.theme-toggle .ico-sun { display: none; }
+.theme-toggle .ico-moon { display: block; }
+
+/* Inputs */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: var(--surface-soft);
+    color: var(--text);
+    border-color: var(--border);
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: var(--text-soft);
+}
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+    outline-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Tarjetas y contenedores comunes */
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .stats-grid,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .feature-grid,
+[data-theme="dark"] .map-cta-card,
+[data-theme="dark"] .home-map-cta,
+[data-theme="dark"] .panel-card {
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+/* Botones */
+[data-theme="dark"] .button-primary,
+[data-theme="dark"] .panel-btn-primary {
+    background: var(--primary);
+    color: #0d1117;
+    border-color: var(--primary);
+}
+[data-theme="dark"] .button-secondary,
+[data-theme="dark"] .panel-btn-ghost {
+    background: var(--surface-soft);
+    color: var(--text);
+    border-color: var(--border);
+}
+[data-theme="dark"] .button-secondary:hover,
+[data-theme="dark"] .panel-btn-ghost:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+}
+[data-theme="dark"] a:hover {
+    color: var(--primary);
+}
+
+/* Textos secundarios comunes */
+[data-theme="dark"] .panel-subheading,
+[data-theme="dark"] .panel-hint,
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .stat-description,
+[data-theme="dark"] .footer-desc,
+[data-theme="dark"] .footer-col a,
+[data-theme="dark"] .footer-bottom p,
+[data-theme="dark"] .hero-lead,
+[data-theme="dark"] .section-heading p,
+[data-theme="dark"] small {
+    color: var(--text-soft);
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] strong {
+    color: var(--text);
+}
+
+/* Tablas */
+[data-theme="dark"] .panel-table th {
+    color: var(--text-soft);
+    border-bottom-color: var(--border);
+}
+[data-theme="dark"] .panel-table td {
+    color: var(--text);
+    border-bottom-color: var(--border);
+}
+[data-theme="dark"] .panel-table tr:hover td {
+    background: var(--surface-soft);
+}
+
+/* Badges */
+[data-theme="dark"] .badge-ok   { background: rgba(31, 111, 235, 0.2); color: #79c0ff; }
+[data-theme="dark"] .badge-off  { background: #30363d;               color: #8b949e; }
+[data-theme="dark"] .badge-info { background: rgba(31, 111, 235, 0.2); color: #79c0ff; }
+
+/* Eyebrow / kickers */
+[data-theme="dark"] .eyebrow,
+[data-theme="dark"] .home-eyebrow {
+    color: var(--primary);
+}
+
+/* Status dots de la home */
+[data-theme="dark"] .status-dot {
+    background: #3fb950;
+    box-shadow: 0 0 0 4px rgba(63, 185, 80, 0.15);
+}
+
+/* Feature icons */
+[data-theme="dark"] .feature-icon {
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+[data-theme="dark"] .feature-icon svg {
+    color: var(--primary);
+    stroke: var(--primary);
+}
+
+/* Home sections */
+[data-theme="dark"] .home-section {
+    background: var(--bg);
+    color: var(--text);
+}
+[data-theme="dark"] .home-section-soft {
+    background:
+        linear-gradient(135deg,
+            rgba(22, 27, 34, 0.95),
+            rgba(13, 17, 23, 0.85)
+        );
+}
+[data-theme="dark"] .home-section p {
+    color: var(--text-soft);
+}
+
+/* Home hero card (glassmorphism oscuro) */
+[data-theme="dark"] .home-hero-card {
+    background: rgba(22, 27, 34, 0.72);
+    border: 1px solid rgba(240, 246, 252, 0.08);
+    color: var(--text);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(240, 246, 252, 0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+[data-theme="dark"] .home-hero-card:hover {
+    border-color: rgba(88, 166, 255, 0.25);
+}
+[data-theme="dark"] .home-hero-card .eyebrow {
+    color: var(--primary);
+    background: transparent;
+}
+[data-theme="dark"] .home-hero-card a {
+    color: var(--primary);
+}
+[data-theme="dark"] .home-hero-card a:hover {
+    color: #79c0ff;
+}
+
+/* Leaflet -------------------------------------------------------------- */
+[data-theme="dark"] .leaflet-control,
+[data-theme="dark"] .leaflet-bar,
+[data-theme="dark"] .leaflet-control-layers,
+[data-theme="dark"] .leaflet-control-layers-expanded,
+[data-theme="dark"] .leaflet-control-layers-list,
+[data-theme="dark"] .leaflet-popup-content-wrapper,
+[data-theme="dark"] .leaflet-popup-tip {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .leaflet-control-layers label,
+[data-theme="dark"] .leaflet-control-layers-list label {
+    color: var(--text) !important;
+}
+[data-theme="dark"] .leaflet-control-zoom a {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    border-bottom-color: var(--border) !important;
+}
+[data-theme="dark"] .leaflet-control-zoom a:hover {
+    background: var(--surface-soft) !important;
+}
+[data-theme="dark"] .leaflet-control-attribution {
+    background: rgba(13, 17, 23, 0.85) !important;
+    color: var(--text-soft) !important;
+}
+[data-theme="dark"] .leaflet-control-attribution a {
+    color: var(--primary) !important;
+}
+[data-theme="dark"] .leaflet-tile-pane {
+    filter: brightness(0.75) contrast(1.1) saturate(0.85);
+}
+
+/* Panel del mapa (custom) */
+[data-theme="dark"] .map-panel,
+[data-theme="dark"] .operations-map-controls {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+}
+[data-theme="dark"] .map-panel h1,
+[data-theme="dark"] .map-panel h2,
+[data-theme="dark"] .map-panel h3,
+[data-theme="dark"] .map-panel h4,
+[data-theme="dark"] .map-panel strong,
+[data-theme="dark"] .operations-map-controls strong {
+    color: var(--text-soft) !important;
+}
+[data-theme="dark"] .map-panel label,
+[data-theme="dark"] .map-panel li,
+[data-theme="dark"] .map-panel ul,
+[data-theme="dark"] .layer-toggle,
+[data-theme="dark"] .operations-map-controls label {
+    color: var(--text) !important;
+}
+[data-theme="dark"] .map-panel small {
+    color: var(--text-soft) !important;
+}
+
+
+/* ==========================================================================
+   FIX — Hero: colores explícitos para light y dark
+   ========================================================================== */
+
+/* Light mode — valores por defecto sólidos */
+.home-hero-content .hero-highlight {
+    background: linear-gradient(120deg, #467d69, #8c7650);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.hero-lead {
+    color: #536158;
+}
+.home-hero .eyebrow {
+    color: #28745b;
+}
+.home-hero-card {
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    color: #20302a;
+}
+.hero-card-header {
+    color: #526157;
+}
+.hero-card-body strong {
+    color: #20302a;
+}
+.hero-card-body p {
+    color: #617067;
+}
+.hero-card-link {
+    color: #47745f;
+}
+.button-primary {
+    color: #ffffff;
+    background: linear-gradient(135deg, #427662, #5f8d78);
+}
+.button-secondary {
+    color: #4d5d54;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(75, 95, 83, 0.14);
+}
+
+/* Dark mode — override */
+[data-theme="dark"] .home-hero-content h1 {
+    color: var(--text);
+}
+[data-theme="dark"] .home-hero-content .hero-highlight {
+    background: linear-gradient(120deg, #58a6ff, #79c0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+[data-theme="dark"] .hero-lead {
+    color: var(--text-soft);
+}
+[data-theme="dark"] .home-hero .eyebrow {
+    color: var(--primary);
+}
+[data-theme="dark"] .home-hero-card {
+    background: rgba(22, 27, 34, 0.72);
+    border: 1px solid rgba(240, 246, 252, 0.08);
+    color: var(--text);
+}
+[data-theme="dark"] .hero-card-header {
+    color: var(--text-soft);
+}
+[data-theme="dark"] .hero-card-body strong {
+    color: var(--text);
+}
+[data-theme="dark"] .hero-card-body p {
+    color: var(--text-soft);
+}
+[data-theme="dark"] .hero-card-link {
+    color: var(--primary);
+}
+[data-theme="dark"] .button-primary {
+    background: var(--primary);
+    color: #0d1117;
+}
+[data-theme="dark"] .button-secondary {
+    background: var(--surface-soft);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+/* ==========================================================================
+   FIX v9 — Hero: colores explícitos para light y dark
+   ========================================================================== */
+
+/* Light mode — valores por defecto sólidos */
+.home-hero-content .hero-highlight {
+    background: linear-gradient(120deg, #467d69, #8c7650);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.hero-lead {
+    color: #536158;
+}
+.home-hero .eyebrow {
+    color: #28745b;
+}
+.home-hero-card {
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    color: #20302a;
+}
+.hero-card-header {
+    color: #526157;
+}
+.hero-card-body strong {
+    color: #20302a;
+}
+.hero-card-body p {
+    color: #617067;
+}
+.hero-card-link {
+    color: #47745f;
+}
+.button-primary {
+    color: #ffffff;
+    background: linear-gradient(135deg, #427662, #5f8d78);
+}
+.button-secondary {
+    color: #4d5d54;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(75, 95, 83, 0.14);
+}
+
+/* Dark mode — override */
+[data-theme="dark"] .home-hero-content h1 {
+    color: var(--text);
+}
+[data-theme="dark"] .home-hero-content .hero-highlight {
+    background: linear-gradient(120deg, #58a6ff, #79c0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+[data-theme="dark"] .hero-lead {
+    color: var(--text-soft);
+}
+[data-theme="dark"] .home-hero .eyebrow {
+    color: var(--primary);
+}
+[data-theme="dark"] .home-hero-card {
+    background: rgba(22, 27, 34, 0.72);
+    border: 1px solid rgba(240, 246, 252, 0.08);
+    color: var(--text);
+}
+[data-theme="dark"] .hero-card-header {
+    color: var(--text-soft);
+}
+[data-theme="dark"] .hero-card-body strong {
+    color: var(--text);
+}
+[data-theme="dark"] .hero-card-body p {
+    color: var(--text-soft);
+}
+[data-theme="dark"] .hero-card-link {
+    color: var(--primary);
+}
+[data-theme="dark"] .button-primary {
+    background: var(--primary);
+    color: #0d1117;
+}
+[data-theme="dark"] .button-secondary {
+    background: var(--surface-soft);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+/* ==========================================================================
+   FIX v10 — Fondo del hero en dark mode (se perdió en la limpieza)
+   ========================================================================== */
+
+[data-theme="dark"] .home-hero {
+    background:
+        radial-gradient(circle at 15% 20%, rgba(88, 166, 255, 0.10), transparent 34%),
+        radial-gradient(circle at 85% 15%, rgba(210, 168, 255, 0.06), transparent 30%),
+        linear-gradient(135deg, #0d1117 0%, #0a0d12 48%, #0d1117 100%);
+}
+
+/* Si el hero tiene un ::before/::after con gradiente, matarlo */
+[data-theme="dark"] .home-hero::before,
+[data-theme="dark"] .home-hero::after {
+    background: none !important;
 }

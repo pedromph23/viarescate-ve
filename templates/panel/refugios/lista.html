@@ -1,0 +1,49 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}Refugios{% endblock %}
+{% block subheading %}{{ refugios|length }} refugio{{ refugios|length|pluralize }} registrado{{ refugios|length|pluralize }}{% endblock %}
+
+{% block panel_actions %}
+<a href="{% url 'panel:refugios_nuevo' %}" class="panel-btn-primary">+ Nuevo refugio</a>
+{% endblock %}
+
+{% block panel_content %}
+<form method="get" class="panel-search">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o dirección...">
+    <button type="submit" class="panel-btn-ghost">Buscar</button>
+</form>
+
+<div class="panel-card panel-table-wrap">
+    <table class="panel-table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Ubicación</th>
+                <th>Capacidad</th>
+                <th>Ocupación</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for r in refugios %}
+            <tr>
+                <td><strong>{{ r.nombre }}</strong></td>
+                <td>{{ r.estado.nombre }} · {{ r.municipio.nombre }}</td>
+                <td>{{ r.capacidad }}</td>
+                <td>{{ r.ocupacion }} / {{ r.capacidad }}</td>
+                <td>
+                    {% if r.activo %}<span class="badge badge-ok">Activo</span>
+                    {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
+                </td>
+                <td class="panel-row-actions">
+                    <a href="{% url 'panel:refugios_editar' r.pk %}">Editar</a>
+                    <a href="{% url 'panel:refugios_eliminar' r.pk %}" class="text-danger">Eliminar</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="panel-empty">Sin resultados</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

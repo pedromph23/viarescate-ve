@@ -55,3 +55,6 @@ pnpm-debug.log*
 .mypy_cache/
 .ruff_cache/
 .vercel/
+static/css/app.css.bak
+static/css/app.css.restore
+static/css/.backups/

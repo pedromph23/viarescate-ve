@@ -1,8 +1,61 @@
+{% load static %}
 <footer class="site-footer">
-    <div class="container">
-        <p>
-            VíaRescate VE · Sistema de apoyo para la distribución
-            de ayuda humanitaria en Venezuela.
-        </p>
+    <div class="container footer-grid">
+        <div class="footer-brand">
+            <div class="brand">
+                <span class="brand-mark">VR</span>
+                <div>
+                    <strong>VíaRescate VE</strong>
+                    <small>Ayuda donde más se necesita</small>
+                </div>
+            </div>
+            <p class="footer-desc">
+                Sistema inteligente de rutas para la distribución de ayuda
+                humanitaria en Venezuela.
+            </p>
+        </div>
+
+        <div class="footer-col">
+            <h4>Navegación</h4>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="{% url 'mapa:publico' %}">Mapa</a></li>
+                <li><a href="{% url 'usuarios:login' %}">Entrar</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Recursos</h4>
+            <ul>
+                <li><a href="/health/">Estado del sistema</a></li>
+                <li><a href="https://github.com/pedromph23/viarescate-ve" target="_blank" rel="noopener">Repositorio</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Síguenos</h4>
+            <div class="social-links">
+                <a href="#" aria-label="Instagram" title="Instagram">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.25.07 1.62.07 4.81s0 3.56-.07 4.81c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.25.06-1.62.07-4.85.07s-3.6 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 01-1.38-.9 3.7 3.7 0 01-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.56 2.2 15.19 2.2 12s0-3.56.07-4.81c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.44 2.21 8.81 2.2 12 2.2zm0 5.6a4.2 4.2 0 100 8.4 4.2 4.2 0 000-8.4zm0 6.93a2.73 2.73 0 110-5.46 2.73 2.73 0 010 5.46zm5.4-7.14a.98.98 0 11-1.96 0 .98.98 0 011.96 0z"/></svg>
+                </a>
+                <a href="#" aria-label="Facebook" title="Facebook">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 10-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0022 12z"/></svg>
+                </a>
+                <a href="#" aria-label="YouTube" title="YouTube">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 00.5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+                </a>
+                <a href="#" aria-label="WhatsApp" title="WhatsApp">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11 11 0 003.6 17.1L2 22l5-1.3a11 11 0 0016.5-9.5 10.9 10.9 0 00-3-7.7zM12 20a8.5 8.5 0 01-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.5 8.5 0 1112 20zm4.7-6.4c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.9 1c-.1.2-.3.2-.6.1a7 7 0 01-3.4-3c-.3-.4 0-.5.1-.7l.4-.5c.1-.1.2-.3.3-.4.1-.2 0-.3 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5 0-.7.3-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.1 3 .2.2 1.9 3 4.7 4.1.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3z"/></svg>
+                </a>
+                <a href="https://github.com/pedromph23/viarescate-ve" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.3 1.9 1.3 1.1 2 3 1.4 3.7 1 .1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0012 .5z"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container footer-bottom">
+        <p>© {% now "Y" %} VíaRescate VE. Todos los derechos reservados.</p>
+        <p>Creado por Pedro M. Pérez H. en cooperación con Mayerling Betancourt.</p>
     </div>
 </footer>
