@@ -823,3 +823,13 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.accion} - {self.modulo}"
+
+
+# ---------------------------------------------------------------------------
+# Modelos de predicción / IA (importados al final para que Django los registre)
+# ---------------------------------------------------------------------------
+from .prediccion_models import (  # noqa: E402,F401
+    AlertaPredictiva,
+    PrediccionDemanda,
+    PrediccionMision,
+)

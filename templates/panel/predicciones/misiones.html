@@ -1,0 +1,55 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}Predicciones de misión{% endblock %}
+{% block subheading %}{{ predicciones|length }} misi{{ predicciones|length|pluralize:"ón,ones" }} evaluada{{ predicciones|length|pluralize }}{% endblock %}
+
+{% block panel_content %}
+<div class="panel-card panel-table-wrap">
+    <table class="panel-table">
+        <thead>
+            <tr>
+                <th>Misión</th>
+                <th>Riesgo</th>
+                <th>Probabilidad</th>
+                <th>Retraso estimado</th>
+                <th>Razones</th>
+                <th>Generado</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in predicciones %}
+            <tr>
+                <td>
+                    <strong>{{ p.mision.codigo }}</strong><br>
+                    <small>{{ p.mision.nombre }}</small>
+                </td>
+                <td>
+                    <span class="badge
+                        {% if p.nivel_riesgo == 'CRITICO' %}badge-danger
+                        {% elif p.nivel_riesgo == 'ALTO' %}badge-warn
+                        {% elif p.nivel_riesgo == 'MEDIO' %}badge-info
+                        {% else %}badge-off{% endif %}">
+                        {{ p.get_nivel_riesgo_display }}
+                    </span>
+                </td>
+                <td><strong>{{ p.probabilidad_retraso }}%</strong></td>
+                <td>{% if p.retraso_estimado_minutos %}{{ p.retraso_estimado_minutos }} min{% else %}—{% endif %}</td>
+                <td>
+                    <small>
+                    {% for r in p.razones %}
+                        • {{ r }}<br>
+                    {% empty %}
+                        Sin factores críticos
+                    {% endfor %}
+                    </small>
+                </td>
+                <td><small>{{ p.generado_en|date:"d/m/Y H:i" }}</small></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="panel-empty">
+                Sin predicciones. Ejecuta <code>python manage.py generar_predicciones</code>.
+            </td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

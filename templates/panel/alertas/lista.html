@@ -1,0 +1,56 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}Alertas predictivas{% endblock %}
+{% block subheading %}{{ alertas|length }} alerta{{ alertas|length|pluralize }} activa{{ alertas|length|pluralize }}{% endblock %}
+
+{% block panel_content %}
+{% if not alertas %}
+    <div class="panel-card">
+        <p class="panel-empty">
+            No hay alertas predictivas activas.<br>
+            Ejecuta <code>python manage.py generar_predicciones</code> para regenerarlas.
+        </p>
+    </div>
+{% else %}
+    <div class="alertas-list">
+    {% for a in alertas %}
+        <div class="panel-card alerta alerta-{{ a.severidad|lower }} {% if a.reconocida %}alerta-reconocida{% endif %}">
+            <div class="alerta-header">
+                <div>
+                    <span class="badge
+                        {% if a.severidad == 'CRITICA' %}badge-danger
+                        {% elif a.severidad == 'ADVERTENCIA' %}badge-warn
+                        {% else %}badge-info{% endif %}">
+                        {{ a.get_severidad_display }}
+                    </span>
+                    <span class="badge badge-off">{{ a.get_tipo_display }}</span>
+                    {% if a.reconocida %}<span class="badge badge-ok">Reconocida</span>{% endif %}
+                </div>
+                <small>{{ a.creada_en|date:"d/m/Y H:i" }}</small>
+            </div>
+
+            <h3 class="alerta-titulo">{{ a.titulo }}</h3>
+            <p class="alerta-descripcion">{{ a.descripcion }}</p>
+
+            {% if a.accion_recomendada %}
+            <div class="alerta-accion">
+                <strong>Acción recomendada:</strong> {{ a.accion_recomendada }}
+            </div>
+            {% endif %}
+
+            <div class="alerta-meta">
+                {% if a.refugio %}<span>◉ {{ a.refugio.nombre }}</span>{% endif %}
+                {% if a.recurso %}<span>⬢ {{ a.recurso.nombre }}</span>{% endif %}
+                {% if a.mision %}<span>▲ {{ a.mision.codigo }}</span>{% endif %}
+            </div>
+
+            {% if not a.reconocida %}
+            <form method="post" action="{% url 'panel:alertas_reconocer' a.pk %}" class="alerta-actions">
+                {% csrf_token %}
+                <button type="submit" class="panel-btn-ghost">Marcar como reconocida</button>
+            </form>
+            {% endif %}
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

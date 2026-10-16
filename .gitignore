@@ -58,3 +58,4 @@ pnpm-debug.log*
 static/css/app.css.bak
 static/css/app.css.restore
 static/css/.backups/
+*.bak

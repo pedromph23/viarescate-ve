@@ -5,10 +5,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from operaciones.models import (
+    AlertaPredictiva,
     CentroAyuda,
     Inventario,
     Mision,
     Necesidad,
+    PrediccionDemanda,
+    PrediccionMision,
     Refugio,
     ReporteVial,
     Vehiculo,
@@ -40,6 +43,13 @@ def dashboard(request):
         ).count(),
         "misiones_en_ruta": Mision.objects.filter(estado_mision="EN_RUTA").count(),
         "inventario_bajo": Inventario.objects.filter(cantidad__lt=F("minimo")).count(),
+        "alertas_predictivas": AlertaPredictiva.objects.filter(activa=True).count(),
+        "alertas_criticas": AlertaPredictiva.objects.filter(
+            activa=True, severidad="CRITICA"
+        ).count(),
+        "misiones_en_riesgo": PrediccionMision.objects.filter(
+            nivel_riesgo__in=["ALTO", "CRITICO"]
+        ).count(),
         "ahora": ahora,
     }
     return render(request, "panel/dashboard.html", contexto)
@@ -241,3 +251,46 @@ def necesidades_eliminar(request, pk):
         "panel/confirmar_eliminar.html",
         {"obj": obj, "tipo": "necesidad"},
     )
+
+
+# ---------- ALERTAS PREDICTIVAS / IA ----------
+@panel_required
+def alertas_lista(request):
+    """Listado de alertas predictivas activas."""
+    qs = AlertaPredictiva.objects.filter(activa=True).select_related(
+        "refugio", "recurso", "mision"
+    )
+    return render(request, "panel/alertas/lista.html", {"alertas": qs})
+
+
+@panel_required
+def alertas_reconocer(request, pk):
+    """Marca una alerta como reconocida."""
+    if request.method != "POST":
+        return redirect("panel:alertas_lista")
+    obj = get_object_or_404(AlertaPredictiva, pk=pk)
+    from django.utils import timezone as tz
+    obj.reconocida = True
+    obj.reconocida_por = request.user
+    obj.reconocida_en = tz.now()
+    obj.save(update_fields=["reconocida", "reconocida_por", "reconocida_en"])
+    messages.success(request, "Alerta reconocida.")
+    return redirect("panel:alertas_lista")
+
+
+@panel_required
+def predicciones_demanda(request):
+    """Listado de predicciones de demanda."""
+    qs = PrediccionDemanda.objects.select_related(
+        "refugio", "recurso"
+    ).order_by("-confianza", "-generado_en")
+    return render(request, "panel/predicciones/demanda.html", {"predicciones": qs})
+
+
+@panel_required
+def predicciones_misiones(request):
+    """Listado de predicciones de misión."""
+    qs = PrediccionMision.objects.select_related("mision").order_by(
+        "-probabilidad_retraso"
+    )
+    return render(request, "panel/predicciones/misiones.html", {"predicciones": qs})

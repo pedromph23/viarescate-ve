@@ -3,6 +3,15 @@
 {% block subheading %}Estado general del sistema{% endblock %}
 
 {% block panel_content %}
+
+{% if alertas_criticas and alertas_criticas > 0 %}
+<div class="panel-alerta-banner">
+    <strong>⚠ {{ alertas_criticas }} alerta{{ alertas_criticas|pluralize }} crítica{{ alertas_criticas|pluralize }}</strong>
+    <span>Requieren acción inmediata.</span>
+    <a href="{% url 'panel:alertas_lista' %}" class="panel-btn-ghost">Ver alertas</a>
+</div>
+{% endif %}
+
 <div class="panel-grid panel-grid-4">
     <div class="panel-card stat">
         <div class="stat-label">Centros de acopio</div>
@@ -23,6 +32,16 @@
         <div class="stat-label">Reportes activos</div>
         <div class="stat-value">{{ incidencias_activas }}</div>
         <div class="stat-meta">pendientes / confirmados</div>
+    </div>
+    <div class="panel-card stat">
+        <div class="stat-label">Alertas IA</div>
+        <div class="stat-value">{{ alertas_predictivas }}</div>
+        <div class="stat-meta">{{ alertas_criticas }} crítica{{ alertas_criticas|pluralize }}</div>
+    </div>
+    <div class="panel-card stat">
+        <div class="stat-label">Misiones en riesgo</div>
+        <div class="stat-value">{{ misiones_en_riesgo }}</div>
+        <div class="stat-meta">según modelo predictivo</div>
     </div>
 </div>
 

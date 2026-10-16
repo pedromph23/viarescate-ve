@@ -1,0 +1,45 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}Predicciones de demanda{% endblock %}
+{% block subheading %}{{ predicciones|length }} prediccion{{ predicciones|length|pluralize }}{% endblock %}
+
+{% block panel_content %}
+<div class="panel-card panel-table-wrap">
+    <table class="panel-table">
+        <thead>
+            <tr>
+                <th>Refugio</th>
+                <th>Recurso</th>
+                <th>Horizonte</th>
+                <th>Cantidad predicha</th>
+                <th>Confianza</th>
+                <th>Modelo</th>
+                <th>Generado</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in predicciones %}
+            <tr>
+                <td><strong>{{ p.refugio.nombre }}</strong></td>
+                <td>{{ p.recurso.nombre }} <small>({{ p.recurso.unidad }})</small></td>
+                <td>{{ p.get_horizonte_display }}</td>
+                <td><strong>{{ p.cantidad_predicha }}</strong></td>
+                <td>
+                    <span class="badge
+                        {% if p.confianza >= 70 %}badge-ok
+                        {% elif p.confianza >= 50 %}badge-warn
+                        {% else %}badge-off{% endif %}">
+                        {{ p.confianza }}%
+                    </span>
+                </td>
+                <td><small>{{ p.modelo_usado }}</small></td>
+                <td><small>{{ p.generado_en|date:"d/m/Y H:i" }}</small></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7" class="panel-empty">
+                Sin predicciones. Ejecuta <code>python manage.py generar_predicciones</code>.
+            </td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

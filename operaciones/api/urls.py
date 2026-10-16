@@ -13,6 +13,12 @@ from .views import (
     ViaViewSet,
 )
 
+from .views_prediccion import (
+    AlertaPredictivaViewSet,
+    PrediccionDemandaViewSet,
+    PrediccionMisionViewSet,
+)
+
 router = DefaultRouter()
 
 router.register(
@@ -73,6 +79,23 @@ router.register(
     r"auditoria",
     AuditLogViewSet,
     basename="auditoria",
+)
+
+# Predicciones / IA
+router.register(
+    r"predicciones/demanda",
+    PrediccionDemandaViewSet,
+    basename="prediccion-demanda",
+)
+router.register(
+    r"predicciones/misiones",
+    PrediccionMisionViewSet,
+    basename="prediccion-mision",
+)
+router.register(
+    r"alertas-predictivas",
+    AlertaPredictivaViewSet,
+    basename="alerta-predictiva",
 )
 
 urlpatterns = router.urls

@@ -30,6 +30,12 @@
         <a href="{% url 'panel:necesidades_lista' %}" class="{% if 'necesidades' in request.resolver_match.url_name %}is-active{% endif %}">
             <span class="panel-nav-ico">⚑</span> Necesidades
         </a>
+        <a href="{% url 'panel:alertas_lista' %}" class="{% if 'alertas' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span class="panel-nav-ico">⚡</span> Alertas IA
+        </a>
+        <a href="{% url 'panel:predicciones_demanda' %}" class="{% if 'predicciones' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span class="panel-nav-ico">◇</span> Predicciones
+        </a>
     </nav>
 
     <div class="panel-sidebar-footer">

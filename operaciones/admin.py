@@ -7,7 +7,10 @@ from .models import (
     Inventario,
     Mision,
     MovimientoInventario,
+    AlertaPredictiva,
     Necesidad,
+    PrediccionDemanda,
+    PrediccionMision,
     Recurso,
     ReporteVial,
     Refugio,
@@ -780,3 +783,37 @@ class NecesidadAdmin(admin.ModelAdmin):
             "classes": ("collapse",),
         }),
     )
+
+
+@admin.register(PrediccionDemanda)
+class PrediccionDemandaAdmin(admin.ModelAdmin):
+    list_display = ("refugio", "recurso", "horizonte", "cantidad_predicha", "confianza", "modelo_usado", "generado_en")
+    list_filter = ("horizonte", "modelo_usado")
+    search_fields = ("refugio__nombre", "recurso__nombre")
+    readonly_fields = ("generado_en",)
+    date_hierarchy = "generado_en"
+
+
+@admin.register(PrediccionMision)
+class PrediccionMisionAdmin(admin.ModelAdmin):
+    list_display = ("mision", "nivel_riesgo", "probabilidad_retraso", "retraso_estimado_minutos", "generado_en")
+    list_filter = ("nivel_riesgo",)
+    search_fields = ("mision__codigo", "mision__nombre")
+    readonly_fields = ("generado_en",)
+    date_hierarchy = "generado_en"
+
+
+@admin.register(AlertaPredictiva)
+class AlertaPredictivaAdmin(admin.ModelAdmin):
+    list_display = ("titulo", "tipo", "severidad", "activa", "reconocida", "creada_en")
+    list_filter = ("tipo", "severidad", "activa", "reconocida")
+    search_fields = ("titulo", "descripcion")
+    readonly_fields = ("creada_en",)
+    date_hierarchy = "creada_en"
+    actions = ["marcar_reconocidas"]
+
+    def marcar_reconocidas(self, request, queryset):
+        from django.utils import timezone
+        n = queryset.update(reconocida=True, reconocida_en=timezone.now())
+        self.message_user(request, f"{n} alertas marcadas como reconocidas.")
+    marcar_reconocidas.short_description = "Marcar como reconocidas"

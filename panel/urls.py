@@ -22,4 +22,9 @@ urlpatterns = [
     path("necesidades/nueva/", views.necesidades_form, name="necesidades_nueva"),
     path("necesidades/<uuid:pk>/editar/", views.necesidades_form, name="necesidades_editar"),
     path("necesidades/<uuid:pk>/eliminar/", views.necesidades_eliminar, name="necesidades_eliminar"),
+    # IA / Predicciones
+    path("alertas/", views.alertas_lista, name="alertas_lista"),
+    path("alertas/<uuid:pk>/reconocer/", views.alertas_reconocer, name="alertas_reconocer"),
+    path("predicciones/demanda/", views.predicciones_demanda, name="predicciones_demanda"),
+    path("predicciones/misiones/", views.predicciones_misiones, name="predicciones_misiones"),
 ]
