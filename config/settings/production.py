@@ -151,3 +151,12 @@ AUDIT_TRUST_PROXY_HEADERS = env.bool(
 GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH", "libgdal.so")
 GEOS_LIBRARY_PATH = os.environ.get("GEOS_LIBRARY_PATH", "libgeos_c.so.1")
 PROJ_LIBRARY_PATH = os.environ.get("PROJ_LIBRARY_PATH", "libproj.so")
+
+
+# ---------------------------------------------------------------------------
+# FIX CRÍTICO — Forzar el backend PostGIS en producción.
+# Sin esto, DATABASE_URL con scheme postgis:// no se traduce al engine GIS
+# y las consultas espaciales fallan con:
+#   AttributeError: 'DatabaseOperations' object has no attribute 'select'
+# ---------------------------------------------------------------------------
+DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
