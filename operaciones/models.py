@@ -121,6 +121,12 @@ class Refugio(IntegridadTerritorialMixin, models.Model):
         db_index=True,
     )
 
+    fecha_ultimo_censo = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha y hora del último censo de personas.",
+    )
+
     activo = models.BooleanField(default=True, db_index=True)
     observaciones = models.TextField(blank=True)
 
@@ -143,12 +149,20 @@ class Refugio(IntegridadTerritorialMixin, models.Model):
 
     def clean(self):
         super().clean()
+        from core import messages as msg
+        from core.validators import validar_fecha_futura
+
         errors = {}
 
         if self.ocupacion > self.capacidad:
             errors["ocupacion"] = (
                 "La ocupación no puede superar la capacidad del refugio."
             )
+
+        try:
+            validar_fecha_futura(self.fecha_ultimo_censo, msg.FECHA_CENSO_FUTURA)
+        except ValidationError as e:
+            errors["fecha_ultimo_censo"] = e.messages
 
         if errors:
             raise ValidationError(errors)
@@ -282,6 +296,24 @@ class ReporteVial(models.Model):
         ]
         verbose_name = "Reporte vial"
         verbose_name_plural = "Reportes viales"
+
+    def clean(self):
+        super().clean()
+        from core import messages as msg
+        from core.validators import validar_orden_fechas
+
+        errors = {}
+        try:
+            validar_orden_fechas(
+                self.reportado_en,
+                self.resuelto_en,
+                msg.FECHA_RESOLUCION_ANTES_REPORTE,
+            )
+        except ValidationError as e:
+            errors["resuelto_en"] = e.messages
+
+        if errors:
+            raise ValidationError(errors)
 
     def __str__(self):
         return self.titulo
@@ -423,12 +455,63 @@ class Mision(models.Model):
 
     ruta = models.LineStringField(srid=4326, null=True, blank=True)
 
+    fecha_salida_planificada = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha y hora prevista de salida del centro de acopio.",
+    )
+    fecha_entrega_estimada = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha y hora prevista de entrega en el refugio.",
+    )
+
     planificada_en = models.DateTimeField(auto_now_add=True)
     iniciada_en = models.DateTimeField(null=True, blank=True)
     entregada_en = models.DateTimeField(null=True, blank=True)
     cancelada_en = models.DateTimeField(null=True, blank=True)
 
     observaciones = models.TextField(blank=True)
+
+    def clean(self):
+        super().clean()
+        from core import messages as msg
+        from core.validators import validar_orden_fechas
+
+        errors = {}
+
+        # fecha_entrega_estimada >= fecha_salida_planificada
+        try:
+            validar_orden_fechas(
+                self.fecha_salida_planificada,
+                self.fecha_entrega_estimada,
+                msg.FECHA_ENTREGA_ANTES_SALIDA,
+            )
+        except ValidationError as e:
+            errors["fecha_entrega_estimada"] = e.messages
+
+        # entregada_en (real) >= fecha_salida_planificada
+        try:
+            validar_orden_fechas(
+                self.fecha_salida_planificada,
+                self.entregada_en,
+                msg.FECHA_ENTREGA_REAL_ANTES_SALIDA,
+            )
+        except ValidationError as e:
+            errors["entregada_en"] = e.messages
+
+        # entregada_en >= iniciada_en
+        try:
+            validar_orden_fechas(
+                self.iniciada_en,
+                self.entregada_en,
+                "La fecha de entrega real no puede ser anterior a la fecha de inicio.",
+            )
+        except ValidationError as e:
+            errors["entregada_en"] = e.messages
+
+        if errors:
+            raise ValidationError(errors)
 
     class Meta:
         ordering = ("-planificada_en",)
@@ -554,6 +637,140 @@ class MovimientoInventario(models.Model):
 
     def __str__(self):
         return f"{self.tipo} - {self.cantidad}"
+
+
+class Necesidad(models.Model):
+    """
+    Necesidad humanitaria: qué recurso falta en un refugio, cuánto y con
+    qué prioridad. Permite priorizar la distribución desde centros de acopio.
+    """
+
+    class Prioridades(models.TextChoices):
+        BAJA = "BAJA", "Baja"
+        MEDIA = "MEDIA", "Media"
+        ALTA = "ALTA", "Alta"
+        CRITICA = "CRITICA", "Crítica"
+
+    class Estados(models.TextChoices):
+        PENDIENTE = "PENDIENTE", "Pendiente"
+        PARCIAL = "PARCIAL", "Parcialmente cubierta"
+        CUBIERTA = "CUBIERTA", "Cubierta"
+        CANCELADA = "CANCELADA", "Cancelada"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    refugio = models.ForeignKey(
+        Refugio,
+        on_delete=models.CASCADE,
+        related_name="necesidades",
+    )
+    recurso = models.ForeignKey(
+        Recurso,
+        on_delete=models.PROTECT,
+        related_name="necesidades",
+    )
+
+    cantidad_requerida = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)],
+    )
+    cantidad_recibida = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
+    )
+
+    prioridad = models.CharField(
+        max_length=10,
+        choices=Prioridades.choices,
+        default=Prioridades.MEDIA,
+        db_index=True,
+    )
+    estado = models.CharField(
+        max_length=10,
+        choices=Estados.choices,
+        default=Estados.PENDIENTE,
+        db_index=True,
+    )
+
+    fecha_requerida = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha y hora en que se requiere la ayuda.",
+    )
+    observaciones = models.TextField(blank=True)
+
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-prioridad", "fecha_requerida")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("refugio", "recurso"),
+                name="uq_necesidad_refugio_recurso",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=("prioridad", "estado")),
+            models.Index(fields=("refugio", "estado")),
+        ]
+        verbose_name = "Necesidad"
+        verbose_name_plural = "Necesidades"
+
+    @property
+    def cantidad_pendiente(self):
+        return self.cantidad_requerida - self.cantidad_recibida
+
+    def clean(self):
+        super().clean()
+        from core import messages as msg
+        from core.validators import validar_fecha_no_pasada
+
+        errors = {}
+
+        # cantidad_requerida > 0
+        if self.cantidad_requerida is not None and self.cantidad_requerida <= 0:
+            errors["cantidad_requerida"] = msg.NECESIDAD_CANTIDAD_INVALIDA
+
+        # cantidad_recibida <= cantidad_requerida
+        if (
+            self.cantidad_requerida is not None
+            and self.cantidad_recibida is not None
+            and self.cantidad_recibida > self.cantidad_requerida
+        ):
+            errors["cantidad_recibida"] = msg.NECESIDAD_RECIBIDA_EXCEDE
+
+        # fecha_requerida >= hoy (solo en creación, no en updates)
+        if self._state.adding and self.fecha_requerida is not None:
+            try:
+                validar_fecha_no_pasada(self.fecha_requerida, msg.NECESIDAD_FECHA_PASADA)
+            except ValidationError as e:
+                errors["fecha_requerida"] = e.messages
+
+        # Coherencia estado <-> cantidades
+        if self.cantidad_requerida and self.cantidad_recibida is not None:
+            if self.estado != self.Estados.CANCELADA:
+                if self.cantidad_recibida == 0 and self.estado != self.Estados.PENDIENTE:
+                    errors["estado"] = msg.NECESIDAD_ESTADO_INCOHERENTE
+                elif (
+                    0 < self.cantidad_recibida < self.cantidad_requerida
+                    and self.estado != self.Estados.PARCIAL
+                ):
+                    errors["estado"] = msg.NECESIDAD_ESTADO_INCOHERENTE
+                elif (
+                    self.cantidad_recibida >= self.cantidad_requerida
+                    and self.estado != self.Estados.CUBIERTA
+                ):
+                    errors["estado"] = msg.NECESIDAD_ESTADO_INCOHERENTE
+
+        if errors:
+            raise ValidationError(errors)
+
+    def __str__(self):
+        return f"{self.refugio} necesita {self.cantidad_pendiente} {self.recurso.unidad} de {self.recurso.nombre}"
 
 
 class AuditLog(models.Model):

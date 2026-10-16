@@ -7,6 +7,7 @@ from .models import (
     Inventario,
     Mision,
     MovimientoInventario,
+    Necesidad,
     Recurso,
     ReporteVial,
     Refugio,
@@ -734,3 +735,48 @@ class AuditLogAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(Necesidad)
+class NecesidadAdmin(admin.ModelAdmin):
+    list_display = (
+        "refugio",
+        "recurso",
+        "cantidad_requerida",
+        "cantidad_recibida",
+        "prioridad",
+        "estado",
+        "fecha_requerida",
+        "actualizado_en",
+    )
+    list_filter = (
+        "prioridad",
+        "estado",
+        "recurso",
+    )
+    search_fields = (
+        "refugio__nombre",
+        "recurso__nombre",
+        "observaciones",
+    )
+    autocomplete_fields = ("refugio", "recurso")
+    readonly_fields = ("creado_en", "actualizado_en")
+    date_hierarchy = "fecha_requerida"
+    fieldsets = (
+        ("Necesidad", {
+            "fields": ("refugio", "recurso", "prioridad", "estado"),
+        }),
+        ("Cantidades", {
+            "fields": ("cantidad_requerida", "cantidad_recibida"),
+        }),
+        ("Tiempo", {
+            "fields": ("fecha_requerida",),
+        }),
+        ("Notas", {
+            "fields": ("observaciones",),
+        }),
+        ("Metadatos", {
+            "fields": ("creado_en", "actualizado_en"),
+            "classes": ("collapse",),
+        }),
+    )

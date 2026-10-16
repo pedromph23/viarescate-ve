@@ -8,6 +8,7 @@ from operaciones.models import (
     CentroAyuda,
     Inventario,
     Mision,
+    Necesidad,
     Refugio,
     ReporteVial,
     Vehiculo,
@@ -163,3 +164,80 @@ def vias_lista(request):
 def reportes_lista(request):
     qs = ReporteVial.objects.select_related("via").order_by("-reportado_en")[:200]
     return render(request, "panel/reportes/lista.html", {"reportes": qs})
+
+
+# ---------- NECESIDADES ----------
+@panel_required
+def necesidades_lista(request):
+    """Listado de necesidades humanitarias activas."""
+    q = request.GET.get("q", "").strip()
+    prioridad = request.GET.get("prioridad", "").strip()
+    estado = request.GET.get("estado", "").strip()
+
+    qs = Necesidad.objects.select_related(
+        "refugio", "recurso", "refugio__estado", "refugio__municipio"
+    )
+
+    if q:
+        qs = qs.filter(
+            Q(refugio__nombre__icontains=q)
+            | Q(recurso__nombre__icontains=q)
+            | Q(observaciones__icontains=q)
+        )
+    if prioridad:
+        qs = qs.filter(prioridad=prioridad)
+    if estado:
+        qs = qs.filter(estado=estado)
+
+    contexto = {
+        "necesidades": qs,
+        "q": q,
+        "prioridad_filtro": prioridad,
+        "estado_filtro": estado,
+        "prioridades": Necesidad.Prioridades.choices,
+        "estados": Necesidad.Estados.choices,
+    }
+    return render(request, "panel/necesidades/lista.html", contexto)
+
+
+@panel_required
+def necesidades_form(request, pk=None):
+    """Crear/editar necesidad."""
+    from .forms_necesidad import NecesidadForm
+
+    instance = get_object_or_404(Necesidad, pk=pk) if pk else None
+
+    if request.method == "POST":
+        form = NecesidadForm(request.POST, instance=instance)
+        if form.is_valid():
+            obj = form.save()
+            messages.success(request, f"Necesidad de '{obj.recurso.nombre}' guardada.")
+            return redirect("panel:necesidades_lista")
+    else:
+        form = NecesidadForm(instance=instance)
+
+    return render(
+        request,
+        "panel/necesidades/form.html",
+        {
+            "form": form,
+            "instance": instance,
+            "titulo": "Editar necesidad" if instance else "Nueva necesidad",
+        },
+    )
+
+
+@panel_required
+def necesidades_eliminar(request, pk):
+    """Confirmar eliminación."""
+    obj = get_object_or_404(Necesidad, pk=pk)
+    if request.method == "POST":
+        descripcion = str(obj)
+        obj.delete()
+        messages.success(request, f"Necesidad eliminada: {descripcion}")
+        return redirect("panel:necesidades_lista")
+    return render(
+        request,
+        "panel/confirmar_eliminar.html",
+        {"obj": obj, "tipo": "necesidad"},
+    )

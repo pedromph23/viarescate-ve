@@ -56,3 +56,17 @@ DIRECCION_INVALIDA = "La dirección debe contener al menos una letra y un númer
 # Autenticación
 CREDENCIALES_INVALIDAS = "Usuario o contraseña incorrectos."
 SIN_PERMISO = "No tiene permisos para acceder a esta sección."
+
+# Fechas (Fase G)
+FECHA_ENTREGA_ANTES_SALIDA = "La fecha de entrega estimada no puede ser anterior a la salida."
+FECHA_ENTREGA_REAL_ANTES_SALIDA = "La fecha de entrega real no puede ser anterior a la salida."
+FECHA_RESOLUCION_ANTES_REPORTE = "La fecha de resolución no puede ser anterior al reporte."
+FECHA_CENSO_FUTURA = "La fecha del último censo no puede ser futura."
+FECHA_SALIDA_PASADA = "La fecha de salida planificada no puede estar en el pasado."
+
+# Necesidad
+NECESIDAD_CANTIDAD_INVALIDA = "La cantidad requerida debe ser mayor que cero."
+NECESIDAD_RECIBIDA_EXCEDE = "La cantidad recibida no puede superar la requerida."
+NECESIDAD_FECHA_PASADA = "La fecha requerida no puede estar en el pasado."
+NECESIDAD_DUPLICADA = "Ya existe una necesidad registrada para este recurso en este refugio."
+NECESIDAD_ESTADO_INCOHERENTE = "El estado no es coherente con las cantidades registradas."

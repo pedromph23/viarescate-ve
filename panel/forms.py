@@ -119,3 +119,39 @@ class RefugioForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+# ---------------------------------------------------------------------------
+# Fase G — Widgets datetime-local para campos de fecha nuevos
+# ---------------------------------------------------------------------------
+
+class MisionForm(forms.ModelForm):
+    """Formulario de Misión con fechas editables."""
+
+    class Meta:
+        from operaciones.models import Mision as _M
+        model = _M
+        fields = [
+            "codigo", "nombre", "descripcion",
+            "estado_mision", "modo_ruta", "prioridad",
+            "vehiculo", "coordinador",
+            "fecha_salida_planificada", "fecha_entrega_estimada",
+            "observaciones",
+        ]
+        widgets = {
+            "fecha_salida_planificada": forms.DateTimeInput(
+                attrs={"type": "datetime-local"},
+                format="%Y-%m-%dT%H:%M",
+            ),
+            "fecha_entrega_estimada": forms.DateTimeInput(
+                attrs={"type": "datetime-local"},
+                format="%Y-%m-%dT%H:%M",
+            ),
+            "descripcion": forms.Textarea(attrs={"rows": 3}),
+            "observaciones": forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for f in ("fecha_salida_planificada", "fecha_entrega_estimada"):
+            self.fields[f].input_formats = ["%Y-%m-%dT%H:%M"]

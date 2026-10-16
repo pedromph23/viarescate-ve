@@ -1,0 +1,76 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}Necesidades humanitarias{% endblock %}
+{% block subheading %}{{ necesidades|length }} necesidad{{ necesidades|length|pluralize }} registrada{{ necesidades|length|pluralize }}{% endblock %}
+
+{% block panel_actions %}
+<a href="{% url 'panel:necesidades_nueva' %}" class="panel-btn-primary">+ Nueva necesidad</a>
+{% endblock %}
+
+{% block panel_content %}
+<form method="get" class="panel-search">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por refugio o recurso...">
+
+    <select name="prioridad">
+        <option value="">Prioridad (todas)</option>
+        {% for v, l in prioridades %}
+            <option value="{{ v }}" {% if v == prioridad_filtro %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="estado">
+        <option value="">Estado (todos)</option>
+        {% for v, l in estados %}
+            <option value="{{ v }}" {% if v == estado_filtro %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="panel-btn-ghost">Filtrar</button>
+</form>
+
+<div class="panel-card panel-table-wrap">
+    <table class="panel-table">
+        <thead>
+            <tr>
+                <th>Refugio</th>
+                <th>Recurso</th>
+                <th>Requerida</th>
+                <th>Recibida</th>
+                <th>Pendiente</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Fecha requerida</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for n in necesidades %}
+            <tr>
+                <td><strong>{{ n.refugio.nombre }}</strong><br>
+                    <small>{{ n.refugio.estado.nombre }}</small>
+                </td>
+                <td>{{ n.recurso.nombre }}<br>
+                    <small>{{ n.recurso.unidad }}</small>
+                </td>
+                <td>{{ n.cantidad_requerida }}</td>
+                <td>{{ n.cantidad_recibida }}</td>
+                <td><strong>{{ n.cantidad_pendiente }}</strong></td>
+                <td>
+                    {% if n.prioridad == 'CRITICA' %}<span class="badge badge-danger">Crítica</span>
+                    {% elif n.prioridad == 'ALTA' %}<span class="badge badge-warn">Alta</span>
+                    {% elif n.prioridad == 'MEDIA' %}<span class="badge badge-info">Media</span>
+                    {% else %}<span class="badge badge-off">Baja</span>{% endif %}
+                </td>
+                <td><span class="badge badge-info">{{ n.get_estado_display }}</span></td>
+                <td>{{ n.fecha_requerida|date:"d/m/Y H:i"|default:"—" }}</td>
+                <td class="panel-row-actions">
+                    <a href="{% url 'panel:necesidades_editar' n.pk %}">Editar</a>
+                    <a href="{% url 'panel:necesidades_eliminar' n.pk %}" class="text-danger">Eliminar</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="9" class="panel-empty">Sin necesidades registradas</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

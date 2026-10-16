@@ -128,3 +128,51 @@ def validar_cantidad(valor, maximo=1_000_000):
     if n > maximo:
         raise ValidationError(msg.CANTIDAD_EXCESIVA)
     return n
+
+
+# ---------------------------------------------------------------------------
+# Validadores de fechas (Fase G)
+# ---------------------------------------------------------------------------
+from datetime import date, datetime, timedelta
+
+from django.utils import timezone
+
+
+# Margen de tolerancia para evitar rechazos por drift de reloj.
+# 60 segundos es imperceptible para el usuario pero absorbe latencia,
+# desfase cliente-servidor y microsegundos entre timezone.now() consecutivos.
+_GRACE = timedelta(seconds=60)
+
+
+def validar_fecha_no_pasada(valor, mensaje=None):
+    """Rechaza fechas anteriores a hoy/ahora (con margen de 60s)."""
+    if valor is None:
+        return valor
+    if isinstance(valor, datetime):
+        limite = timezone.now() - _GRACE
+    else:
+        limite = date.today() - timedelta(days=1)
+    if valor < limite:
+        raise ValidationError(mensaje or msg.FECHA_PASADO)
+    return valor
+
+
+def validar_fecha_futura(valor, mensaje=None):
+    """Rechaza fechas posteriores a hoy/ahora (con margen de 60s)."""
+    if valor is None:
+        return valor
+    if isinstance(valor, datetime):
+        limite = timezone.now() + _GRACE
+    else:
+        limite = date.today() + timedelta(days=1)
+    if valor > limite:
+        raise ValidationError(mensaje or msg.FECHA_CENSO_FUTURA)
+    return valor
+
+
+def validar_orden_fechas(fecha_inicio, fecha_fin, mensaje):
+    """Verifica que fecha_fin >= fecha_inicio. Ignora si alguna es None."""
+    if fecha_inicio is None or fecha_fin is None:
+        return
+    if fecha_fin < fecha_inicio:
+        raise ValidationError(mensaje)

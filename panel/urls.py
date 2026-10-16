@@ -18,4 +18,8 @@ urlpatterns = [
     path("usuarios/<uuid:pk>/toggle/", views.usuarios_toggle, name="usuarios_toggle"),
     path("vias/", views.vias_lista, name="vias_lista"),
     path("reportes/", views.reportes_lista, name="reportes_lista"),
+    path("necesidades/", views.necesidades_lista, name="necesidades_lista"),
+    path("necesidades/nueva/", views.necesidades_form, name="necesidades_nueva"),
+    path("necesidades/<uuid:pk>/editar/", views.necesidades_form, name="necesidades_editar"),
+    path("necesidades/<uuid:pk>/eliminar/", views.necesidades_eliminar, name="necesidades_eliminar"),
 ]
