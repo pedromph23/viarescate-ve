@@ -52,13 +52,19 @@ STORAGES["staticfiles"] = {  # noqa: F405
 # ---------------------------------------------------------------------------
 # Por defecto usamos S3 (Supabase Storage). Si no hay credenciales,
 # se cae al filesystem local (efímero en Vercel, pero útil para probar).
+# ---------------------------------------------------------------------------
+# Supabase Storage — variables a nivel de módulo para que storage.py las lea
+# ---------------------------------------------------------------------------
+SUPABASE_S3_PUBLIC_URL = env("SUPABASE_S3_PUBLIC_URL", default="")
+SUPABASE_S3_BUCKET = env("SUPABASE_S3_BUCKET", default="media")
+
 if env.bool("USE_S3_MEDIA", default=False):
     STORAGES["default"] = {  # noqa: F405
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "BACKEND": "operaciones.storage.SupabasePublicStorage",
         "OPTIONS": {
             "access_key": env("SUPABASE_S3_ACCESS_KEY"),
             "secret_key": env("SUPABASE_S3_SECRET_KEY"),
-            "bucket_name": env("SUPABASE_S3_BUCKET", default="media"),
+            "bucket_name": SUPABASE_S3_BUCKET,
             "endpoint_url": env("SUPABASE_S3_ENDPOINT"),
             "region_name": env("SUPABASE_S3_REGION", default="us-east-1"),
             "addressing_style": "path",
@@ -66,7 +72,7 @@ if env.bool("USE_S3_MEDIA", default=False):
             "file_overwrite": False,
         },
     }
-    MEDIA_URL = env("SUPABASE_S3_PUBLIC_URL", default=MEDIA_URL)  # noqa: F405
+    MEDIA_URL = SUPABASE_S3_PUBLIC_URL or MEDIA_URL  # noqa: F405
 
 
 # ---------------------------------------------------------------------------
