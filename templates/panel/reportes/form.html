@@ -1,0 +1,158 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}{{ titulo }}{% endblock %}
+
+{% block panel_content %}
+<form method="post" enctype="multipart/form-data"
+      class="panel-card panel-form" data-validate="true" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="panel-error" role="alert">
+            <strong>No se pudo guardar el reporte:</strong>
+            <ul>
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="panel-form-grid">
+
+        {# MAPA — ubicación del incidente #}
+        <div class="panel-field panel-field-full">
+            <label for="map-picker">
+                Ubicación del incidente
+                <span class="req" aria-label="obligatorio">*</span>
+            </label>
+            <div id="map-picker" class="map-picker"
+                 data-lat="{{ form.latitud.value|default:'' }}"
+                 data-lng="{{ form.longitud.value|default:'' }}"
+                 aria-label="Mapa para marcar el incidente"></div>
+            <small class="panel-hint">
+                Arrastra el pin hasta el lugar exacto del incidente.
+            </small>
+        </div>
+
+        {# Campos ocultos visualmente — se actualizan desde el mapa #}
+        {{ form.latitud }}
+        {{ form.longitud }}
+
+        {# TIPO #}
+        <div class="panel-field">
+            <label for="{{ form.tipo.id_for_label }}">
+                Tipo de incidente <span class="req">*</span>
+            </label>
+            {{ form.tipo }}
+            {% if form.tipo.errors %}<div class="panel-field-error">{{ form.tipo.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# VÍA #}
+        <div class="panel-field">
+            <label for="{{ form.via.id_for_label }}">{{ form.via.label }}</label>
+            {{ form.via }}
+            <small class="panel-hint">Opcional. Asocia el reporte a una vía registrada.</small>
+        </div>
+
+        {# TÍTULO #}
+        <div class="panel-field panel-field-full">
+            <label for="{{ form.titulo.id_for_label }}">
+                Título del reporte <span class="req">*</span>
+            </label>
+            {{ form.titulo }}
+            {% if form.titulo.errors %}<div class="panel-field-error">{{ form.titulo.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# DESCRIPCIÓN #}
+        <div class="panel-field panel-field-full">
+            <label for="{{ form.descripcion.id_for_label }}">
+                Descripción detallada <span class="req">*</span>
+            </label>
+            {{ form.descripcion }}
+            {% if form.descripcion.errors %}<div class="panel-field-error">{{ form.descripcion.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# SEVERIDAD #}
+        <div class="panel-field">
+            <label for="{{ form.severidad.id_for_label }}">
+                Severidad (1 = leve, 5 = crítica) <span class="req">*</span>
+            </label>
+            {{ form.severidad }}
+            {% if form.severidad.errors %}<div class="panel-field-error">{{ form.severidad.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# FECHA DEL INCIDENTE #}
+        <div class="panel-field">
+            <label for="{{ form.fecha_incidente.id_for_label }}">
+                Fecha y hora del incidente
+            </label>
+            {{ form.fecha_incidente }}
+            <small class="panel-hint">Si no la conoces, deja la fecha actual.</small>
+            {% if form.fecha_incidente.errors %}<div class="panel-field-error">{{ form.fecha_incidente.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# AFECTA TRÁNSITO #}
+        <div class="panel-field panel-field-full">
+            <label class="panel-checkbox" for="{{ form.afecta_transito.id_for_label }}">
+                {{ form.afecta_transito }}
+                <span>El incidente afecta o bloquea el tránsito</span>
+            </label>
+        </div>
+
+        {# FOTO #}
+        <div class="panel-field panel-field-full">
+            <label for="{{ form.foto.id_for_label }}">
+                Fotografía del incidente
+            </label>
+            {{ form.foto }}
+            <small class="panel-hint">
+                JPG, PNG o WEBP. Máximo 5 MB.
+                {% if instance and instance.foto %}
+                <br>Foto actual: <a href="{{ instance.foto.url }}" target="_blank">Ver</a>
+                {% endif %}
+            </small>
+            {% if form.foto.errors %}<div class="panel-field-error">{{ form.foto.errors.0 }}</div>{% endif %}
+
+            <div id="foto-preview" class="foto-preview" hidden>
+                <img alt="Vista previa de la foto">
+                <button type="button" class="panel-btn-ghost" id="foto-preview-close">Quitar</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="panel-form-actions">
+        <a href="{% url 'panel:reportes_lista' %}" class="panel-btn-ghost">Cancelar</a>
+        <button type="submit" class="panel-btn-primary">Guardar reporte</button>
+    </div>
+</form>
+
+{{ estados_centroides|json_script:"estados-centroides" }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const input = document.getElementById("{{ form.foto.id_for_label }}");
+    const preview = document.getElementById("foto-preview");
+    const img = preview ? preview.querySelector("img") : null;
+    const closeBtn = document.getElementById("foto-preview-close");
+    if (!input || !preview || !img) return;
+
+    input.addEventListener("change", function () {
+        const file = input.files && input.files[0];
+        if (!file) { preview.hidden = true; img.src = ""; return; }
+        img.src = URL.createObjectURL(file);
+        preview.hidden = false;
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", function () {
+            input.value = "";
+            img.src = "";
+            preview.hidden = true;
+        });
+    }
+})();
+</script>
+{% endblock %}

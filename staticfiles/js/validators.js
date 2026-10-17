@@ -121,6 +121,27 @@
             return null;
         },
 
+        fecha_pasada_valida: function (v) {
+            // Solo permite fechas desde hoy 00:00 (con grace de 5 min).
+            // Rechaza cualquier fecha claramente en el pasado.
+            if (!v) return null;
+            const fecha = new Date(v);
+            if (isNaN(fecha.getTime())) return "Fecha inválida.";
+
+            const ahora = new Date();
+            const limite = new Date(ahora.getTime() - 5 * 60 * 1000); // 5 min atrás
+            const inicioHoy = new Date();
+            inicioHoy.setHours(0, 0, 0, 0);
+
+            if (fecha < inicioHoy && fecha < limite) {
+                return "La fecha no puede estar en el pasado. Reporta el incidente con la fecha actual.";
+            }
+            if (fecha > new Date(ahora.getTime() + 5 * 60 * 1000)) {
+                return "La fecha no puede estar en el futuro.";
+            }
+            return null;
+        },
+
         fecha_futura: function (v) {
             if (!v) return null;
             const fecha = new Date(v);

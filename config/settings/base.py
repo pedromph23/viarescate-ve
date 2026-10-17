@@ -173,6 +173,10 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
+# Permite enviar Referer hacia servicios externos (tiles de mapas, CDNs).
+# Django 3.1+ usa "same-origin" por defecto, que bloquea tiles externos.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Usuario personalizado del sistema.

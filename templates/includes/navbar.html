@@ -29,6 +29,7 @@
             <div class="nav-links" id="nav-links" data-nav-links>
                 <a href="/">Inicio</a>
                 <a href="{% url 'mapa:publico' %}">Mapa</a>
+                <a href="/reportar/" class="nav-highlight">Reportar incidente</a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'operaciones:centro' %}">Operaciones</a>
                     {% if user.is_staff or user.is_superuser or user.rol == 'ADMINISTRADOR' or user.rol == 'COORDINADOR' %}

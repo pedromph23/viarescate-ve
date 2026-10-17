@@ -16,5 +16,6 @@ urlpatterns = [
     path("usuarios/", include("usuarios.urls")),
     path("api/", include("operaciones.api.urls")),
     path("mapa/", include("mapa.urls")),
+    path("reportar/", include("operaciones.urls_publico")),  # URL pública limpia
     path("operaciones/", include("operaciones.urls")),
 ]

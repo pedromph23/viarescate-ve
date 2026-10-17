@@ -176,3 +176,137 @@ def validar_orden_fechas(fecha_inicio, fecha_fin, mensaje):
         return
     if fecha_fin < fecha_inicio:
         raise ValidationError(mensaje)
+
+
+
+# ---------------------------------------------------------------------------
+# Validación de imágenes subidas (fotos de reportes)
+# ---------------------------------------------------------------------------
+from pathlib import Path as _Path
+
+
+MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+ALLOWED_IMAGE_MIMES = {"image/jpeg", "image/png", "image/webp"}
+
+
+def validar_imagen_archivo(archivo, mensaje=None):
+    """
+    Valida un archivo subido como imagen:
+    - Extensión permitida (.jpg, .jpeg, .png, .webp)
+    - Tamaño ≤ 5 MB
+    - MIME permitido (si está disponible)
+
+    NO confía en la extensión sola. El backend (Django ImageField con Pillow)
+    verifica que realmente sea una imagen al procesarla.
+    """
+    if archivo is None:
+        return archivo
+
+    # Tamaño
+    size = getattr(archivo, "size", 0)
+    if size > MAX_IMAGE_SIZE_BYTES:
+        max_mb = MAX_IMAGE_SIZE_BYTES // (1024 * 1024)
+        raise ValidationError(
+            mensaje or f"La imagen supera el tamaño máximo de {max_mb} MB."
+        )
+
+    # Extensión
+    nombre = getattr(archivo, "name", "")
+    ext = _Path(nombre).suffix.lower()
+    if ext not in ALLOWED_IMAGE_EXTENSIONS:
+        raise ValidationError(
+            mensaje or "Formato de imagen no permitido. Use JPG, PNG o WEBP."
+        )
+
+    # MIME (puede no estar presente en todos los uploads)
+    content_type = getattr(archivo, "content_type", None)
+    if content_type and content_type not in ALLOWED_IMAGE_MIMES:
+        raise ValidationError(
+            mensaje or "El archivo no es una imagen válida."
+        )
+
+    return archivo
+
+
+# ---------------------------------------------------------------------------
+# Validadores temporales robustos — anti-inyección de fechas
+# ---------------------------------------------------------------------------
+def validar_fecha_con_referencia(
+    fecha,
+    referencia=None,
+    grace_minutos=5,
+    max_edad_dias=30,
+    contexto="incidente",
+    permitir_nulo=True,
+    solo_hoy=False,
+):
+    """
+    Valida una fecha contra una referencia temporal (default: ahora).
+
+    - grace_minutos: tolerancia para desfase de reloj del cliente
+    - max_edad_dias: ventana máxima hacia atrás (solo si solo_hoy=False)
+    - solo_hoy: si es True, la fecha debe ser HOY (00:00 hasta ahora+grace)
+    - Rechaza naive datetimes (Django siempre debe usar aware)
+    """
+    if fecha is None:
+        if permitir_nulo:
+            return None
+        raise ValidationError(f"La fecha del {contexto} es obligatoria.")
+
+    # Forzar aware
+    if timezone.is_naive(fecha):
+        fecha = timezone.make_aware(fecha, timezone.get_current_timezone())
+
+    if referencia is None:
+        referencia = timezone.now()
+    elif timezone.is_naive(referencia):
+        referencia = timezone.make_aware(referencia, timezone.get_current_timezone())
+
+    limite_futuro = referencia + timedelta(minutes=grace_minutos)
+
+    if solo_hoy:
+        # Solo se permite: hoy (desde 00:00 hasta ahora + grace)
+        # El "inicio del día" depende de la zona horaria local
+        limite_pasado = referencia.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(minutes=grace_minutos)
+    else:
+        limite_pasado = referencia - timedelta(days=max_edad_dias)
+
+    if fecha > limite_futuro:
+        raise ValidationError(
+            f"La fecha del {contexto} no puede estar en el futuro. "
+            f"Máximo {grace_minutos} minutos de tolerancia."
+        )
+
+    if fecha < limite_pasado:
+        if solo_hoy:
+            raise ValidationError(
+                f"La fecha del {contexto} debe ser hoy. "
+                f"No se pueden reportar incidentes de días anteriores."
+            )
+        raise ValidationError(
+            f"La fecha del {contexto} no puede ser mayor a "
+            f"{max_edad_dias} días en el pasado."
+        )
+
+    return fecha
+
+
+def validar_fecha_en_pasado_o_ahora(fecha, grace_minutos=5, contexto="evento"):
+    """
+    Para fechas que NUNCA pueden ser futuras (iniciada_en, entregada_en,
+    cancelada_en, resuelto_en). Rechaza cualquier valor > ahora + grace.
+    """
+    if fecha is None:
+        return None
+
+    if timezone.is_naive(fecha):
+        fecha = timezone.make_aware(fecha, timezone.get_current_timezone())
+
+    limite = timezone.now() + timedelta(minutes=grace_minutos)
+    if fecha > limite:
+        raise ValidationError(
+            f"La fecha del {contexto} no puede estar en el futuro. "
+            f"Máximo {grace_minutos} minutos de tolerancia."
+        )
+    return fecha

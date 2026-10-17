@@ -1,5 +1,7 @@
 {% extends "panel/base_panel.html" %}
-{% block heading %}{{ titulo }}{% endblock %}
+{% block heading %}{{ titulo }}{{ estados_centroides|json_script:"estados-centroides" }}
+
+{% endblock %}
 
 {% block panel_content %}
 <form method="post" class="panel-card panel-form" data-validate="true" novalidate>

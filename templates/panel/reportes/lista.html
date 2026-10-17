@@ -1,23 +1,83 @@
 {% extends "panel/base_panel.html" %}
 {% block heading %}Reportes viales{% endblock %}
-{% block subheading %}Últimos 200 reportes{% endblock %}
+{% block subheading %}{{ reportes|length }} reporte{{ reportes|length|pluralize }}{% endblock %}
+
+{% block panel_actions %}
+<a href="{% url 'panel:reportes_nuevo' %}" class="panel-btn-primary">+ Nuevo reporte</a>
+{% endblock %}
 
 {% block panel_content %}
+<form method="get" class="panel-search">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por título o descripción...">
+    <select name="tipo">
+        <option value="">Tipo (todos)</option>
+        {% for v, l in tipos %}
+            <option value="{{ v }}" {% if v == tipo_filtro %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+    </select>
+    <select name="estado">
+        <option value="">Estado (todos)</option>
+        {% for v, l in estados %}
+            <option value="{{ v }}" {% if v == estado_filtro %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+    </select>
+    <select name="severidad">
+        <option value="">Severidad</option>
+        {% for i in "12345" %}
+            <option value="{{ i }}" {% if i == severidad_filtro %}selected{% endif %}>{{ i }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="panel-btn-ghost">Filtrar</button>
+</form>
+
 <div class="panel-card panel-table-wrap">
     <table class="panel-table">
         <thead>
-            <tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Estado</th></tr>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Título</th>
+                <th>Severidad</th>
+                <th>Estado</th>
+                <th>Foto</th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
         {% for r in reportes %}
             <tr>
-                <td>{{ r.reportado_en|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {{ r.reportado_en|date:"d/m/Y" }}<br>
+                    <small>{{ r.reportado_en|date:"H:i" }}</small>
+                </td>
                 <td>{{ r.get_tipo_display }}</td>
-                <td>{{ r.descripcion|truncatechars:80 }}</td>
+                <td>
+                    <strong>{{ r.titulo|truncatechars:50 }}</strong><br>
+                    <small>{{ r.descripcion|truncatechars:60 }}</small>
+                </td>
+                <td>
+                    <span class="badge
+                        {% if r.severidad >= 4 %}badge-danger
+                        {% elif r.severidad == 3 %}badge-warn
+                        {% else %}badge-off{% endif %}">
+                        {{ r.severidad }}/5
+                    </span>
+                </td>
                 <td><span class="badge badge-info">{{ r.get_estado_reporte_display }}</span></td>
+                <td>
+                    {% if r.foto %}
+                        <a href="{{ r.foto.url }}" target="_blank">Ver</a>
+                    {% else %}
+                        <small>—</small>
+                    {% endif %}
+                </td>
+                <td class="panel-row-actions">
+                    <a href="{% url 'panel:reportes_editar' r.pk %}">Editar</a>
+                    <a href="{% url 'panel:reportes_eliminar' r.pk %}" class="text-danger">Eliminar</a>
+                </td>
             </tr>
         {% empty %}
-            <tr><td colspan="4" class="panel-empty">Sin registros</td></tr>
+            <tr><td colspan="7" class="panel-empty">Sin reportes registrados</td></tr>
         {% endfor %}
         </tbody>
     </table>

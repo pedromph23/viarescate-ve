@@ -575,3 +575,113 @@ form.inline { display: inline; }
         gap: 8px;
     }
 }
+
+/* ==========================================================================
+   MAP PICKER — selector de ubicación con Leaflet
+   ========================================================================== */
+.map-picker {
+    width: 100%;
+    height: 360px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+    z-index: 1;
+}
+
+/* Coordenadas readonly — se ven pero no se editan */
+.panel-field input.coord-readonly {
+    background: var(--surface-soft);
+    color: var(--text-soft);
+    cursor: not-allowed;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+    .map-picker {
+        height: 280px;
+    }
+}
+
+/* Esri World Street Map + dark mode: atenuar tiles para integrar con el tema */
+[data-theme="dark"] .map-picker .leaflet-tile-pane {
+    filter: brightness(0.7) contrast(1.1) saturate(0.8);
+}
+[data-theme="dark"] .map-picker {
+    background: #161b22;
+    border-color: #30363d;
+}
+
+
+
+
+/* ==========================================================================
+   UPLOAD DE IMÁGENES — file input con soporte cross-browser
+   ========================================================================== */
+.file-input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    background: var(--surface-soft);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--text);
+}
+.file-input:hover {
+    border-color: var(--primary);
+    background: var(--surface);
+}
+.file-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+/* Botón interno del file input (nativo del navegador) */
+.file-input::file-selector-button {
+    background: var(--primary);
+    color: #ffffff;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin-right: 12px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s;
+}
+.file-input::file-selector-button:hover {
+    filter: brightness(1.1);
+}
+
+/* Fallback para navegadores viejos */
+.file-input::-webkit-file-upload-button {
+    background: var(--primary);
+    color: #ffffff;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin-right: 12px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.file-input::-webkit-file-upload-button:hover {
+    filter: brightness(1.1);
+}
+
+/* Dark mode */
+[data-theme="dark"] .file-input {
+    border-color: #30363d;
+    background: #21262d;
+}
+[data-theme="dark"] .file-input:hover {
+    border-color: var(--primary);
+    background: #161b22;
+}

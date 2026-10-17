@@ -5,6 +5,18 @@ class Estado(models.Model):
     codigo = models.CharField(max_length=10, unique=True)
     nombre = models.CharField(max_length=100, unique=True)
 
+    # Coordenadas del centroide / capital del estado
+    # Usadas para inicializar el pin del mapa cuando el usuario selecciona
+    # este estado. Si son null, el mapa cae al default nacional.
+    centroide_lat = models.FloatField(
+        null=True, blank=True,
+        help_text="Latitud del centroide o capital del estado.",
+    )
+    centroide_lng = models.FloatField(
+        null=True, blank=True,
+        help_text="Longitud del centroide o capital del estado.",
+    )
+
     class Meta:
         ordering = ("nombre",)
         verbose_name = "Estado"
@@ -22,6 +34,9 @@ class Municipio(models.Model):
     )
     codigo = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=120)
+
+    centroide_lat = models.FloatField(null=True, blank=True)
+    centroide_lng = models.FloatField(null=True, blank=True)
 
     class Meta:
         ordering = ("estado__nombre", "nombre")
@@ -46,6 +61,9 @@ class Parroquia(models.Model):
     )
     codigo = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=120)
+
+    centroide_lat = models.FloatField(null=True, blank=True)
+    centroide_lng = models.FloatField(null=True, blank=True)
 
     class Meta:
         ordering = ("municipio__estado__nombre", "municipio__nombre", "nombre")

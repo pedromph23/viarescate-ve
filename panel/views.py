@@ -20,7 +20,19 @@ from operaciones.models import (
 from usuarios.models import Usuario
 
 from .decorators import panel_required
+
+
+def _get_estados_centroides():
+    """Devuelve dict {id: {lat, lng}} de estados con centroide definido."""
+    from core.models import Estado
+    return {
+        str(e.id): {"lat": e.centroide_lat, "lng": e.centroide_lng}
+        for e in Estado.objects.exclude(centroide_lat__isnull=True)
+                                .exclude(centroide_lng__isnull=True)
+    }
 from .forms import CentroAyudaForm, RefugioForm
+from .forms_reporte import ReporteVialForm
+from .forms_via import ViaForm
 
 
 @panel_required
@@ -79,7 +91,12 @@ def centros_form(request, pk=None):
     return render(
         request,
         "panel/centros/form.html",
-        {"form": form, "instance": instance, "titulo": "Editar centro" if instance else "Nuevo centro"},
+        {
+            "form": form,
+            "instance": instance,
+            "titulo": "Editar centro" if instance else "Nuevo centro",
+            "estados_centroides": _get_estados_centroides(),
+        },
     )
 
 
@@ -118,7 +135,12 @@ def refugios_form(request, pk=None):
     return render(
         request,
         "panel/refugios/form.html",
-        {"form": form, "instance": instance, "titulo": "Editar refugio" if instance else "Nuevo refugio"},
+        {
+            "form": form,
+            "instance": instance,
+            "titulo": "Editar refugio" if instance else "Nuevo refugio",
+            "estados_centroides": _get_estados_centroides(),
+        },
     )
 
 
@@ -162,18 +184,152 @@ def usuarios_toggle(request, pk):
     return redirect("panel:usuarios_lista")
 
 
-# ---------- VIAS (solo lectura) ----------
+# ---------- VIAS ----------
 @panel_required
 def vias_lista(request):
+    """Listado de vías con filtros."""
     qs = Via.objects.select_related("estado").order_by("-actualizado_en")
-    return render(request, "panel/vias/lista.html", {"vias": qs})
+
+    estado = request.GET.get("estado", "").strip()
+    estado_vial = request.GET.get("estado_vial", "").strip()
+    q = request.GET.get("q", "").strip()
+
+    if estado:
+        qs = qs.filter(estado_id=estado)
+    if estado_vial:
+        qs = qs.filter(estado_vial=estado_vial)
+    if q:
+        qs = qs.filter(Q(nombre__icontains=q) | Q(codigo__icontains=q))
+
+    from core.models import Estado
+    contexto = {
+        "vias": qs,
+        "q": q,
+        "estado_filtro": estado,
+        "estado_vial_filtro": estado_vial,
+        "estados_territoriales": Estado.objects.all(),
+        "estados_viales": Via.Estados.choices,
+    }
+    return render(request, "panel/vias/lista.html", contexto)
+
+
+@panel_required
+def vias_form(request, pk=None):
+    """Crear/editar vía."""
+    instance = get_object_or_404(Via, pk=pk) if pk else None
+
+    if request.method == "POST":
+        form = ViaForm(request.POST, instance=instance)
+        if form.is_valid():
+            obj = form.save()
+            messages.success(request, f"Vía '{obj.nombre}' guardada correctamente.")
+            return redirect("panel:vias_lista")
+    else:
+        form = ViaForm(instance=instance)
+
+    return render(
+        request,
+        "panel/vias/form.html",
+        {
+            "form": form,
+            "instance": instance,
+            "titulo": "Editar vía" if instance else "Nueva vía",
+        },
+    )
+
+
+@panel_required
+def vias_eliminar(request, pk):
+    """Confirmar eliminación de vía."""
+    obj = get_object_or_404(Via, pk=pk)
+    if request.method == "POST":
+        nombre = obj.nombre
+        obj.delete()
+        messages.success(request, f"Vía '{nombre}' eliminada.")
+        return redirect("panel:vias_lista")
+    return render(
+        request,
+        "panel/confirmar_eliminar.html",
+        {"obj": obj, "tipo": "vía"},
+    )
 
 
 # ---------- REPORTES (solo lectura) ----------
 @panel_required
 def reportes_lista(request):
-    qs = ReporteVial.objects.select_related("via").order_by("-reportado_en")[:200]
-    return render(request, "panel/reportes/lista.html", {"reportes": qs})
+    """Listado de reportes viales con filtros."""
+    qs = ReporteVial.objects.select_related("via").order_by("-reportado_en")
+
+    # Filtros
+    tipo = request.GET.get("tipo", "").strip()
+    estado = request.GET.get("estado", "").strip()
+    severidad = request.GET.get("severidad", "").strip()
+    q = request.GET.get("q", "").strip()
+
+    if tipo:
+        qs = qs.filter(tipo=tipo)
+    if estado:
+        qs = qs.filter(estado_reporte=estado)
+    if severidad:
+        qs = qs.filter(severidad=severidad)
+    if q:
+        qs = qs.filter(Q(titulo__icontains=q) | Q(descripcion__icontains=q))
+
+    contexto = {
+        "reportes": qs[:300],
+        "q": q,
+        "tipo_filtro": tipo,
+        "estado_filtro": estado,
+        "severidad_filtro": severidad,
+        "tipos": ReporteVial.Tipos.choices,
+        "estados": ReporteVial.Estados.choices,
+    }
+    return render(request, "panel/reportes/lista.html", contexto)
+
+
+@panel_required
+def reportes_form(request, pk=None):
+    """Crear/editar reporte vial desde el panel."""
+    instance = get_object_or_404(ReporteVial, pk=pk) if pk else None
+
+    if request.method == "POST":
+        form = ReporteVialForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            if not obj.reportado_por_id:
+                obj.reportado_por = request.user
+            obj.save()
+            messages.success(request, f"Reporte '{obj.titulo}' guardado correctamente.")
+            return redirect("panel:reportes_lista")
+    else:
+        form = ReporteVialForm(instance=instance)
+
+    return render(
+        request,
+        "panel/reportes/form.html",
+        {
+            "form": form,
+            "instance": instance,
+            "titulo": "Editar reporte" if instance else "Nuevo reporte",
+            "estados_centroides": _get_estados_centroides(),
+        },
+    )
+
+
+@panel_required
+def reportes_eliminar(request, pk):
+    """Confirmar eliminación de reporte."""
+    obj = get_object_or_404(ReporteVial, pk=pk)
+    if request.method == "POST":
+        titulo = obj.titulo
+        obj.delete()
+        messages.success(request, f"Reporte '{titulo}' eliminado.")
+        return redirect("panel:reportes_lista")
+    return render(
+        request,
+        "panel/confirmar_eliminar.html",
+        {"obj": obj, "tipo": "reporte"},
+    )
 
 
 # ---------- NECESIDADES ----------

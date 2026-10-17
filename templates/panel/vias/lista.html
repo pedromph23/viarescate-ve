@@ -1,12 +1,43 @@
 {% extends "panel/base_panel.html" %}
 {% block heading %}Vías{% endblock %}
-{% block subheading %}{{ vias|length }} vía{{ vias|length|pluralize }} registrada{{ vias|length|pluralize }}{% endblock %}
+{% block subheading %}{{ vias|length }} vía{{ vias|length|pluralize }}{% endblock %}
+
+{% block panel_actions %}
+<a href="{% url 'panel:vias_nueva' %}" class="panel-btn-primary">+ Nueva vía</a>
+{% endblock %}
 
 {% block panel_content %}
+<form method="get" class="panel-search">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o código...">
+    <select name="estado">
+        <option value="">Estado (todos)</option>
+        {% for e in estados_territoriales %}
+            <option value="{{ e.id }}" {% if e.id|stringformat:"s" == estado_filtro %}selected{% endif %}>
+                {{ e.nombre }}
+            </option>
+        {% endfor %}
+    </select>
+    <select name="estado_vial">
+        <option value="">Estado vial (todos)</option>
+        {% for v, l in estados_viales %}
+            <option value="{{ v }}" {% if v == estado_vial_filtro %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="panel-btn-ghost">Filtrar</button>
+</form>
+
 <div class="panel-card panel-table-wrap">
     <table class="panel-table">
         <thead>
-            <tr><th>Nombre</th><th>Código</th><th>Estado</th><th>Estado vial</th><th>Velocidad</th></tr>
+            <tr>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th>Estado</th>
+                <th>Estado vial</th>
+                <th>Velocidad</th>
+                <th>Activa</th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
         {% for v in vias %}
@@ -14,11 +45,27 @@
                 <td><strong>{{ v.nombre }}</strong></td>
                 <td>{{ v.codigo|default:"—" }}</td>
                 <td>{{ v.estado.nombre }}</td>
-                <td><span class="badge badge-info">{{ v.get_estado_vial_display }}</span></td>
-                <td>{{ v.velocidad_referencial|default:"—" }} km/h</td>
+                <td>
+                    <span class="badge
+                        {% if v.estado_vial == 'CRITICA' or v.estado_vial == 'CERRADA' %}badge-danger
+                        {% elif v.estado_vial == 'AFECTADA' %}badge-warn
+                        {% elif v.estado_vial == 'PRECAUCION' %}badge-info
+                        {% else %}badge-ok{% endif %}">
+                        {{ v.get_estado_vial_display }}
+                    </span>
+                </td>
+                <td>{{ v.velocidad_referencial|default:"—" }} {% if v.velocidad_referencial %}km/h{% endif %}</td>
+                <td>
+                    {% if v.activa %}<span class="badge badge-ok">Sí</span>
+                    {% else %}<span class="badge badge-off">No</span>{% endif %}
+                </td>
+                <td class="panel-row-actions">
+                    <a href="{% url 'panel:vias_editar' v.pk %}">Editar</a>
+                    <a href="{% url 'panel:vias_eliminar' v.pk %}" class="text-danger">Eliminar</a>
+                </td>
             </tr>
         {% empty %}
-            <tr><td colspan="5" class="panel-empty">Sin registros</td></tr>
+            <tr><td colspan="7" class="panel-empty">Sin vías registradas</td></tr>
         {% endfor %}
         </tbody>
     </table>

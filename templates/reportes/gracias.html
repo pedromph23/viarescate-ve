@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Gracias por tu reporte · VíaRescate VE{% endblock %}
+
+{% block content %}
+<section class="reporte-gracias-section">
+    <div class="container reporte-gracias-container">
+        <div class="panel-card">
+            <div class="reporte-gracias-icon">✓</div>
+            <h1>¡Gracias por tu reporte!</h1>
+            <p>
+                Tu reporte fue recibido y será revisado por nuestro equipo.
+                Cuando se confirme, aparecerá en el mapa público.
+            </p>
+            <p class="panel-hint">
+                Referencia: <code>{{ reporte_id }}</code>
+            </p>
+            <div class="reporte-gracias-actions">
+                <a href="/" class="panel-btn-ghost">Volver al inicio</a>
+                <a href="/reportar/" class="panel-btn-primary">Reportar otro</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

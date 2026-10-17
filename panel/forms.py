@@ -16,23 +16,27 @@ class CentroAyudaForm(forms.ModelForm):
         min_value=0.6, max_value=12.3, label="Latitud",
         widget=forms.NumberInput(attrs={
             "step": "0.000001",
-            "placeholder": "10.480600",
+            "readonly": "readonly",
             "data-validator": "coordenada_lat",
             "min": "0.6",
             "max": "12.3",
-            "inputmode": "decimal",
+            "id": "id_latitud",
+            "class": "coord-readonly",
         }),
+        help_text="Se actualiza al mover el pin en el mapa.",
     )
     longitud = forms.FloatField(
         min_value=-73.4, max_value=-59.8, label="Longitud",
         widget=forms.NumberInput(attrs={
             "step": "0.000001",
-            "placeholder": "-66.903600",
+            "readonly": "readonly",
             "data-validator": "coordenada_lng",
             "min": "-73.4",
             "max": "-59.8",
-            "inputmode": "decimal",
+            "id": "id_longitud",
+            "class": "coord-readonly",
         }),
+        help_text="Se actualiza al mover el pin en el mapa.",
     )
 
     class Meta:

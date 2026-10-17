@@ -1,0 +1,106 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}{{ titulo }}{% endblock %}
+
+{% block panel_content %}
+<form method="post" class="panel-card panel-form" data-validate="true" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="panel-error" role="alert">
+            <strong>No se pudo guardar la vía:</strong>
+            <ul>
+                {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {{ form.puntos_json }}
+
+    <div class="panel-form-grid">
+
+        {# EDITOR DE LÍNEA #}
+        <div class="panel-field panel-field-full">
+            <label>Trazado de la vía <span class="req">*</span></label>
+            <div id="via-map-picker" class="map-picker"
+                 data-initial='{{ form.puntos_json.value|default:"[]" }}'
+                 aria-label="Mapa para trazar la vía"></div>
+            <div class="via-map-controls">
+                <small class="panel-hint">
+                    Haz clic en el mapa para agregar puntos. Mínimo 2 puntos.
+                </small>
+                <div class="via-map-buttons">
+                    <button type="button" id="via-undo" class="panel-btn-ghost">Deshacer último</button>
+                    <button type="button" id="via-reset" class="panel-btn-ghost">Reiniciar</button>
+                    <span id="via-puntos-count" class="badge badge-info">0 puntos</span>
+                </div>
+            </div>
+            {% if form.puntos_json.errors %}
+                <div class="panel-field-error">{{ form.puntos_json.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        {# NOMBRE #}
+        <div class="panel-field panel-field-full">
+            <label for="{{ form.nombre.id_for_label }}">
+                Nombre de la vía <span class="req">*</span>
+            </label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}<div class="panel-field-error">{{ form.nombre.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# CÓDIGO #}
+        <div class="panel-field">
+            <label for="{{ form.codigo.id_for_label }}">{{ form.codigo.label }}</label>
+            {{ form.codigo }}
+            <small class="panel-hint">Opcional. Formato: VIA_XXX_001</small>
+            {% if form.codigo.errors %}<div class="panel-field-error">{{ form.codigo.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# ESTADO TERRITORIAL #}
+        <div class="panel-field">
+            <label for="{{ form.estado.id_for_label }}">
+                Estado <span class="req">*</span>
+            </label>
+            {{ form.estado }}
+            {% if form.estado.errors %}<div class="panel-field-error">{{ form.estado.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# ESTADO VIAL #}
+        <div class="panel-field">
+            <label for="{{ form.estado_vial.id_for_label }}">
+                Estado vial <span class="req">*</span>
+            </label>
+            {{ form.estado_vial }}
+        </div>
+
+        {# VELOCIDAD #}
+        <div class="panel-field">
+            <label for="{{ form.velocidad_referencial.id_for_label }}">
+                Velocidad referencial (km/h)
+            </label>
+            {{ form.velocidad_referencial }}
+            {% if form.velocidad_referencial.errors %}<div class="panel-field-error">{{ form.velocidad_referencial.errors.0 }}</div>{% endif %}
+        </div>
+
+        {# ACTIVA #}
+        <div class="panel-field panel-field-full">
+            <label class="panel-checkbox" for="{{ form.activa.id_for_label }}">
+                {{ form.activa }}
+                <span>Vía activa</span>
+            </label>
+        </div>
+
+        {# OBSERVACIONES #}
+        <div class="panel-field panel-field-full">
+            <label for="{{ form.observaciones.id_for_label }}">{{ form.observaciones.label }}</label>
+            {{ form.observaciones }}
+        </div>
+
+    </div>
+
+    <div class="panel-form-actions">
+        <a href="{% url 'panel:vias_lista' %}" class="panel-btn-ghost">Cancelar</a>
+        <button type="submit" class="panel-btn-primary">Guardar vía</button>
+    </div>
+</form>
+{% endblock %}

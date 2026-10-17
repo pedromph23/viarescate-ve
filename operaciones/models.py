@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils import timezone
 
 
 
@@ -278,6 +279,26 @@ class ReporteVial(models.Model):
         related_name="reportes_viales",
     )
 
+    # --- Campos ampliados para reportes completos ---
+    fecha_incidente = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Cuándo ocurrió el incidente (puede ser distinto de la fecha de reporte).",
+    )
+
+    foto = models.ImageField(
+        upload_to="reportes/%Y/%m/",
+        null=True,
+        blank=True,
+        help_text="Fotografía principal del incidente (JPG, PNG o WEBP — máx 5 MB).",
+    )
+
+    afecta_transito = models.BooleanField(
+        default=True,
+        help_text="¿El incidente está bloqueando o afectando el tránsito?",
+    )
+
+    # --- Metadatos temporales ---
     reportado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
     resuelto_en = models.DateTimeField(null=True, blank=True)
@@ -300,17 +321,51 @@ class ReporteVial(models.Model):
     def clean(self):
         super().clean()
         from core import messages as msg
-        from core.validators import validar_orden_fechas
+        from core.validators import (
+            validar_fecha_con_referencia,
+            validar_fecha_en_pasado_o_ahora,
+            validar_orden_fechas,
+        )
 
         errors = {}
-        try:
-            validar_orden_fechas(
-                self.reportado_en,
-                self.resuelto_en,
-                msg.FECHA_RESOLUCION_ANTES_REPORTE,
-            )
-        except ValidationError as e:
-            errors["resuelto_en"] = e.messages
+
+        # Fecha de referencia: reportado_en (server-set) o now() para nuevas instancias
+        referencia = self.reportado_en or timezone.now()
+
+        # fecha_incidente: solo HOY (desde 00:00 local).
+        # Los reportes ciudadanos son sobre el presente.
+        if self.fecha_incidente is not None:
+            try:
+                validar_fecha_con_referencia(
+                    self.fecha_incidente,
+                    referencia=referencia,
+                    grace_minutos=5,
+                    solo_hoy=True,
+                    contexto="incidente",
+                )
+            except ValidationError as e:
+                errors["fecha_incidente"] = e.messages
+
+        # resuelto_en: no puede ser futuro Y debe ser >= reportado_en
+        if self.resuelto_en is not None:
+            try:
+                validar_fecha_en_pasado_o_ahora(
+                    self.resuelto_en,
+                    grace_minutos=5,
+                    contexto="resolución",
+                )
+            except ValidationError as e:
+                errors["resuelto_en"] = e.messages
+
+            if self.reportado_en:
+                try:
+                    validar_orden_fechas(
+                        self.reportado_en,
+                        self.resuelto_en,
+                        msg.FECHA_RESOLUCION_ANTES_REPORTE,
+                    )
+                except ValidationError as e:
+                    errors["resuelto_en"] = e.messages
 
         if errors:
             raise ValidationError(errors)
@@ -509,6 +564,23 @@ class Mision(models.Model):
             )
         except ValidationError as e:
             errors["entregada_en"] = e.messages
+
+        # NUEVO: fechas REALES no pueden estar en el futuro
+        from core.validators import validar_fecha_en_pasado_o_ahora
+
+        for campo, contexto in [
+            ("iniciada_en", "inicio de la misión"),
+            ("entregada_en", "entrega real"),
+            ("cancelada_en", "cancelación"),
+        ]:
+            fecha = getattr(self, campo, None)
+            if fecha is not None:
+                try:
+                    validar_fecha_en_pasado_o_ahora(
+                        fecha, grace_minutos=5, contexto=contexto,
+                    )
+                except ValidationError as e:
+                    errors[campo] = e.messages
 
         if errors:
             raise ValidationError(errors)
@@ -778,6 +850,28 @@ class Necesidad(models.Model):
 
     def __str__(self):
         return f"{self.refugio} necesita {self.cantidad_pendiente} {self.recurso.unidad} de {self.recurso.nombre}"
+
+
+class FotoReporte(models.Model):
+    """Fotos adicionales asociadas a un reporte vial."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    reporte = models.ForeignKey(
+        ReporteVial,
+        on_delete=models.CASCADE,
+        related_name="fotos_adicionales",
+    )
+    imagen = models.ImageField(upload_to="reportes/galeria/%Y/%m/")
+    descripcion = models.CharField(max_length=200, blank=True)
+    creada_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("creada_en",)
+        verbose_name = "Foto de reporte"
+        verbose_name_plural = "Fotos de reporte"
+
+    def __str__(self):
+        return f"Foto de {self.reporte.titulo[:40]}"
 
 
 class AuditLog(models.Model):

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reportar incidente vial · VíaRescate VE{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/panel.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="reporte-publico-section">
+    <div class="container reporte-publico-container">
+
+        <header class="reporte-publico-header">
+            <span class="eyebrow">Ayúdanos a mantener el mapa actualizado</span>
+            <h1>Reportar un incidente</h1>
+            <p>
+                Cualquier persona puede reportar un accidente, derrumbe, inundación,
+                vía cerrada o cualquier otra situación que afecte el tránsito.
+                Tu reporte será revisado por el equipo antes de publicarse.
+            </p>
+        </header>
+
+        {% if messages %}
+        <ul class="panel-messages">
+            {% for m in messages %}
+            <li class="panel-message panel-message-{{ m.tags }}">{{ m }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data"
+              class="panel-card panel-form" data-validate="true" novalidate>
+            {% csrf_token %}
+
+            <div class="honeypot-wrap">{{ form.website }}</div>
+
+            {% if form.non_field_errors %}
+            <div class="panel-error" role="alert">
+                {% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="panel-form-grid">
+
+                <div class="panel-field panel-field-full">
+                    <label>¿Dónde ocurrió? <span class="req">*</span></label>
+                    <div id="map-picker" class="map-picker"
+                         data-lat="{{ form.latitud.value|default:'' }}"
+                         data-lng="{{ form.longitud.value|default:'' }}"
+                         aria-label="Mapa para marcar el incidente"></div>
+                    <small class="panel-hint">
+                        Arrastra el pin hasta el lugar exacto del incidente.
+                    </small>
+                </div>
+
+                {{ form.latitud }}
+                {{ form.longitud }}
+
+                <div class="panel-field">
+                    <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }} <span class="req">*</span></label>
+                    {{ form.tipo }}
+                    {% if form.tipo.errors %}<div class="panel-field-error">{{ form.tipo.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="panel-field">
+                    <label for="{{ form.severidad.id_for_label }}">{{ form.severidad.label }} <span class="req">*</span></label>
+                    {{ form.severidad }}
+                    {% if form.severidad.errors %}<div class="panel-field-error">{{ form.severidad.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="panel-field panel-field-full">
+                    <label for="{{ form.titulo.id_for_label }}">{{ form.titulo.label }} <span class="req">*</span></label>
+                    {{ form.titulo }}
+                    {% if form.titulo.errors %}<div class="panel-field-error">{{ form.titulo.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="panel-field panel-field-full">
+                    <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }} <span class="req">*</span></label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}<div class="panel-field-error">{{ form.descripcion.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="panel-field">
+                    <label for="{{ form.fecha_incidente.id_for_label }}">{{ form.fecha_incidente.label }}</label>
+                    {{ form.fecha_incidente }}
+                    {% if form.fecha_incidente.errors %}<div class="panel-field-error">{{ form.fecha_incidente.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="panel-field">
+                    <label class="panel-checkbox" for="{{ form.afecta_transito.id_for_label }}">
+                        {{ form.afecta_transito }}
+                        <span>{{ form.afecta_transito.label }}</span>
+                    </label>
+                </div>
+
+                <div class="panel-field panel-field-full">
+                    <label for="{{ form.foto.id_for_label }}">{{ form.foto.label }}</label>
+                    {{ form.foto }}
+                    <small class="panel-hint">JPG, PNG o WEBP. Máx 5 MB.</small>
+                    {% if form.foto.errors %}<div class="panel-field-error">{{ form.foto.errors.0 }}</div>{% endif %}
+                    <div id="foto-preview" class="foto-preview" hidden>
+                        <img alt="Vista previa">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="panel-form-actions">
+                <a href="/" class="panel-btn-ghost">Cancelar</a>
+                <button type="submit" class="panel-btn-primary">Enviar reporte</button>
+            </div>
+        </form>
+
+        <p class="reporte-publico-footer">
+            Los reportes se revisan antes de publicarse para evitar información falsa.
+            Para emergencias, llama directamente a los servicios de emergencia.
+        </p>
+    </div>
+</section>
+
+{{ estados_centroides|json_script:"estados-centroides" }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const input = document.getElementById("{{ form.foto.id_for_label }}");
+    const preview = document.getElementById("foto-preview");
+    if (!input || !preview) return;
+    const img = preview.querySelector("img");
+    input.addEventListener("change", function () {
+        const file = input.files && input.files[0];
+        if (!file) { preview.hidden = true; img.src = ""; return; }
+        img.src = URL.createObjectURL(file);
+        preview.hidden = false;
+    });
+})();
+</script>
+{% endblock %}
