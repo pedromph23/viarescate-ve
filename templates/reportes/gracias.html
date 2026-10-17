@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Gracias por tu reporte · VíaRescate VE{% endblock %}
 
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/panel.css' %}">
+{% endblock %}
+
 {% block content %}
 <section class="reporte-gracias-section">
     <div class="container reporte-gracias-container">
