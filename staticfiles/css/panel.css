@@ -347,3 +347,231 @@ form.inline { display: inline; }
 .panel-grid-4 {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
+
+/* ==========================================================================
+   FORMULARIOS RESPONSIVE — Mobile First
+   ========================================================================== */
+
+.panel-form {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.panel-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;   /* móvil por defecto */
+    gap: 16px;
+}
+
+/* Tablet+: 2 columnas */
+@media (min-width: 640px) {
+    .panel-form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Desktop: 3 columnas para forms largos */
+@media (min-width: 1024px) {
+    .panel-form-grid.panel-form-grid-wide {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Campos ocupan 1 columna por defecto */
+.panel-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;         /* evita overflow en grid */
+    width: 100%;
+}
+
+/* Full width explícito */
+.panel-field-full {
+    grid-column: 1 / -1;
+}
+
+/* Etiquetas */
+.panel-field label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+.panel-field .req {
+    color: #c0392b;
+    margin-left: 2px;
+}
+
+/* Inputs, selects, textareas — todos iguales, táctiles */
+.panel-field input:not([type="checkbox"]):not([type="radio"]),
+.panel-field select,
+.panel-field textarea {
+    width: 100%;
+    min-height: 44px;                /* táctil: Apple recomienda 44px */
+    padding: 10px 14px;
+    font-size: 1rem;                 /* evita zoom automático en iOS */
+    font-family: inherit;
+    line-height: 1.4;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Date/datetime inputs — hint nativo móvil */
+.panel-field input[type="date"],
+.panel-field input[type="datetime-local"] {
+    min-height: 44px;
+}
+
+/* Textarea */
+.panel-field textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+/* Checkbox y radio separados del bloque de inputs grandes */
+.panel-field input[type="checkbox"],
+.panel-field input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+}
+
+/* Label con checkbox inline */
+.panel-field label.panel-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 8px 0;
+}
+
+/* Focus visible */
+.panel-field input:focus,
+.panel-field select:focus,
+.panel-field textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+/* Estado inválido */
+.panel-field input.is-invalid,
+.panel-field select.is-invalid,
+.panel-field textarea.is-invalid {
+    border-color: #c0392b;
+}
+.panel-field input.is-invalid:focus,
+.panel-field select.is-invalid:focus,
+.panel-field textarea.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.15);
+}
+
+/* Mensaje de error */
+.panel-field-error {
+    font-size: 0.85rem;
+    color: #c0392b;
+    margin-top: 2px;
+    line-height: 1.35;
+}
+
+/* Ayuda contextual */
+.panel-hint {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    line-height: 1.4;
+}
+
+/* Acciones del form */
+.panel-form-actions {
+    display: flex;
+    flex-direction: column-reverse;    /* móvil: botón principal arriba */
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+@media (min-width: 480px) {
+    .panel-form-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}
+
+.panel-form-actions button,
+.panel-form-actions a.panel-btn-ghost,
+.panel-form-actions a.panel-btn-primary {
+    min-height: 44px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    width: 100%;
+    justify-content: center;
+}
+
+@media (min-width: 480px) {
+    .panel-form-actions button,
+    .panel-form-actions a.panel-btn-ghost,
+    .panel-form-actions a.panel-btn-primary {
+        width: auto;
+        min-width: 120px;
+    }
+}
+
+/* Errores generales del formulario */
+.panel-error {
+    padding: 12px 16px;
+    background: #fadbd8;
+    color: #7b241c;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.panel-error ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+/* Dark mode */
+[data-theme="dark"] .panel-error {
+    background: rgba(248, 81, 73, 0.15);
+    color: #ffa198;
+}
+[data-theme="dark"] .panel-field-error {
+    color: #ff7b72;
+}
+[data-theme="dark"] .panel-field input.is-invalid,
+[data-theme="dark"] .panel-field select.is-invalid,
+[data-theme="dark"] .panel-field textarea.is-invalid {
+    border-color: #ff7b72;
+}
+
+/* Layout en pantallas muy pequeñas */
+@media (max-width: 380px) {
+    .panel-field label {
+        font-size: 0.85rem;
+    }
+    .panel-field input:not([type="checkbox"]):not([type="radio"]),
+    .panel-field select,
+    .panel-field textarea {
+        padding: 9px 12px;
+        font-size: 0.95rem;
+    }
+    .panel-form-actions {
+        gap: 8px;
+    }
+}

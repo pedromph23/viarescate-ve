@@ -1,0 +1,57 @@
+{% extends "panel/base_panel.html" %}
+{% block heading %}{{ titulo }}{% endblock %}
+
+{% block panel_content %}
+<form method="post" class="panel-card panel-form" data-validate="true" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="panel-error" role="alert">
+            <strong>No se pudo guardar el formulario:</strong>
+            <ul>
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="panel-form-grid">
+    {% for field in form %}
+        {% with field_type=field.field.widget.input_type %}
+        <div class="panel-field{% if field_type == 'textarea' %} panel-field-full{% endif %}{% if field.name == 'observaciones' or field.name == 'descripcion' %} panel-field-full{% endif %}">
+
+            {% if field_type == 'checkbox' %}
+                {# Checkbox: label + input en línea #}
+                <label class="panel-checkbox" for="{{ field.id_for_label }}">
+                    {{ field }}
+                    <span>{{ field.label }}</span>
+                </label>
+            {% else %}
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                    {% if field.field.required %}<span class="req" aria-label="obligatorio">*</span>{% endif %}
+                </label>
+                {{ field }}
+            {% endif %}
+
+            {% if field.help_text %}
+                <small class="panel-hint" id="{{ field.id_for_label }}-help">{{ field.help_text }}</small>
+            {% endif %}
+
+            {% if field.errors %}
+                <div class="panel-field-error" role="alert" id="{{ field.id_for_label }}-error">
+                    {{ field.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+        {% endwith %}
+    {% endfor %}
+    </div>
+
+    <div class="panel-form-actions">
+        <a href="javascript:history.back()" class="panel-btn-ghost">Cancelar</a>
+        <button type="submit" class="panel-btn-primary">Guardar</button>
+    </div>
+</form>
+{% endblock %}

@@ -24,11 +24,38 @@ class NecesidadForm(forms.ModelForm):
             "observaciones",
         ]
         widgets = {
+            "refugio": forms.Select(attrs={
+                "data-validator": "codigo",  # reusa el validador de obligatoriedad
+                "required": "required",
+            }),
+            "recurso": forms.Select(attrs={
+                "data-validator": "codigo",
+                "required": "required",
+            }),
             "fecha_requerida": forms.DateTimeInput(
-                attrs={"type": "datetime-local"},
+                attrs={
+                    "type": "datetime-local",
+                    "data-validator": "fecha_futura",
+                },
                 format="%Y-%m-%dT%H:%M",
             ),
-            "observaciones": forms.Textarea(attrs={"rows": 3}),
+            "cantidad_requerida": forms.NumberInput(attrs={
+                "data-validator": "entero_positivo",
+                "min": "0.01",
+                "step": "0.01",
+                "inputmode": "decimal",
+            }),
+            "cantidad_recibida": forms.NumberInput(attrs={
+                "data-validator": "entero_positivo",
+                "min": "0",
+                "step": "0.01",
+                "inputmode": "decimal",
+            }),
+            "observaciones": forms.Textarea(attrs={
+                "rows": 3,
+                "maxlength": "1000",
+                "placeholder": "Notas adicionales (opcional)",
+            }),
         }
 
     def __init__(self, *args, **kwargs):
