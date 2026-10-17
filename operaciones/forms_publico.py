@@ -1,4 +1,6 @@
 """Formulario público de reportes (sin login requerido)."""
+import logging
+
 from django import forms
 from django.contrib.gis.geos import Point
 from django.utils import timezone
@@ -10,6 +12,8 @@ from core.validators import (
 )
 from operaciones.models import ReporteVial
 
+logger = logging.getLogger(__name__)
+
 
 class ReportePublicoForm(forms.ModelForm):
     """Form público — cualquier usuario puede reportar sin cuenta."""
@@ -17,32 +21,25 @@ class ReportePublicoForm(forms.ModelForm):
     latitud = forms.FloatField(
         min_value=0.6, max_value=12.3, label="Latitud",
         widget=forms.NumberInput(attrs={
-            "step": "0.000001",
-            "readonly": "readonly",
+            "step": "0.000001", "readonly": "readonly",
             "data-validator": "coordenada_lat",
-            "id": "id_latitud",
-            "class": "coord-readonly",
+            "id": "id_latitud", "class": "coord-readonly",
         }),
     )
     longitud = forms.FloatField(
         min_value=-73.4, max_value=-59.8, label="Longitud",
         widget=forms.NumberInput(attrs={
-            "step": "0.000001",
-            "readonly": "readonly",
+            "step": "0.000001", "readonly": "readonly",
             "data-validator": "coordenada_lng",
-            "id": "id_longitud",
-            "class": "coord-readonly",
+            "id": "id_longitud", "class": "coord-readonly",
         }),
     )
 
-    # Honeypot anti-bot
     website = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
-            "class": "honeypot",
-            "tabindex": "-1",
-            "autocomplete": "off",
-            "aria-hidden": "true",
+            "class": "honeypot", "tabindex": "-1",
+            "autocomplete": "off", "aria-hidden": "true",
         }),
     )
 
@@ -54,13 +51,10 @@ class ReportePublicoForm(forms.ModelForm):
             "tipo": forms.Select(attrs={"required": "required"}),
             "titulo": forms.TextInput(attrs={
                 "placeholder": "Ej: Derrumbe en la autopista",
-                "maxlength": "180",
-                "minlength": "5",
+                "maxlength": "180", "minlength": "5",
             }),
             "descripcion": forms.Textarea(attrs={
-                "rows": 4,
-                "maxlength": "2000",
-                "minlength": "10",
+                "rows": 4, "maxlength": "2000", "minlength": "10",
             }),
             "severidad": forms.Select(choices=[
                 (1, "1 — Leve"), (2, "2 — Menor"), (3, "3 — Moderado"),
@@ -88,8 +82,7 @@ class ReportePublicoForm(forms.ModelForm):
             self.fields["fecha_incidente"].initial = timezone.localtime()
 
     def clean_website(self):
-        valor = self.cleaned_data.get("website", "")
-        if valor:
+        if self.cleaned_data.get("website", ""):
             raise forms.ValidationError("Reporte rechazado.")
         return ""
 
@@ -112,18 +105,11 @@ class ReportePublicoForm(forms.ModelForm):
         return archivo
 
     def clean_fecha_incidente(self):
-        """
-        Reportes públicos: SOLO se puede reportar sobre el presente o futuro
-        inmediato (dentro del grace). Nada en el pasado.
-
-        - grace_minutos=5: tolerancia por latencia/reloj del cliente
-        - max_edad_dias=0: rechaza cualquier fecha anterior a hoy
-        """
         return validar_fecha_con_referencia(
             self.cleaned_data.get("fecha_incidente"),
             referencia=None,
             grace_minutos=5,
-            solo_hoy=True,         # ← solo HOY (desde 00:00)
+            solo_hoy=True,
             contexto="incidente",
             permitir_nulo=True,
         )
@@ -142,6 +128,17 @@ class ReportePublicoForm(forms.ModelForm):
         lng = self.cleaned_data["longitud"]
         instance.ubicacion = Point(lng, lat, srid=4326)
         instance.estado_reporte = "PENDIENTE"
+
         if commit:
-            instance.save()
+            # Intentar guardar CON foto primero
+            try:
+                instance.save()
+            except Exception as exc:
+                # Si falla por Storage (S3), guardar SIN foto
+                logger.error(
+                    "Error guardando foto en Storage, se guarda sin foto: %s", exc
+                )
+                if instance.foto:
+                    instance.foto = None
+                instance.save()
         return instance
