@@ -1,6 +1,14 @@
 {% extends "panel/base_panel.html" %}
+{% load panel_perms %}
 {% block heading %}Usuarios{% endblock %}
 {% block subheading %}{{ usuarios|length }} usuario{{ usuarios|length|pluralize }}{% endblock %}
+
+{% block panel_actions %}
+{% if_permiso "crear_usuarios" as puede_crear %}
+{% if puede_crear %}
+<a href="{% url 'panel:usuarios_nuevo' %}" class="panel-btn-primary">+ Nuevo usuario</a>
+{% endif %}
+{% endblock %}
 
 {% block panel_content %}
 <form method="get" class="panel-search">
@@ -16,6 +24,7 @@
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Rol</th>
+                <th>Staff</th>
                 <th>Estado</th>
                 <th></th>
             </tr>
@@ -23,28 +32,32 @@
         <tbody>
         {% for u in usuarios %}
             <tr>
-                <td><strong>{{ u.username }}</strong></td>
+                <td><strong>{{ u.username }}</strong>{% if u == request.user %} <small>(tú)</small>{% endif %}</td>
                 <td>{{ u.get_full_name|default:"—" }}</td>
                 <td>{{ u.email }}</td>
                 <td>{{ u.get_rol_display }}</td>
+                <td>{% if u.is_staff %}<span class="badge badge-info">Sí</span>{% else %}—{% endif %}</td>
                 <td>
                     {% if u.is_active %}<span class="badge badge-ok">Activo</span>
                     {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
-                    {% if u.is_staff %}<span class="badge badge-info">Staff</span>{% endif %}
                 </td>
                 <td class="panel-row-actions">
                     {% if u != request.user %}
+                    <a href="{% url 'panel:usuarios_editar' u.pk %}">Editar</a>
                     <form method="post" action="{% url 'panel:usuarios_toggle' u.pk %}" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="panel-btn-ghost">
+                        <button type="submit" class="link-btn">
                             {% if u.is_active %}Desactivar{% else %}Activar{% endif %}
                         </button>
                     </form>
+                    <a href="{% url 'panel:usuarios_eliminar' u.pk %}" class="text-danger">Eliminar</a>
+                    {% else %}
+                    <small class="panel-hint">(tu cuenta)</small>
                     {% endif %}
                 </td>
             </tr>
         {% empty %}
-            <tr><td colspan="6" class="panel-empty">Sin resultados</td></tr>
+            <tr><td colspan="7" class="panel-empty">Sin resultados</td></tr>
         {% endfor %}
         </tbody>
     </table>

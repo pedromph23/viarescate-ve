@@ -1,9 +1,13 @@
 {% extends "panel/base_panel.html" %}
+{% load panel_perms %}
 {% block heading %}Centros de acopio{% endblock %}
 {% block subheading %}{{ centros|length }} centro{{ centros|length|pluralize }} registrado{{ centros|length|pluralize }}{% endblock %}
 
 {% block panel_actions %}
+{% if_permiso "crear_centros" as puede_crear %}
+{% if puede_crear %}
 <a href="{% url 'panel:centros_nuevo' %}" class="panel-btn-primary">+ Nuevo centro</a>
+{% endif %}
 {% endblock %}
 
 {% block panel_content %}

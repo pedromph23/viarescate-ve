@@ -310,3 +310,110 @@ def validar_fecha_en_pasado_o_ahora(fecha, grace_minutos=5, contexto="evento"):
             f"Máximo {grace_minutos} minutos de tolerancia."
         )
     return fecha
+
+
+# ---------------------------------------------------------------------------
+# Validadores específicos para usuarios
+# ---------------------------------------------------------------------------
+RE_USERNAME = re.compile(r"^[a-zA-Z0-9_.-]{3,150}$")
+RE_PASSWORD_SIMBOLO = re.compile(r"[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>/?]")
+
+# Palabras prohibidas en contraseñas (lista mínima)
+PASSWORDS_PROHIBIDAS = {
+    "12345678", "123456789", "password", "qwerty",
+    "admin123", "admin1234", "administrador",
+    "contraseña", "password123", "1234567890",
+    "abc123456", "qwerty123", "venezuela",
+}
+
+# Nombres/artículos comunes en Venezuela para permitir en nombres propios
+ARTICULOS_NOMBRE = {"de", "del", "la", "las", "los", "el", "y", "san", "santa"}
+
+
+def validar_username(valor):
+    """Username: alfanumérico + _ . -, 3-150 chars, sin empezar con . o -."""
+    valor = (valor or "").strip()
+    if not valor:
+        raise ValidationError(msg.CAMPO_OBLIGATORIO)
+    if len(valor) < 3:
+        raise ValidationError("El usuario debe tener al menos 3 caracteres.")
+    if len(valor) > 150:
+        raise ValidationError("El usuario no puede superar 150 caracteres.")
+    if valor.startswith((".", "-", "_")):
+        raise ValidationError(
+            "El usuario no puede empezar con punto, guion o guion bajo."
+        )
+    if not RE_USERNAME.match(valor):
+        raise ValidationError(
+            "El usuario solo puede contener letras, números, puntos, "
+            "guiones y guiones bajos."
+        )
+    return valor
+
+
+def validar_nombre_persona(valor, contexto="nombre"):
+    """
+    Nombre o apellido de persona. Más permisivo que el de entidades
+    (permite artículos como 'de', 'del', 'la', 'los', 'san').
+    """
+    valor = _normalizar(valor)
+    if not valor:
+        raise ValidationError(msg.CAMPO_OBLIGATORIO)
+    if len(valor) < 2:
+        raise ValidationError(f"El {contexto} debe tener al menos 2 caracteres.")
+    if len(valor) > 150:
+        raise ValidationError(f"El {contexto} no puede superar 150 caracteres.")
+    if any(c.isdigit() for c in valor):
+        raise ValidationError(f"El {contexto} no puede contener números.")
+    if not RE_NOMBRE.match(valor):
+        raise ValidationError(
+            f"El {contexto} solo puede contener letras, espacios, "
+            "guiones y apóstrofes."
+        )
+    return valor
+
+
+def validar_password_fuerte(valor, username=None, email=None):
+    """
+    Contraseña robusta:
+    - Mínimo 12 caracteres
+    - Al menos 1 mayúscula, 1 minúscula, 1 dígito, 1 símbolo
+    - No contiene username ni email
+    - No está en la lista de prohibidas
+    """
+    from django.contrib.auth.password_validation import validate_password
+
+    if not valor:
+        raise ValidationError(msg.CAMPO_OBLIGATORIO)
+
+    if len(valor) < 12:
+        raise ValidationError("La contraseña debe tener al menos 12 caracteres.")
+    if len(valor) > 128:
+        raise ValidationError("La contraseña no puede superar 128 caracteres.")
+    if not any(c.isupper() for c in valor):
+        raise ValidationError("La contraseña debe tener al menos una mayúscula.")
+    if not any(c.islower() for c in valor):
+        raise ValidationError("La contraseña debe tener al menos una minúscula.")
+    if not any(c.isdigit() for c in valor):
+        raise ValidationError("La contraseña debe tener al menos un número.")
+    if not RE_PASSWORD_SIMBOLO.search(valor):
+        raise ValidationError(
+            "La contraseña debe tener al menos un símbolo (!@#$%...)."
+        )
+
+    # Lista negra
+    if valor.lower() in PASSWORDS_PROHIBIDAS:
+        raise ValidationError("Esta contraseña es demasiado común. Usa otra.")
+
+    # No contener username/email
+    if username and username.lower() in valor.lower() and len(username) >= 4:
+        raise ValidationError("La contraseña no puede contener tu nombre de usuario.")
+    if email:
+        email_user = email.split("@")[0].lower()
+        if email_user and len(email_user) >= 4 and email_user in valor.lower():
+            raise ValidationError("La contraseña no puede contener tu correo.")
+
+    # Django validators (comunes)
+    validate_password(valor, user=None)
+
+    return valor

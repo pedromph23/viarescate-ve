@@ -1,10 +1,10 @@
-{% load static %}
+{% load static panel_perms %}
 <aside class="panel-sidebar">
     <div class="panel-sidebar-brand">
         <span class="brand-mark">VR</span>
         <div>
             <strong>Panel</strong>
-            <small>VíaRescate VE</small>
+            <small>{{ request.user.get_rol_display|default:"VíaRescate VE" }}</small>
         </div>
     </div>
 
@@ -12,30 +12,62 @@
         <a href="{% url 'panel:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">
             <span class="panel-nav-ico">▦</span> Dashboard
         </a>
+
+        {% if_permiso "ver_centros" as puede_centros %}
+        {% if puede_centros %}
         <a href="{% url 'panel:centros_lista' %}" class="{% if 'centros' in request.resolver_match.url_name %}is-active{% endif %}">
             <span class="panel-nav-ico">◉</span> Centros de acopio
         </a>
+        {% endif %}
+
+        {% if_permiso "ver_refugios" as puede_refugios %}
+        {% if puede_refugios %}
         <a href="{% url 'panel:refugios_lista' %}" class="{% if 'refugios' in request.resolver_match.url_name %}is-active{% endif %}">
             <span class="panel-nav-ico">⌂</span> Refugios
         </a>
+        {% endif %}
+
+        {% if_permiso "ver_vias" as puede_vias %}
+        {% if puede_vias %}
         <a href="{% url 'panel:vias_lista' %}" class="{% if 'vias' in request.resolver_match.url_name %}is-active{% endif %}">
             <span class="panel-nav-ico">═</span> Vías
         </a>
+        {% endif %}
+
+        {% if_permiso "ver_reportes" as puede_reportes %}
+        {% if puede_reportes %}
         <a href="{% url 'panel:reportes_lista' %}" class="{% if 'reportes' in request.resolver_match.url_name %}is-active{% endif %}">
             <span class="panel-nav-ico">⚠</span> Reportes viales
         </a>
-        <a href="{% url 'panel:usuarios_lista' %}" class="{% if 'usuarios' in request.resolver_match.url_name %}is-active{% endif %}">
-            <span class="panel-nav-ico">☺</span> Usuarios
-        </a>
+        {% endif %}
+
+        {% if_permiso "ver_necesidades" as puede_necesidades %}
+        {% if puede_necesidades %}
         <a href="{% url 'panel:necesidades_lista' %}" class="{% if 'necesidades' in request.resolver_match.url_name %}is-active{% endif %}">
             <span class="panel-nav-ico">⚑</span> Necesidades
         </a>
+        {% endif %}
+
+        {% if_permiso "ver_usuarios" as puede_usuarios %}
+        {% if puede_usuarios %}
+        <a href="{% url 'panel:usuarios_lista' %}" class="{% if 'usuarios' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span class="panel-nav-ico">☺</span> Usuarios
+        </a>
+        {% endif %}
+
+        {% if_permiso "ver_alertas" as puede_alertas %}
+        {% if puede_alertas %}
         <a href="{% url 'panel:alertas_lista' %}" class="{% if 'alertas' in request.resolver_match.url_name %}is-active{% endif %}">
             <span class="panel-nav-ico">⚡</span> Alertas IA
         </a>
+        {% endif %}
+
+        {% if_permiso "ver_predicciones" as puede_predicciones %}
+        {% if puede_predicciones %}
         <a href="{% url 'panel:predicciones_demanda' %}" class="{% if 'predicciones' in request.resolver_match.url_name %}is-active{% endif %}">
             <span class="panel-nav-ico">◇</span> Predicciones
         </a>
+        {% endif %}
     </nav>
 
     <div class="panel-sidebar-footer">

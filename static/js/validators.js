@@ -121,6 +121,60 @@
             return null;
         },
 
+        username: function (v) {
+            if (!v) return "El usuario es obligatorio.";
+            if (v.length < 3) return "El usuario debe tener al menos 3 caracteres.";
+            if (v.length > 150) return "El usuario no puede superar 150 caracteres.";
+            if (/^[\._-]/.test(v)) {
+                return "El usuario no puede empezar con punto, guion o guion bajo.";
+            }
+            if (!/^[a-zA-Z0-9_.-]{3,150}$/.test(v)) {
+                return "Solo letras, números, puntos, guiones y guiones bajos.";
+            }
+            return null;
+        },
+
+        nombre_persona: function (v) {
+            if (!v) return null;
+            v = v.trim().replace(/\s+/g, " ");
+            if (v.length < 2) return "Mínimo 2 caracteres.";
+            if (v.length > 150) return "Máximo 150 caracteres.";
+            if (/\d/.test(v)) return "No puede contener números.";
+            if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:[ '\-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$/.test(v)) {
+                return "Solo letras, espacios, guiones y apóstrofes.";
+            }
+            return null;
+        },
+
+        password_fuerte: function (v) {
+            if (!v) return "La contraseña es obligatoria.";
+            if (v.length < 12) return "Mínimo 12 caracteres.";
+            if (v.length > 128) return "Máximo 128 caracteres.";
+            if (!/[A-Z]/.test(v)) return "Debe tener al menos una mayúscula.";
+            if (!/[a-z]/.test(v)) return "Debe tener al menos una minúscula.";
+            if (!/[0-9]/.test(v)) return "Debe tener al menos un número.";
+            if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/.test(v)) {
+                return "Debe tener al menos un símbolo (!@#$%...).";
+            }
+            // Si el username está en el form, verificar que no esté en la pass
+            const userInput = document.getElementById("id_username");
+            if (userInput && userInput.value && userInput.value.length >= 4) {
+                if (v.toLowerCase().includes(userInput.value.toLowerCase())) {
+                    return "La contraseña no puede contener tu nombre de usuario.";
+                }
+            }
+            return null;
+        },
+
+        password_confirmar: function (v) {
+            if (!v) return "Confirma la contraseña.";
+            const p1 = document.getElementById("id_password1");
+            if (p1 && p1.value && v !== p1.value) {
+                return "Las contraseñas no coinciden.";
+            }
+            return null;
+        },
+
         fecha_pasada_valida: function (v) {
             // Solo permite fechas desde hoy 00:00 (con grace de 5 min).
             // Rechaza cualquier fecha claramente en el pasado.

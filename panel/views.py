@@ -19,7 +19,7 @@ from operaciones.models import (
 )
 from usuarios.models import Usuario
 
-from .decorators import panel_required
+from .decorators import panel_required, permiso_requerido
 
 
 def _get_estados_centroides():
@@ -68,7 +68,7 @@ def dashboard(request):
 
 
 # ---------- CENTROS ----------
-@panel_required
+@permiso_requerido("ver_centros")
 def centros_lista(request):
     q = request.GET.get("q", "").strip()
     qs = CentroAyuda.objects.select_related("estado", "municipio", "parroquia")
@@ -77,7 +77,7 @@ def centros_lista(request):
     return render(request, "panel/centros/lista.html", {"centros": qs, "q": q})
 
 
-@panel_required
+@permiso_requerido("crear_centros")
 def centros_form(request, pk=None):
     instance = get_object_or_404(CentroAyuda, pk=pk) if pk else None
     if request.method == "POST":
@@ -100,7 +100,7 @@ def centros_form(request, pk=None):
     )
 
 
-@panel_required
+@permiso_requerido("eliminar_centros")
 def centros_eliminar(request, pk):
     obj = get_object_or_404(CentroAyuda, pk=pk)
     if request.method == "POST":
@@ -112,7 +112,7 @@ def centros_eliminar(request, pk):
 
 
 # ---------- REFUGIOS ----------
-@panel_required
+@permiso_requerido("ver_refugios")
 def refugios_lista(request):
     q = request.GET.get("q", "").strip()
     qs = Refugio.objects.select_related("estado", "municipio", "parroquia")
@@ -121,7 +121,7 @@ def refugios_lista(request):
     return render(request, "panel/refugios/lista.html", {"refugios": qs, "q": q})
 
 
-@panel_required
+@permiso_requerido("crear_refugios")
 def refugios_form(request, pk=None):
     instance = get_object_or_404(Refugio, pk=pk) if pk else None
     if request.method == "POST":
@@ -144,7 +144,7 @@ def refugios_form(request, pk=None):
     )
 
 
-@panel_required
+@permiso_requerido("eliminar_refugios")
 def refugios_eliminar(request, pk):
     obj = get_object_or_404(Refugio, pk=pk)
     if request.method == "POST":
@@ -156,7 +156,7 @@ def refugios_eliminar(request, pk):
 
 
 # ---------- USUARIOS (solo lectura + activar/desactivar) ----------
-@panel_required
+@permiso_requerido("ver_usuarios")
 def usuarios_lista(request):
     q = request.GET.get("q", "").strip()
     qs = Usuario.objects.all().order_by("username")
@@ -167,7 +167,7 @@ def usuarios_lista(request):
     return render(request, "panel/usuarios/lista.html", {"usuarios": qs, "q": q})
 
 
-@panel_required
+@permiso_requerido("editar_usuarios")
 def usuarios_toggle(request, pk):
     if request.method != "POST":
         return redirect("panel:usuarios_lista")
@@ -185,7 +185,7 @@ def usuarios_toggle(request, pk):
 
 
 # ---------- VIAS ----------
-@panel_required
+@permiso_requerido("ver_vias")
 def vias_lista(request):
     """Listado de vías con filtros."""
     qs = Via.objects.select_related("estado").order_by("-actualizado_en")
@@ -213,7 +213,7 @@ def vias_lista(request):
     return render(request, "panel/vias/lista.html", contexto)
 
 
-@panel_required
+@permiso_requerido("crear_vias")
 def vias_form(request, pk=None):
     """Crear/editar vía."""
     instance = get_object_or_404(Via, pk=pk) if pk else None
@@ -238,7 +238,7 @@ def vias_form(request, pk=None):
     )
 
 
-@panel_required
+@permiso_requerido("eliminar_vias")
 def vias_eliminar(request, pk):
     """Confirmar eliminación de vía."""
     obj = get_object_or_404(Via, pk=pk)
@@ -255,7 +255,7 @@ def vias_eliminar(request, pk):
 
 
 # ---------- REPORTES (solo lectura) ----------
-@panel_required
+@permiso_requerido("ver_reportes")
 def reportes_lista(request):
     """Listado de reportes viales con filtros."""
     qs = ReporteVial.objects.select_related("via").order_by("-reportado_en")
@@ -287,7 +287,7 @@ def reportes_lista(request):
     return render(request, "panel/reportes/lista.html", contexto)
 
 
-@panel_required
+@permiso_requerido("crear_reportes")
 def reportes_form(request, pk=None):
     """Crear/editar reporte vial desde el panel."""
     instance = get_object_or_404(ReporteVial, pk=pk) if pk else None
@@ -316,7 +316,7 @@ def reportes_form(request, pk=None):
     )
 
 
-@panel_required
+@permiso_requerido("eliminar_reportes")
 def reportes_eliminar(request, pk):
     """Confirmar eliminación de reporte."""
     obj = get_object_or_404(ReporteVial, pk=pk)
@@ -333,7 +333,7 @@ def reportes_eliminar(request, pk):
 
 
 # ---------- NECESIDADES ----------
-@panel_required
+@permiso_requerido("ver_necesidades")
 def necesidades_lista(request):
     """Listado de necesidades humanitarias activas."""
     q = request.GET.get("q", "").strip()
@@ -366,7 +366,7 @@ def necesidades_lista(request):
     return render(request, "panel/necesidades/lista.html", contexto)
 
 
-@panel_required
+@permiso_requerido("crear_necesidades")
 def necesidades_form(request, pk=None):
     """Crear/editar necesidad."""
     from .forms_necesidad import NecesidadForm
@@ -393,7 +393,7 @@ def necesidades_form(request, pk=None):
     )
 
 
-@panel_required
+@permiso_requerido("eliminar_necesidades")
 def necesidades_eliminar(request, pk):
     """Confirmar eliminación."""
     obj = get_object_or_404(Necesidad, pk=pk)
@@ -410,7 +410,7 @@ def necesidades_eliminar(request, pk):
 
 
 # ---------- ALERTAS PREDICTIVAS / IA ----------
-@panel_required
+@permiso_requerido("ver_alertas")
 def alertas_lista(request):
     """Listado de alertas predictivas activas."""
     qs = AlertaPredictiva.objects.filter(activa=True).select_related(
@@ -419,7 +419,7 @@ def alertas_lista(request):
     return render(request, "panel/alertas/lista.html", {"alertas": qs})
 
 
-@panel_required
+@permiso_requerido("reconocer_alertas")
 def alertas_reconocer(request, pk):
     """Marca una alerta como reconocida."""
     if request.method != "POST":
@@ -434,7 +434,7 @@ def alertas_reconocer(request, pk):
     return redirect("panel:alertas_lista")
 
 
-@panel_required
+@permiso_requerido("ver_predicciones")
 def predicciones_demanda(request):
     """Listado de predicciones de demanda."""
     qs = PrediccionDemanda.objects.select_related(
@@ -443,10 +443,99 @@ def predicciones_demanda(request):
     return render(request, "panel/predicciones/demanda.html", {"predicciones": qs})
 
 
-@panel_required
+@permiso_requerido("ver_predicciones")
 def predicciones_misiones(request):
     """Listado de predicciones de misión."""
     qs = PrediccionMision.objects.select_related("mision").order_by(
         "-probabilidad_retraso"
     )
     return render(request, "panel/predicciones/misiones.html", {"predicciones": qs})
+
+
+# ===========================================================================
+# GESTIÓN DE USUARIOS — jerarquía de roles
+# ===========================================================================
+from .forms_usuario import UsuarioCrearForm, UsuarioEditarForm
+from .user_hierarchy import (
+    puede_crear_usuario,
+    puede_eliminar_usuario,
+    puede_modificar_usuario,
+)
+
+
+@permiso_requerido("crear_usuarios")
+def usuarios_form(request, pk=None):
+    """Crear o editar usuario. Con reglas de jerarquía."""
+    target = get_object_or_404(Usuario, pk=pk) if pk else None
+    es_edicion = target is not None
+
+    if es_edicion and not puede_modificar_usuario(request.user, target):
+        messages.error(
+            request,
+            "No tiene permiso para editar a este usuario."
+        )
+        return redirect("panel:usuarios_lista")
+
+    if request.method == "POST":
+        FormClass = UsuarioEditarForm if es_edicion else UsuarioCrearForm
+        form = FormClass(request.POST, instance=target, gestor=request.user)
+
+        if form.is_valid():
+            rol_solicitado = form.cleaned_data.get("rol")
+            if not puede_crear_usuario(request.user, rol_solicitado):
+                messages.error(
+                    request,
+                    f"No puede asignar el rol '{rol_solicitado}' "
+                    "(excede su nivel jerárquico)."
+                )
+            else:
+                user = form.save()
+                accion = "actualizado" if es_edicion else "creado"
+                messages.success(
+                    request,
+                    f"Usuario '{user.username}' {accion} correctamente.",
+                )
+                return redirect("panel:usuarios_lista")
+    else:
+        FormClass = UsuarioEditarForm if es_edicion else UsuarioCrearForm
+        form = FormClass(instance=target, gestor=request.user)
+
+    return render(
+        request,
+        "panel/usuarios/form.html",
+        {
+            "form": form,
+            "instance": target,
+            "titulo": (
+                f"Editar usuario: {target.username}"
+                if es_edicion
+                else "Nuevo usuario"
+            ),
+        },
+    )
+
+
+@permiso_requerido("eliminar_usuarios")
+def usuarios_eliminar(request, pk):
+    """Eliminar usuario con jerarquía (y nunca al último admin)."""
+    target = get_object_or_404(Usuario, pk=pk)
+
+    if not puede_eliminar_usuario(request.user, target):
+        messages.error(
+            request,
+            "No tiene permiso para eliminar a este usuario "
+            "(jerarquía, es su propia cuenta o es el último administrador)."
+        )
+        return redirect("panel:usuarios_lista")
+
+    if request.method == "POST":
+        username = target.username
+        target.delete()
+        messages.success(request, f"Usuario '{username}' eliminado.")
+        return redirect("panel:usuarios_lista")
+
+    return render(
+        request,
+        "panel/confirmar_eliminar.html",
+        {"obj": target, "tipo": "usuario"},
+    )

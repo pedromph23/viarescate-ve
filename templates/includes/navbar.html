@@ -32,7 +32,7 @@
                 <a href="/reportar/" class="nav-highlight">Reportar incidente</a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'operaciones:centro' %}">Operaciones</a>
-                    {% if user.is_staff or user.is_superuser or user.rol == 'ADMINISTRADOR' or user.rol == 'COORDINADOR' %}
+                    {% if user.is_staff or user.is_superuser or user.rol == 'ADMINISTRADOR' or user.rol == 'COORDINADOR' or user.rol == 'OPERADOR' or user.rol == 'VOLUNTARIO' %}
                         <a href="{% url 'panel:dashboard' %}" class="nav-highlight">Administración</a>
                     {% endif %}
                     <form method="post" action="{% url 'usuarios:logout' %}" class="nav-logout-form">

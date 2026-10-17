@@ -685,3 +685,17 @@ form.inline { display: inline; }
     border-color: var(--primary);
     background: #161b22;
 }
+
+.link-btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--primary);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    margin-right: 10px;
+}
+.link-btn:hover { text-decoration: underline; }
